@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "designengine": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@designengine/mcp-server@latest"
+      ],
+      "env": {
+        "OPENAI_API_KEY": "",
+        "FIRECRAWL_API_KEY": "",
+        "NEXT_PUBLIC_SUPABASE_URL": "",
+        "SUPABASE_SERVICE_ROLE_KEY": ""
+      }
+    }
+  }
+}

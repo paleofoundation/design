@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "designengine": {
+      "url": "https://designengine.vercel.app/api/mcp/mcp"
+    }
+  }
+}

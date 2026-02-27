@@ -1,14 +1,33 @@
 {
-  "name": "designengine",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@designengine/mcp-server",
+  "version": "1.0.0",
+  "description": "AI-powered design tool MCP server",
+  "private": false,
+  "type": "module",
+  "bin": {
+    "designengine-mcp": "./dist/mcp-stdio.js"
+  },
+  "files": ["dist"],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:mcp": "tsc --project tsconfig.mcp.json",
     "start": "next start",
     "lint": "eslint",
+    "prepublishOnly": "npm run build:mcp",
     "seed": "npx tsx scripts/seed-knowledge-base.ts"
   },
+  "mcpName": "io.github.paleofoundation/designengine",
+  "keywords": [
+    "mcp",
+    "design",
+    "ai",
+    "design-tokens",
+    "typography",
+    "font",
+    "firecrawl"
+  ],
+  "license": "MIT",
   "dependencies": {
     "@mendable/firecrawl-js": "^4.15.0",
     "@modelcontextprotocol/sdk": "^1.27.1",

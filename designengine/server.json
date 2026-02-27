@@ -1,0 +1,19 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "name": "io.github.paleofoundation/designengine",
+  "description": "AI-powered design tool — extract design tokens from URLs, search award-winning design patterns, generate fonts, pair typography, and convert screenshots to production code.",
+  "version": "1.0.0",
+  "packages": [
+    {
+      "registry_type": "npm",
+      "identifier": "@designengine/mcp-server",
+      "version": "1.0.0"
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://designengine.vercel.app/api/mcp/mcp"
+    }
+  ]
+}

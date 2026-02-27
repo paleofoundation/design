@@ -1,42 +1,84 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
+import Stripe from 'stripe';
 
-export async function POST(request: NextRequest) {
-  const body = await request.text();
-  const signature = request.headers.get('stripe-signature');
+export async function POST(req: NextRequest) {
+  const body = await req.text();
+  const signature =
+    req.headers.get('stripe-signature');
 
   if (!signature) {
     return NextResponse.json(
-      { error: 'Missing stripe-signature header' },
+      { error: 'No signature' },
       { status: 400 }
     );
   }
 
+  let event: Stripe.Event;
+
   try {
-    const event = stripe.webhooks.constructEvent(
+    event = stripe.webhooks.constructEvent(
       body,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
+  } catch (err) {
+    const message = err instanceof Error
+      ? err.message
+      : 'Unknown error';
+    console.error(
+      'Webhook verification failed:', message
+    );
+    return NextResponse.json(
+      { error: message },
+      { status: 400 }
+    );
+  }
 
-    switch (event.type) {
-      case 'checkout.session.completed':
-        // TODO: provision API key / upgrade tier
-        break;
-      case 'customer.subscription.updated':
-        // TODO: update subscription tier
-        break;
-      case 'customer.subscription.deleted':
-        // TODO: downgrade to free tier
-        break;
-      default:
-        break;
+  switch (event.type) {
+    case 'customer.subscription.created':
+    case 'customer.subscription.updated': {
+      const sub =
+        event.data.object as Stripe.Subscription;
+      console.log(
+        `Subscription ${event.type}: ${sub.id}`
+      );
+      break;
     }
 
-    return NextResponse.json({ received: true });
-  } catch (err) {
-    const message =
-      err instanceof Error ? err.message : 'Unknown webhook error';
-    return NextResponse.json({ error: message }, { status: 400 });
+    case 'customer.subscription.deleted': {
+      const sub =
+        event.data.object as Stripe.Subscription;
+      console.log(
+        `Subscription cancelled: ${sub.id}`
+      );
+      break;
+    }
+
+    case 'invoice.paid': {
+      const invoice =
+        event.data.object as Stripe.Invoice;
+      console.log(
+        `Invoice paid: ${invoice.id}, ` +
+        `amount: ${invoice.amount_paid}`
+      );
+      break;
+    }
+
+    case 'invoice.payment_failed': {
+      const invoice =
+        event.data.object as Stripe.Invoice;
+      console.log(
+        `Payment failed: ${invoice.id}`
+      );
+      break;
+    }
+
+    default:
+      console.log(
+        `Unhandled event: ${event.type}`
+      );
   }
+
+  return NextResponse.json({ received: true });
 }

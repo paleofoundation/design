@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "declaration": true,
+    "noEmit": false,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "rootDir": "./src"
+  },
+  "include": [
+    "src/mcp-stdio.ts",
+    "src/lib/**/*",
+    "src/types/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "src/app/**/*"
+  ]
+}
