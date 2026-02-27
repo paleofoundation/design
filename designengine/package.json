@@ -1,0 +1,36 @@
+{
+  "name": "designengine",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "seed": "npx tsx scripts/seed-knowledge-base.ts"
+  },
+  "dependencies": {
+    "@mendable/firecrawl-js": "^4.15.0",
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@supabase/supabase-js": "^2.98.0",
+    "dotenv": "^17.3.1",
+    "mcp-handler": "^1.0.7",
+    "next": "16.1.6",
+    "openai": "^6.25.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "stripe": "^20.4.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20.19.35",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "tailwindcss": "^4",
+    "tsx": "^4.21.0",
+    "typescript": "^5"
+  }
+}
