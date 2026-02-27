@@ -1,6 +1,8 @@
 import { createMcpHandler } from 'mcp-handler';
 import { initializeDesignEngine } from '@/lib/mcp/server';
 
+export const maxDuration = 120;
+
 const handler = createMcpHandler(
   initializeDesignEngine,
   {
