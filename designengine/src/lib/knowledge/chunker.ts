@@ -98,26 +98,16 @@ function chunkText(text: string): TextChunk[] {
 }
 
 export async function parsePdf(buffer: Buffer): Promise<string> {
-  const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
+  const { extractText, getDocumentProxy } = await import('unpdf');
   const data = new Uint8Array(buffer);
-  const doc = await pdfjsLib.getDocument({ data, useSystemFonts: true }).promise;
-  const pages: string[] = [];
+  const pdf = await getDocumentProxy(data);
+  const { text } = await extractText(pdf, { mergePages: true });
 
-  for (let i = 1; i <= doc.numPages; i++) {
-    const page = await doc.getPage(i);
-    const content = await page.getTextContent();
-    const text = content.items
-      .filter((item) => 'str' in item && typeof (item as Record<string, unknown>).str === 'string')
-      .map((item) => (item as Record<string, unknown>).str as string)
-      .join(' ');
-    if (text.trim()) pages.push(text);
-  }
-
-  if (pages.length === 0) {
+  if (!text || (typeof text === 'string' && text.trim().length === 0)) {
     throw new Error('No text could be extracted from this PDF. Try uploading as .txt instead.');
   }
 
-  return pages.join('\n');
+  return typeof text === 'string' ? text : (text as string[]).join('\n');
 }
 
 export function parseMarkdown(text: string): string {
