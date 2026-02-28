@@ -160,16 +160,25 @@ export interface IntegrationCode {
   nextjs: string;
   html: string;
   remix: string;
+  conflictWarning: string;
+  filesToDelete: string[];
   description: string;
 }
 
 /**
  * Returns framework-specific code snippets for wiring favicons into a project.
- * Consuming AI agents use these to know exactly what code to add.
+ * Consuming AI agents use these to know exactly what code to add — and what
+ * convention files to remove so the custom favicon actually takes effect.
  */
 export function buildIntegrationCode(): IntegrationCode {
   return {
-    nextjs: `// Add to your root layout.tsx metadata export:
+    nextjs: `// STEP 1: Delete any convention-based favicon files that override metadata.
+// These files MUST be removed or the custom favicon will never appear:
+//   - app/favicon.ico  (or src/app/favicon.ico)
+//   - app/icon.png     (or src/app/icon.png, app/icon.svg, etc.)
+//   - app/apple-icon.png (or src/app/apple-icon.png)
+//
+// STEP 2: Add to your root layout.tsx metadata export:
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -184,13 +193,14 @@ export const metadata: Metadata = {
   },
   manifest: "/assets/favicon/site.webmanifest",
 };`,
-    html: `<!-- Add inside <head> -->
+    html: `<!-- Remove any existing <link rel="icon"> or <link rel="shortcut icon"> tags first -->
+<!-- Then add inside <head>: -->
 <link rel="icon" href="/assets/favicon/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/assets/favicon/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon.png">
 <link rel="manifest" href="/assets/favicon/site.webmanifest">`,
-    remix: `// Add to your root.tsx links export:
+    remix: `// Remove any existing favicon links first, then add to root.tsx:
 export const links: LinksFunction = () => [
   { rel: "icon", href: "/assets/favicon/favicon.svg", type: "image/svg+xml" },
   { rel: "icon", href: "/assets/favicon/favicon-32x32.png", sizes: "32x32", type: "image/png" },
@@ -198,6 +208,17 @@ export const links: LinksFunction = () => [
   { rel: "apple-touch-icon", href: "/assets/favicon/apple-touch-icon.png" },
   { rel: "manifest", href: "/assets/favicon/site.webmanifest" },
 ];`,
-    description: 'Copy the snippet matching your framework into your project to wire up the favicon. All files go into public/assets/favicon/.',
+    conflictWarning: 'CRITICAL for Next.js App Router: Files named favicon.ico, icon.png, icon.svg, or apple-icon.png in the app/ (or src/app/) directory are convention-based and ALWAYS override metadata.icons. You MUST delete these files or the custom favicon will not appear. This is the #1 reason favicons fail to show up in Next.js projects.',
+    filesToDelete: [
+      'app/favicon.ico',
+      'src/app/favicon.ico',
+      'app/icon.png',
+      'src/app/icon.png',
+      'app/icon.svg',
+      'src/app/icon.svg',
+      'app/apple-icon.png',
+      'src/app/apple-icon.png',
+    ],
+    description: 'Copy the snippet matching your framework into your project. All favicon files go into public/assets/favicon/. For Next.js: you MUST delete any existing convention favicon files in app/ first.',
   };
 }

@@ -93,11 +93,12 @@ export function registerGenerateFaviconTool(server: McpServer): void {
                 hasPngs
                   ? '2. PNG files are base64-encoded — decode to binary when writing.'
                   : '2. Run `cd assets/favicon && npm install sharp && node generate-pngs.mjs` to generate PNGs.',
-                '3. IMPORTANT: Wire the favicon into your project layout using the integrationCode snippet for your framework.',
-                '4. For Next.js App Router: add the icons and manifest fields to your metadata export in layout.tsx.',
-                '5. For plain HTML or Vite: paste the HTML head tags inside <head>.',
-                '6. For Remix: add the links to your root.tsx links export.',
-                '7. The SVG favicon works in all modern browsers immediately.',
+                '3. CRITICAL (Next.js only): DELETE any existing favicon convention files in app/ or src/app/ — these override metadata.icons and will prevent the custom favicon from appearing. Check for and remove: favicon.ico, icon.png, icon.svg, apple-icon.png.',
+                '4. Wire the favicon into your project layout using the integrationCode snippet for your framework.',
+                '5. For Next.js App Router: add the icons and manifest fields to your metadata export in layout.tsx.',
+                '6. For plain HTML or Vite: paste the HTML head tags inside <head>.',
+                '7. For Remix: add the links to your root.tsx links export.',
+                '8. The SVG favicon works in all modern browsers immediately.',
               ],
             }, null, 2),
           }],

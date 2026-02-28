@@ -195,16 +195,17 @@ export function registerScaffoldAssetsTool(server: McpServer): void {
               instructions: [
                 '1. Write each file to the specified path relative to your project\'s public/ directory.',
                 '2. Files with encoding "base64" are binary — decode before writing.',
-                '3. IMPORTANT: Wire the favicon into the project layout using the integrationCode snippet for your framework.',
-                '4. For Next.js App Router: add the icons and manifest fields to the metadata export in layout.tsx.',
-                '5. For plain HTML or Vite: paste the HTML head tags inside <head>.',
-                '6. For Remix: add the links to the root.tsx links export.',
-                '7. Import the CSS files listed in cssImports into your global stylesheet.',
-                '8. Include the JS animation files before </body> or import as modules.',
-                '9. assets/assets.json is the manifest — it tells other tools what assets are available.',
+                '3. CRITICAL (Next.js only): DELETE any existing favicon convention files in app/ or src/app/ — these override metadata.icons and will prevent the custom favicon from appearing. Check for and remove: favicon.ico, icon.png, icon.svg, apple-icon.png.',
+                '4. Wire the favicon into the project layout using the integrationCode snippet for your framework.',
+                '5. For Next.js App Router: add the icons and manifest fields to the metadata export in layout.tsx.',
+                '6. For plain HTML or Vite: paste the HTML head tags inside <head>.',
+                '7. For Remix: add the links to the root.tsx links export.',
+                '8. Import the CSS files listed in cssImports into your global stylesheet.',
+                '9. Include the JS animation files before </body> or import as modules.',
+                '10. assets/assets.json is the manifest — it tells other tools what assets are available.',
                 hasPngs
-                  ? '10. PNG favicons are ready to use.'
-                  : '10. Run `cd assets/favicon && npm install sharp && node generate-pngs.mjs` for PNG favicons.',
+                  ? '11. PNG favicons are ready to use.'
+                  : '11. Run `cd assets/favicon && npm install sharp && node generate-pngs.mjs` for PNG favicons.',
               ],
             }, null, 2),
           }],
