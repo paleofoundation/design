@@ -16,7 +16,8 @@ type ToolName =
   | 'generate-theme-variants'
   | 'generate-layout'
   | 'design-diff'
-  | 'generate-responsive-rules';
+  | 'generate-responsive-rules'
+  | 'query-design-knowledge';
 
 const TOOLS: { value: ToolName; label: string }[] = [
   { value: 'ingest-design', label: 'Ingest Design' },
@@ -33,6 +34,7 @@ const TOOLS: { value: ToolName; label: string }[] = [
   { value: 'generate-font', label: 'Generate Font' },
   { value: 'pair-typography', label: 'Pair Typography' },
   { value: 'convert-design-to-code', label: 'Convert Design to Code' },
+  { value: 'query-design-knowledge', label: 'Query Design Knowledge' },
 ];
 
 const TOOL_NAME_MAP: Record<ToolName, string> = {
@@ -50,6 +52,7 @@ const TOOL_NAME_MAP: Record<ToolName, string> = {
   'generate-layout': 'generate-layout',
   'design-diff': 'design-diff',
   'generate-responsive-rules': 'generate-responsive-rules',
+  'query-design-knowledge': 'query-design-knowledge',
 };
 
 interface ProfileOption {
@@ -58,6 +61,25 @@ interface ProfileOption {
   source_url: string;
   updated_at: string;
 }
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  background: 'var(--color-green-dark)',
+  border: '1px solid rgba(255, 255, 255, 0.08)',
+  borderRadius: 'var(--radius-md)',
+  padding: '0.5rem 0.75rem',
+  fontSize: 'var(--text-sm)',
+  color: 'var(--color-text-on-green)',
+  outline: 'none',
+  fontFamily: 'inherit',
+};
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontSize: 'var(--text-sm)',
+  color: 'rgba(255, 255, 255, 0.6)',
+  marginBottom: '0.25rem',
+};
 
 export default function PlaygroundPage() {
   const [tool, setTool] = useState<ToolName>('ingest-design');
@@ -68,7 +90,6 @@ export default function PlaygroundPage() {
   const [profiles, setProfiles] = useState<ProfileOption[]>([]);
   const [selectedProject, setSelectedProject] = useState('');
 
-  // Shared fields
   const [url, setUrl] = useState('');
   const [projectName, setProjectName] = useState('');
   const [query, setQuery] = useState('');
@@ -86,7 +107,6 @@ export default function PlaygroundPage() {
   const [imageBase64, setImageBase64] = useState('');
   const [componentCode, setComponentCode] = useState('');
 
-  // New tool fields
   const [framework, setFramework] = useState('react_tailwind');
   const [componentsFilter, setComponentsFilter] = useState('');
   const [pageType, setPageType] = useState('dashboard');
@@ -102,6 +122,7 @@ export default function PlaygroundPage() {
   const [layoutFramework, setLayoutFramework] = useState('nextjs');
   const [diffSource, setDiffSource] = useState('');
   const [diffTarget, setDiffTarget] = useState('');
+  const [knowledgeQuery, setKnowledgeQuery] = useState('');
   const [responsiveUrl, setResponsiveUrl] = useState('');
 
   useEffect(() => {
@@ -125,7 +146,6 @@ export default function PlaygroundPage() {
 
   function buildParams(): Record<string, unknown> {
     const proj = selectedProject || undefined;
-
     switch (tool) {
       case 'ingest-design':
         return { url, projectName: projectName || 'default' };
@@ -172,6 +192,8 @@ export default function PlaygroundPage() {
         return { source: diffSource, target: diffTarget, projectName: proj };
       case 'generate-responsive-rules':
         return { projectName: proj || projectName || 'default', url: responsiveUrl || undefined };
+      case 'query-design-knowledge':
+        return { query: knowledgeQuery, projectName: proj };
     }
   }
 
@@ -180,23 +202,19 @@ export default function PlaygroundPage() {
     setLoading(true);
     setResult(null);
     setError(null);
-
     try {
       const res = await fetch('/api/mcp/mcp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream' },
         body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: TOOL_NAME_MAP[tool], arguments: buildParams() } }),
       });
-
       const contentType = res.headers.get('content-type') ?? '';
-
       if (contentType.includes('text/event-stream')) {
         const reader = res.body?.getReader();
         if (!reader) throw new Error('No response body');
         const decoder = new TextDecoder();
         let buffer = '';
         let lastData = '';
-
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
@@ -208,7 +226,6 @@ export default function PlaygroundPage() {
           }
         }
         if (buffer.startsWith('data: ')) lastData = buffer.slice(6);
-
         if (lastData) {
           try { setResult(JSON.stringify(JSON.parse(lastData), null, 2)); }
           catch { setResult(lastData); }
@@ -220,7 +237,6 @@ export default function PlaygroundPage() {
         try { setResult(JSON.stringify(JSON.parse(text), null, 2)); }
         catch { setResult(text || '(Empty response)'); }
       }
-
       if (tool === 'ingest-design') {
         fetch('/api/dashboard/profiles').then((r) => r.json()).then((d) => { if (d.profiles) setProfiles(d.profiles); }).catch(() => {});
       }
@@ -234,16 +250,34 @@ export default function PlaygroundPage() {
   const showProjectDropdown = tool !== 'ingest-design';
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <div>
-        <h2 className="text-2xl font-bold">Playground</h2>
-        <p className="mt-1 text-sm text-gray-400">Test DesignEngine tools directly from your browser.</p>
+        <h2 style={{
+          fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+          fontSize: 'var(--text-2xl)',
+          fontWeight: 400,
+          color: 'var(--color-text-on-green)',
+          letterSpacing: '-0.02em',
+        }}>
+          Playground
+        </h2>
+        <p style={{ marginTop: '0.25rem', fontSize: 'var(--text-sm)', color: 'rgba(255, 255, 255, 0.5)' }}>
+          Test DesignEngine tools directly from your browser.
+        </p>
       </div>
 
       {profiles.length > 0 && showProjectDropdown && (
-        <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4 flex items-center gap-4">
-          <div className="text-sm text-indigo-300 whitespace-nowrap font-medium">Design Profile:</div>
-          <select value={selectedProject} onChange={(e) => setSelectedProject(e.target.value)} className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-600">
+        <div style={{
+          background: 'rgba(255, 103, 25, 0.08)',
+          border: '1px solid rgba(255, 103, 25, 0.15)',
+          borderRadius: 'var(--radius-md)',
+          padding: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem',
+        }}>
+          <div style={{ fontSize: 'var(--text-sm)', color: 'var(--color-orange)', whiteSpace: 'nowrap', fontWeight: 500 }}>Design Profile:</div>
+          <select value={selectedProject} onChange={(e) => setSelectedProject(e.target.value)} style={{ ...inputStyle, flex: 1 }}>
             <option value="">None (no profile constraint)</option>
             {profiles.map((p) => (
               <option key={p.id} value={p.project_name}>{p.project_name} — {p.source_url || 'no url'}</option>
@@ -252,17 +286,24 @@ export default function PlaygroundPage() {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4">
+      <div style={{ display: 'grid', gap: '1.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 24rem), 1fr))' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{
+            background: 'var(--color-green-dark)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: 'var(--radius-md)',
+            padding: '1.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem',
+          }}>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Tool</label>
-              <select value={tool} onChange={(e) => setTool(e.target.value as ToolName)} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-600">
+              <label style={labelStyle}>Tool</label>
+              <select value={tool} onChange={(e) => setTool(e.target.value as ToolName)} style={inputStyle}>
                 {TOOLS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
               </select>
             </div>
 
-            {/* Ingest Design */}
             {tool === 'ingest-design' && (
               <>
                 <Field label="URL" value={url} onChange={setUrl} placeholder="https://example.com" />
@@ -270,19 +311,16 @@ export default function PlaygroundPage() {
               </>
             )}
 
-            {/* Get Design Profile */}
             {tool === 'get-design-profile' && (
-              <div className="text-sm text-gray-400 py-2">
+              <div style={{ fontSize: 'var(--text-sm)', color: 'rgba(255, 255, 255, 0.5)', padding: '0.5rem 0' }}>
                 {selectedProject ? `Will load profile for "${selectedProject}".` : 'Will load the most recent design profile. Select one above to target a specific project.'}
               </div>
             )}
 
-            {/* Check Design Consistency */}
             {tool === 'check-design-consistency' && (
               <TextareaField label="Component Code" value={componentCode} onChange={setComponentCode} placeholder="Paste your JSX/TSX, HTML, or CSS here..." rows={10} mono />
             )}
 
-            {/* Generate Component Library */}
             {tool === 'generate-component-library' && (
               <>
                 <SelectField label="Framework" value={framework} onChange={setFramework} options={['react_tailwind', 'react_css', 'html_css', 'vue_tailwind']} />
@@ -290,7 +328,6 @@ export default function PlaygroundPage() {
               </>
             )}
 
-            {/* Generate Page */}
             {tool === 'generate-page' && (
               <>
                 <SelectField label="Page Type" value={pageType} onChange={setPageType} options={['landing', 'pricing', 'about', 'contact', 'dashboard', 'settings', 'profile', 'analytics', 'table_view', 'form', 'auth_login', 'auth_signup', 'blog_list', 'blog_post', 'docs', '404', 'empty_state']} />
@@ -300,7 +337,6 @@ export default function PlaygroundPage() {
               </>
             )}
 
-            {/* Generate Layout */}
             {tool === 'generate-layout' && (
               <>
                 <SelectField label="Layout Type" value={layoutType} onChange={setLayoutType} options={['dashboard_sidebar', 'dashboard_topnav', 'marketing', 'docs_sidebar', 'blog', 'minimal', 'split_panel']} />
@@ -309,17 +345,14 @@ export default function PlaygroundPage() {
               </>
             )}
 
-            {/* Generate Theme Variants */}
             {tool === 'generate-theme-variants' && (
               <MultiCheckField label="Variants" options={['dark', 'light', 'high_contrast', 'muted', 'vibrant']} selected={themeVariants} onChange={setThemeVariants} />
             )}
 
-            {/* Generate Responsive Rules */}
             {tool === 'generate-responsive-rules' && (
               <Field label="URL to analyze (optional)" value={responsiveUrl} onChange={setResponsiveUrl} placeholder="https://example.com — leave blank to generate from profile" />
             )}
 
-            {/* Suggest Improvements */}
             {tool === 'suggest-improvements' && (
               <>
                 <Field label="URL (optional)" value={improvementsUrl} onChange={setImprovementsUrl} placeholder="https://example.com" />
@@ -328,7 +361,6 @@ export default function PlaygroundPage() {
               </>
             )}
 
-            {/* Design Diff */}
             {tool === 'design-diff' && (
               <>
                 <TextareaField label="Source (expected — URL or code)" value={diffSource} onChange={setDiffSource} placeholder="https://example.com or paste component code..." rows={5} mono />
@@ -336,7 +368,6 @@ export default function PlaygroundPage() {
               </>
             )}
 
-            {/* Search Design Patterns */}
             {tool === 'search-design-patterns' && (
               <>
                 <Field label="Query" value={query} onChange={setQuery} placeholder="dark mode dashboard with gradients" />
@@ -345,11 +376,10 @@ export default function PlaygroundPage() {
               </>
             )}
 
-            {/* Generate Font */}
             {tool === 'generate-font' && (
               <>
                 <TextareaField label="Description" value={description} onChange={setDescription} placeholder="A clean, modern sans-serif for a tech startup..." rows={3} />
-                <div className="grid grid-cols-3 gap-3">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
                   <SelectField label="Style" value={fontStyle} onChange={setFontStyle} options={['', 'serif', 'sans-serif', 'monospace', 'display', 'handwriting']} />
                   <SelectField label="Weight" value={weight} onChange={setWeight} options={['', 'light', 'regular', 'medium', 'bold', 'black']} />
                   <SelectField label="Use Case" value={useCase} onChange={setUseCase} options={['', 'heading', 'body', 'ui', 'code', 'branding']} />
@@ -357,7 +387,6 @@ export default function PlaygroundPage() {
               </>
             )}
 
-            {/* Pair Typography */}
             {tool === 'pair-typography' && (
               <>
                 <Field label="Heading Font (optional)" value={headingFont} onChange={setHeadingFont} placeholder="e.g. Inter, Playfair Display" />
@@ -366,33 +395,87 @@ export default function PlaygroundPage() {
               </>
             )}
 
-            {/* Convert Design to Code */}
+            {tool === 'query-design-knowledge' && (
+              <Field label="Design Question" value={knowledgeQuery} onChange={setKnowledgeQuery} placeholder="e.g. what makes good color contrast for accessibility?" />
+            )}
+
             {tool === 'convert-design-to-code' && (
               <>
                 <Field label="Image URL" value={imageUrl} onChange={(v) => { setImageUrl(v); setImageBase64(''); }} placeholder="https://example.com/screenshot.png" />
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">Or upload an image</label>
-                  <input type="file" accept="image/*" onChange={handleFileUpload} className="w-full text-sm text-gray-400 file:mr-3 file:rounded-lg file:border-0 file:bg-gray-800 file:px-3 file:py-2 file:text-sm file:text-white file:cursor-pointer hover:file:bg-gray-700" />
-                  {imageBase64 && <p className="mt-1 text-xs text-emerald-400">Image loaded (base64)</p>}
+                  <label style={labelStyle}>Or upload an image</label>
+                  <input type="file" accept="image/*" onChange={handleFileUpload} style={{ width: '100%', fontSize: 'var(--text-sm)', color: 'rgba(255, 255, 255, 0.6)' }} />
+                  {imageBase64 && <p style={{ marginTop: '0.25rem', fontSize: 'var(--text-xs)', color: 'var(--color-success)' }}>Image loaded (base64)</p>}
                 </div>
                 <SelectField label="Output Format" value={outputFormat} onChange={setOutputFormat} options={['html_css', 'html_tailwind', 'react_tailwind']} />
               </>
             )}
           </div>
 
-          <button type="submit" disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded-lg px-4 py-3 text-sm font-medium transition flex items-center justify-center gap-2">
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%',
+              background: 'var(--color-orange)',
+              color: 'var(--color-text-on-dark)',
+              borderRadius: 'var(--radius-md)',
+              padding: '0.75rem 1rem',
+              fontSize: 'var(--text-sm)',
+              fontWeight: 500,
+              border: 'none',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.6 : 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              fontFamily: 'inherit',
+            }}
+          >
             {loading && <Spinner />}
             {loading ? 'Running...' : 'Run Tool'}
           </button>
         </form>
 
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 flex flex-col">
-          <h3 className="text-sm font-medium text-gray-400 mb-3">Response</h3>
+        <div style={{
+          background: 'var(--color-green-dark)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: 'var(--radius-md)',
+          padding: '1.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
+          <h3 style={{ fontSize: 'var(--text-sm)', fontWeight: 500, color: 'rgba(255, 255, 255, 0.6)', marginBottom: '0.75rem' }}>Response</h3>
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-3 text-sm text-red-400">{error}</div>
+            <div style={{
+              background: 'color-mix(in srgb, var(--color-error) 8%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--color-error) 15%, transparent)',
+              borderRadius: 'var(--radius-md)',
+              padding: '1rem',
+              marginBottom: '0.75rem',
+              fontSize: 'var(--text-sm)',
+              color: 'var(--color-error)',
+            }}>
+              {error}
+            </div>
           )}
-          <pre className="flex-1 overflow-auto rounded-lg bg-gray-950 border border-gray-800 p-4 text-xs leading-relaxed min-h-[300px] max-h-[600px]">
-            {result ? <ColoredJson json={result} /> : <span className="text-gray-600">Run a tool to see the response here.</span>}
+          <pre style={{
+            flex: 1,
+            overflow: 'auto',
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--color-green-darker)',
+            border: '1px solid rgba(255, 255, 255, 0.06)',
+            padding: '1rem',
+            fontSize: 'var(--text-xs)',
+            lineHeight: 1.7,
+            minHeight: '300px',
+            maxHeight: '600px',
+            margin: 0,
+            fontFamily: 'var(--font-jetbrains, JetBrains Mono, monospace)',
+            color: 'rgba(255, 255, 255, 0.5)',
+          }}>
+            {result ? <ColoredJson json={result} /> : <span style={{ color: 'rgba(255, 255, 255, 0.25)' }}>Run a tool to see the response here.</span>}
           </pre>
         </div>
       </div>
@@ -405,8 +488,8 @@ function Field({ label, value, onChange, placeholder }: {
 }) {
   return (
     <div>
-      <label className="block text-sm text-gray-400 mb-1">{label}</label>
-      <input type="text" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-600" />
+      <label style={labelStyle}>{label}</label>
+      <input type="text" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} style={inputStyle} />
     </div>
   );
 }
@@ -416,8 +499,12 @@ function TextareaField({ label, value, onChange, placeholder, rows = 4, mono }: 
 }) {
   return (
     <div>
-      <label className="block text-sm text-gray-400 mb-1">{label}</label>
-      <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} rows={rows} className={`w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-600 resize-none ${mono ? 'font-mono' : ''}`} />
+      <label style={labelStyle}>{label}</label>
+      <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} rows={rows} style={{
+        ...inputStyle,
+        resize: 'none' as const,
+        fontFamily: mono ? 'var(--font-jetbrains, JetBrains Mono, monospace)' : 'inherit',
+      }} />
     </div>
   );
 }
@@ -427,8 +514,8 @@ function SelectField({ label, value, onChange, options }: {
 }) {
   return (
     <div>
-      <label className="block text-sm text-gray-400 mb-1">{label}</label>
-      <select value={value} onChange={(e) => onChange(e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-600">
+      <label style={labelStyle}>{label}</label>
+      <select value={value} onChange={(e) => onChange(e.target.value)} style={inputStyle}>
         {options.map((o) => <option key={o} value={o}>{o || '— any —'}</option>)}
       </select>
     </div>
@@ -439,8 +526,8 @@ function CheckboxField({ label, checked, onChange }: {
   label: string; checked: boolean; onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="rounded border-gray-600 bg-gray-800 text-indigo-600 focus:ring-indigo-600" />
+    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--text-sm)', color: 'rgba(255, 255, 255, 0.85)', cursor: 'pointer' }}>
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
       {label}
     </label>
   );
@@ -454,10 +541,26 @@ function MultiCheckField({ label, options, selected, onChange }: {
   }
   return (
     <div>
-      <label className="block text-sm text-gray-400 mb-2">{label}</label>
-      <div className="flex flex-wrap gap-2">
+      <label style={{ ...labelStyle, marginBottom: '0.5rem' }}>{label}</label>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
         {options.map((opt) => (
-          <button key={opt} type="button" onClick={() => toggle(opt)} className={`px-3 py-1 rounded-full text-xs font-medium border transition ${selected.includes(opt) ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600'}`}>
+          <button
+            key={opt}
+            type="button"
+            onClick={() => toggle(opt)}
+            style={{
+              padding: '0.25rem 0.75rem',
+              borderRadius: '9999px',
+              fontSize: 'var(--text-xs)',
+              fontWeight: 500,
+              border: '1px solid',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              background: selected.includes(opt) ? 'var(--color-orange)' : 'var(--color-green-dark)',
+              borderColor: selected.includes(opt) ? 'var(--color-orange)' : 'rgba(255, 255, 255, 0.08)',
+              color: selected.includes(opt) ? 'var(--color-text-on-dark)' : 'rgba(255, 255, 255, 0.6)',
+            }}
+          >
             {opt.replace(/_/g, ' ')}
           </button>
         ))}
@@ -468,19 +571,18 @@ function MultiCheckField({ label, options, selected, onChange }: {
 
 function Spinner() {
   return (
-    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+    <svg style={{ animation: 'spin 1s linear infinite', height: '1rem', width: '1rem' }} viewBox="0 0 24 24" fill="none">
+      <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
     </svg>
   );
 }
 
 function ColoredJson({ json }: { json: string }) {
   const colored = json
-    .replace(/("(?:[^"\\]|\\.)*")(\s*:)/g, '<span style="color:#818cf8">$1</span>$2')
-    .replace(/:\s*("(?:[^"\\]|\\.)*")/g, ': <span style="color:#34d399">$1</span>')
-    .replace(/:\s*(\d+\.?\d*)/g, ': <span style="color:#fbbf24">$1</span>')
-    .replace(/:\s*(true|false|null)/g, ': <span style="color:#f87171">$1</span>');
-
+    .replace(/("(?:[^"\\]|\\.)*")(\s*:)/g, '<span style="color:var(--color-lavender)">$1</span>$2')
+    .replace(/:\s*("(?:[^"\\]|\\.)*")/g, ': <span style="color:var(--color-text-on-dark)">$1</span>')
+    .replace(/:\s*(\d+\.?\d*)/g, ': <span style="color:var(--color-amber)">$1</span>')
+    .replace(/:\s*(true|false|null)/g, ': <span style="color:var(--color-orange)">$1</span>');
   return <code dangerouslySetInnerHTML={{ __html: colored }} />;
 }

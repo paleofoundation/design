@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { openai } from '@/lib/openai/client';
-import { loadDesignProfile, profileToContextPrompt } from './shared/load-profile';
+import { buildFullContextPrompt, loadDesignProfile, profileToContextPrompt } from './shared/load-profile';
 import type { ChatCompletionContentPart } from 'openai/resources/chat/completions';
 
 export interface ConvertDesignInput {
@@ -33,7 +33,7 @@ export async function convertDesignToCode(input: ConvertDesignInput) {
   if (!imageUrl && !base64Image) throw new Error('Either imageUrl or base64Image must be provided');
 
   const profile = await loadDesignProfile(projectName);
-  const profileContext = profile ? profileToContextPrompt(profile) : '';
+  const profileContext = profile ? await buildFullContextPrompt(profile, 'converting design screenshot to code') : '';
 
   const imageContent: ChatCompletionContentPart = {
     type: 'image_url',

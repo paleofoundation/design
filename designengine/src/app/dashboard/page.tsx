@@ -38,66 +38,110 @@ export default async function DashboardOverview() {
   };
 
   return (
-    <div className="space-y-8">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
       <div>
-        <h2 className="text-2xl font-bold">Welcome back</h2>
-        <p className="mt-1 text-sm text-gray-400">{user?.email}</p>
+        <h2 style={{
+          fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+          fontSize: 'var(--text-2xl)',
+          fontWeight: 400,
+          color: 'var(--color-text-on-green)',
+          letterSpacing: '-0.02em',
+        }}>
+          Welcome back
+        </h2>
+        <p style={{ marginTop: '0.25rem', fontSize: 'var(--text-sm)', color: 'rgba(255, 255, 255, 0.5)' }}>
+          {user?.email}
+        </p>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-3">
-        <StatCard
-          label="Total API Calls"
-          value={usage.totalCalls.toLocaleString()}
-          sub="This month"
-        />
-        <StatCard
-          label="Active API Keys"
-          value={String(activeKeyCount)}
-          sub="Currently active"
-        />
-        <StatCard
-          label="Current Spend"
-          value={`$${(usage.totalCostCents / 100).toFixed(2)}`}
-          sub="This billing period"
-        />
+      <div style={{ display: 'grid', gap: '1.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 14rem), 1fr))' }}>
+        <StatCard label="Total API Calls" value={usage.totalCalls.toLocaleString()} sub="This month" />
+        <StatCard label="Active API Keys" value={String(activeKeyCount)} sub="Currently active" />
+        <StatCard label="Current Spend" value={`$${(usage.totalCostCents / 100).toFixed(2)}`} sub="This billing period" />
       </div>
 
-      <div className="flex gap-3">
+      <div style={{ display: 'flex', gap: '0.75rem' }}>
         <Link
           href="/dashboard/keys"
-          className="bg-indigo-600 hover:bg-indigo-500 rounded-lg px-4 py-2 text-sm font-medium transition"
+          style={{
+            background: 'var(--color-orange)',
+            color: 'var(--color-text-on-dark)',
+            borderRadius: 'var(--radius-md)',
+            padding: '0.5rem 1rem',
+            fontSize: 'var(--text-sm)',
+            fontWeight: 500,
+            textDecoration: 'none',
+          }}
         >
           Create API Key
         </Link>
         <Link
           href="/dashboard/playground"
-          className="bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg px-4 py-2 text-sm font-medium transition"
+          style={{
+            background: 'var(--color-green-dark)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            color: 'var(--color-text-on-green)',
+            borderRadius: 'var(--radius-md)',
+            padding: '0.5rem 1rem',
+            fontSize: 'var(--text-sm)',
+            fontWeight: 500,
+            textDecoration: 'none',
+          }}
         >
           Open Playground
         </Link>
       </div>
 
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-        <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
+      <div style={{
+        background: 'var(--color-green-dark)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        borderRadius: 'var(--radius-md)',
+        padding: '1.5rem',
+      }}>
+        <h3 style={{
+          fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+          fontSize: 'var(--text-lg)',
+          fontWeight: 500,
+          color: 'var(--color-text-on-green)',
+          marginBottom: '1rem',
+        }}>
+          Recent Activity
+        </h3>
         {!recentLogs || recentLogs.length === 0 ? (
-          <p className="text-sm text-gray-500">No activity yet.</p>
+          <p style={{ fontSize: 'var(--text-sm)', color: 'rgba(255, 255, 255, 0.4)' }}>No activity yet.</p>
         ) : (
-          <div className="divide-y divide-gray-800">
-            {recentLogs.map((log) => (
-              <div key={log.id} className="flex items-center justify-between py-3 text-sm">
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      log.status === 'success'
-                        ? 'bg-emerald-500'
-                        : log.status === 'rate_limited'
-                          ? 'bg-amber-500'
-                          : 'bg-red-500'
-                    }`}
-                  />
-                  <span className="font-mono text-gray-300">{log.tool_name}</span>
+          <div>
+            {recentLogs.map((log, i) => (
+              <div
+                key={log.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '0.75rem 0',
+                  fontSize: 'var(--text-sm)',
+                  borderTop: i > 0 ? '1px solid rgba(255, 255, 255, 0.06)' : 'none',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{
+                    width: '0.5rem',
+                    height: '0.5rem',
+                    borderRadius: '9999px',
+                    background: log.status === 'success'
+                      ? 'var(--color-success)'
+                      : log.status === 'rate_limited'
+                        ? 'var(--color-amber)'
+                        : 'var(--color-error)',
+                  }} />
+                  <span style={{
+                    fontFamily: 'var(--font-jetbrains, JetBrains Mono, monospace)',
+                    color: 'rgba(255, 255, 255, 0.85)',
+                  }}>
+                    {log.tool_name}
+                  </span>
                 </div>
-                <div className="flex items-center gap-4 text-gray-500">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'rgba(255, 255, 255, 0.4)' }}>
                   <span>{log.latency_ms}ms</span>
                   <span>{new Date(log.created_at).toLocaleString()}</span>
                 </div>
@@ -110,20 +154,17 @@ export default async function DashboardOverview() {
   );
 }
 
-function StatCard({
-  label,
-  value,
-  sub,
-}: {
-  label: string;
-  value: string;
-  sub: string;
-}) {
+function StatCard({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-      <p className="text-sm text-gray-400">{label}</p>
-      <p className="mt-2 text-3xl font-bold">{value}</p>
-      <p className="mt-1 text-sm text-gray-500">{sub}</p>
+    <div style={{
+      background: 'var(--color-green-dark)',
+      border: '1px solid rgba(255, 255, 255, 0.08)',
+      borderRadius: 'var(--radius-md)',
+      padding: '1.5rem',
+    }}>
+      <p style={{ fontSize: 'var(--text-sm)', color: 'rgba(255, 255, 255, 0.6)' }}>{label}</p>
+      <p style={{ marginTop: '0.5rem', fontSize: 'var(--text-3xl)', fontWeight: 700, color: 'var(--color-text-on-green)' }}>{value}</p>
+      <p style={{ marginTop: '0.25rem', fontSize: 'var(--text-sm)', color: 'rgba(255, 255, 255, 0.4)' }}>{sub}</p>
     </div>
   );
 }

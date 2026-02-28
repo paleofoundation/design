@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { openai } from '@/lib/openai/client';
-import { loadDesignProfile, profileToContextPrompt } from './shared/load-profile';
+import { buildFullContextPrompt, loadDesignProfile, profileToContextPrompt } from './shared/load-profile';
 
 const PAGE_TYPES = [
   'landing', 'pricing', 'about', 'contact', 'dashboard', 'settings',
@@ -35,7 +35,7 @@ export function registerGeneratePageTool(server: McpServer): void {
           };
         }
 
-        const contextPrompt = profileToContextPrompt(profile);
+        const contextPrompt = await buildFullContextPrompt(profile, 'generating a complete page component');
 
         const frameworkInstructions: Record<string, string> = {
           react_tailwind: 'a React functional component with TypeScript and Tailwind CSS. Export as default.',

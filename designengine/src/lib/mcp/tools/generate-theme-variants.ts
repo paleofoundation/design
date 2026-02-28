@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { openai } from '@/lib/openai/client';
-import { loadDesignProfile, profileToContextPrompt } from './shared/load-profile';
+import { loadDesignProfile, buildFullContextPrompt } from './shared/load-profile';
 
 const VARIANT_TYPES = ['dark', 'light', 'high_contrast', 'muted', 'vibrant'] as const;
 
@@ -28,7 +28,7 @@ export function registerGenerateThemeVariantsTool(server: McpServer): void {
           };
         }
 
-        const contextPrompt = profileToContextPrompt(profile);
+        const contextPrompt = await buildFullContextPrompt(profile, 'generating theme color variants');
 
         const response = await openai.chat.completions.create({
           model: 'gpt-4o',

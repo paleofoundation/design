@@ -130,7 +130,19 @@ Use at least 2 of these for any given hierarchy level. Never rely on only one.
 4. Never animate for decoration. Every animation should confirm an action or guide attention.
 5. Reduced-motion preference must be respected: @media (prefers-reduced-motion: reduce)
 
+--- PALETTE ENFORCEMENT ---
+1. NEVER use hardcoded hex colors (#xxx, #xxxxxx) in component code. Always use CSS custom properties: var(--color-*).
+2. Every project defines a palette of 5-7 core brand colors. ALL UI must derive from these — no exceptions.
+3. Semantic state colors (error, success, warning) MUST also come from CSS variables (var(--color-error), var(--color-success), var(--color-warning)), not hardcoded hex.
+4. If a color is not in the design profile's token set, it does not belong in the code. Period.
+5. "Close enough" colors violate the system: #4A8E7A is NOT the same as #306E5E. Use the EXACT token value via its CSS variable.
+6. Generic Tailwind utility colors (gray-*, slate-*, zinc-*, indigo-*, blue-*) are off-limits unless they exactly match a profile token.
+7. For transparency variants, use color-mix(in srgb, var(--color-*) N%, transparent) instead of hardcoded rgba() with raw RGB values.
+8. Button text on colored backgrounds: use var(--color-text-on-dark) or var(--color-text-on-green), not #fff or white.
+9. Before finishing ANY generated code, mentally scan for hex values — if any remain, the code is not complete.
+
 --- ANTI-PATTERNS TO AVOID ---
+- Hardcoded hex values anywhere in component code (the #1 source of design drift)
 - bg-gray-950 + indigo-600 (the "AI developer tool" look)
 - Using Inter or Geist for everything (it screams "generated")
 - rounded-xl on all elements (12-16px is too aggressive for most designs)
@@ -140,6 +152,7 @@ Use at least 2 of these for any given hierarchy level. Never rely on only one.
 - Same font weight for headings and body (destroys hierarchy)
 - Default 1rem/16px for everything with no type scale
 - Spacing that doesn't follow a grid (random paddings and margins)
+- Using rgba(R, G, B, A) with raw channel values instead of referencing CSS variables
 === END DESIGN THEORY ===
 `.trim();
 

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { generateEmbedding } from '@/lib/openai/embeddings';
 import { openai } from '@/lib/openai/client';
-import { loadDesignProfile, profileToContextPrompt } from './shared/load-profile';
+import { buildFullContextPrompt, loadDesignProfile, profileToContextPrompt } from './shared/load-profile';
 
 export interface SearchPatternsInput {
   query: string;
@@ -117,7 +117,7 @@ export function registerSearchPatternsTool(server: McpServer): void {
         }
 
         const profile = await loadDesignProfile(projectName);
-        const profileContext = profile ? profileToContextPrompt(profile) : '';
+        const profileContext = profile ? await buildFullContextPrompt(profile, 'searching design patterns') : '';
 
         const topPattern = result.patterns[0];
         const codeArtifacts = await generateComponentFromPattern(topPattern, query, profileContext);

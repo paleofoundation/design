@@ -2,7 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { openai } from '@/lib/openai/client';
 import { ingestDesignFromUrl } from '@/lib/firecrawl/ingest';
-import { loadDesignProfile, profileToContextPrompt } from './shared/load-profile';
+import { loadDesignProfile, buildFullContextPrompt } from './shared/load-profile';
 
 function isUrl(s: string): boolean {
   try { new URL(s); return true; } catch { return false; }
@@ -34,7 +34,7 @@ export function registerDesignDiffTool(server: McpServer): void {
         ]);
 
         const profile = await loadDesignProfile(projectName);
-        const profileContext = profile ? profileToContextPrompt(profile) : '';
+        const profileContext = profile ? await buildFullContextPrompt(profile, 'comparing design implementations for drift') : '';
 
         const response = await openai.chat.completions.create({
           model: 'gpt-4o',

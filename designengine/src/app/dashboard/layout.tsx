@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { href: '/dashboard/keys', label: 'API Keys' },
   { href: '/dashboard/usage', label: 'Usage' },
   { href: '/dashboard/playground', label: 'Playground' },
+  { href: '/dashboard/knowledge', label: 'Knowledge' },
   { href: '/dashboard/billing', label: 'Billing' },
 ];
 
@@ -29,11 +30,11 @@ export default async function DashboardLayout({
   return (
     <div data-theme="dark" style={{
       minHeight: '100vh',
-      background: 'var(--color-green-darkest)',
+      background: 'var(--color-green-deep)',
       color: 'var(--color-text-on-green)',
     }}>
       <nav style={{
-        borderBottom: '1px solid rgba(245, 240, 232, 0.08)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         padding: '0 var(--space-4)',
       }}>
         <div style={{
@@ -44,7 +45,7 @@ export default async function DashboardLayout({
           justifyContent: 'space-between',
           height: '3.5rem',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)' }}>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)', textDecoration: 'none' }}>
             <div style={{
               width: '2rem',
               height: '2rem',
@@ -56,7 +57,7 @@ export default async function DashboardLayout({
               fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
               fontWeight: 700,
               fontSize: 'var(--text-xs)',
-              color: '#fff',
+              color: 'var(--color-text-on-dark)',
             }}>
               dz
             </div>
@@ -68,7 +69,7 @@ export default async function DashboardLayout({
             }}>
               dzyne
             </span>
-          </div>
+          </Link>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
             {NAV_LINKS.map((link) => (
@@ -77,7 +78,7 @@ export default async function DashboardLayout({
                 href={link.href}
                 style={{
                   fontSize: 'var(--text-sm)',
-                  color: 'rgba(245, 240, 232, 0.6)',
+                  color: 'rgba(255, 255, 255, 0.6)',
                   textDecoration: 'none',
                   transition: 'color var(--duration-fast) var(--ease-out)',
                 }}
@@ -89,7 +90,7 @@ export default async function DashboardLayout({
 
           <span style={{
             fontSize: 'var(--text-sm)',
-            color: 'rgba(245, 240, 232, 0.5)',
+            color: 'rgba(255, 255, 255, 0.5)',
           }}>
             {user.email}
           </span>

@@ -6,11 +6,11 @@
    ============================================ */
 
 :root {
-  /* --- Palette: Primary --- */
+  /* --- Palette: Primary (Substack-style: the chosen green IS the background) --- */
   --color-green-deep: #306E5E;
-  --color-green-dark: #245545;
-  --color-green-darker: #1A3D32;
-  --color-green-darkest: #0F2620;
+  --color-green-dark: #275A4C;
+  --color-green-darker: #1E4A3E;
+  --color-green-darkest: #163A30;
   --color-green-light: #4A8E7A;
   --color-green-muted: rgba(48, 110, 94, 0.12);
 
@@ -36,8 +36,8 @@
   --color-text-primary: #1A1A1A;
   --color-text-body: #4A4A4A;
   --color-text-muted: #7A7A7A;
-  --color-text-on-dark: #F5F0E8;
-  --color-text-on-green: #FDFBF7;
+  --color-text-on-dark: #FFFFFF;
+  --color-text-on-green: #FFFFFF;
 
   /* --- Palette: Borders --- */
   --color-border: rgba(48, 110, 94, 0.15);
@@ -121,34 +121,71 @@
   --foreground: var(--color-text-primary);
 }
 
-/* Dark theme (dashboard) */
+/* Dark theme (dashboard) — background IS the chosen green */
 [data-theme="dark"] {
-  --color-surface: var(--color-green-darkest);
-  --color-surface-warm: var(--color-green-darker);
-  --color-surface-hover: var(--color-green-dark);
-  --color-white: var(--color-green-darker);
+  --color-surface: var(--color-green-deep);
+  --color-surface-warm: var(--color-green-dark);
+  --color-surface-hover: var(--color-green-light);
+  --color-white: var(--color-green-dark);
 
-  --color-text-primary: #F5F0E8;
-  --color-text-body: #C4BFB5;
-  --color-text-muted: #8A8580;
+  --color-text-primary: #FFFFFF;
+  --color-text-body: rgba(255, 255, 255, 0.85);
+  --color-text-muted: rgba(255, 255, 255, 0.55);
 
-  --color-border: rgba(245, 240, 232, 0.12);
-  --color-border-strong: rgba(245, 240, 232, 0.24);
-  --color-border-subtle: rgba(245, 240, 232, 0.06);
+  --color-border: rgba(255, 255, 255, 0.15);
+  --color-border-strong: rgba(255, 255, 255, 0.25);
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
 
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.35);
-  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.4);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.15);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.35);
 
-  --background: var(--color-green-darkest);
-  --foreground: #F5F0E8;
+  --background: var(--color-green-deep);
+  --foreground: #FFFFFF;
 }
 
 @theme inline {
+  /* Strip ALL default Tailwind colors — only dzyne palette exists */
+  --color-*: initial;
+
+  /* --- dzyne palette: the only colors available --- */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --color-green-deep: #306E5E;
+  --color-green-dark: #275A4C;
+  --color-green-darker: #1E4A3E;
+  --color-green-darkest: #163A30;
+  --color-green-light: #4A8E7A;
+
+  --color-orange: #FF6719;
+  --color-orange-hover: #E85A12;
+  --color-orange-light: #FF8547;
+
+  --color-amber: #F2B245;
+  --color-amber-light: #F5C76A;
+
+  --color-lavender: #CAC5F9;
+  --color-lavender-light: #DDD9FC;
+
+  --color-surface: #FDFBF7;
+  --color-surface-warm: #F5F0E8;
+  --color-surface-hover: #EDE7DC;
+  --color-white: #FFFFFF;
+
+  --color-text-primary: #1A1A1A;
+  --color-text-body: #4A4A4A;
+  --color-text-muted: #7A7A7A;
+  --color-text-on-dark: #FFFFFF;
+  --color-text-on-green: #FFFFFF;
+
+  --color-error: #DC3545;
+  --color-success: #28A745;
+  --color-warning: #F2B245;
+
+  /* --- Fonts --- */
   --font-sans: var(--font-source-sans);
   --font-serif: var(--font-fraunces);
   --font-mono: var(--font-jetbrains);

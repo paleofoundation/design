@@ -13,6 +13,7 @@ import { registerGenerateThemeVariantsTool } from './tools/generate-theme-varian
 import { registerGenerateLayoutTool } from './tools/generate-layout';
 import { registerDesignDiffTool } from './tools/design-diff';
 import { registerGenerateResponsiveRulesTool } from './tools/generate-responsive-rules';
+import { registerQueryDesignKnowledgeTool } from './tools/query-design-knowledge';
 
 export function initializeDesignEngine(server: McpServer): void {
   registerIngestDesignTool(server);
@@ -29,4 +30,5 @@ export function initializeDesignEngine(server: McpServer): void {
   registerGenerateLayoutTool(server);
   registerDesignDiffTool(server);
   registerGenerateResponsiveRulesTool(server);
+  registerQueryDesignKnowledgeTool(server);
 }

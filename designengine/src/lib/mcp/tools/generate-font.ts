@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { openai } from '@/lib/openai/client';
-import { loadDesignProfile, profileToContextPrompt } from './shared/load-profile';
+import { buildFullContextPrompt, loadDesignProfile, profileToContextPrompt } from './shared/load-profile';
 
 export interface GenerateFontInput {
   description: string;
@@ -15,7 +15,7 @@ export async function generateFont(input: GenerateFontInput) {
   const { description, style, weight, useCase, projectName } = input;
 
   const profile = await loadDesignProfile(projectName);
-  const profileContext = profile ? profileToContextPrompt(profile) : '';
+  const profileContext = profile ? await buildFullContextPrompt(profile, 'generating font recommendation') : '';
 
   const prompt = `You are an expert typographer. Recommend a Google Font matching this description:
 

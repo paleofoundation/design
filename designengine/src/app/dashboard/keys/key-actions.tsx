@@ -15,15 +15,10 @@ export function KeyActions({ userId }: { userId: string }) {
       const res = await fetch('/api/keys', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId,
-          name: keyName || 'Default',
-        }),
+        body: JSON.stringify({ userId, name: keyName || 'Default' }),
       });
       const data = await res.json();
-      if (data.key) {
-        setNewKey(data.key);
-      }
+      if (data.key) setNewKey(data.key);
     } finally {
       setLoading(false);
     }
@@ -49,39 +44,95 @@ export function KeyActions({ userId }: { userId: string }) {
     <>
       <button
         onClick={() => setShowModal(true)}
-        className="bg-indigo-600 hover:bg-indigo-500 rounded-lg px-4 py-2 text-sm font-medium transition"
+        style={{
+          background: 'var(--color-orange)',
+          color: 'var(--color-text-on-dark)',
+          borderRadius: 'var(--radius-md)',
+          padding: '0.5rem 1rem',
+          fontSize: 'var(--text-sm)',
+          fontWeight: 500,
+          border: 'none',
+          cursor: 'pointer',
+          fontFamily: 'inherit',
+        }}
       >
         Create New Key
       </button>
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 w-full max-w-md shadow-2xl">
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 50,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(4px)',
+        }}>
+          <div style={{
+            background: 'var(--color-green-dark)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: 'var(--radius-md)',
+            padding: '1.5rem',
+            width: '100%',
+            maxWidth: '28rem',
+            boxShadow: '0 16px 48px rgba(0,0,0,0.4)',
+          }}>
             {!newKey ? (
               <>
-                <h3 className="text-lg font-semibold mb-4">Create API Key</h3>
-                <label className="block text-sm text-gray-400 mb-1">Key Name</label>
+                <h3 style={{
+                  fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+                  fontSize: 'var(--text-lg)',
+                  fontWeight: 500,
+                  color: 'var(--color-text-on-green)',
+                  marginBottom: '1rem',
+                }}>
+                  Create API Key
+                </h3>
+                <label style={{ display: 'block', fontSize: 'var(--text-sm)', color: 'rgba(255, 255, 255, 0.6)', marginBottom: '0.25rem' }}>
+                  Key Name
+                </label>
                 <input
                   type="text"
                   value={keyName}
                   onChange={(e) => setKeyName(e.target.value)}
                   placeholder="e.g. Production, Development"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-4"
+                  style={{
+                    width: '100%',
+                    background: 'var(--color-green-darker)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '0.5rem 0.75rem',
+                    fontSize: 'var(--text-sm)',
+                    color: 'var(--color-text-on-green)',
+                    outline: 'none',
+                    marginBottom: '1rem',
+                    fontFamily: 'inherit',
+                  }}
                 />
-                <div className="flex gap-3 justify-end">
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
                   <button
-                    onClick={() => {
-                      setShowModal(false);
-                      setKeyName('');
-                    }}
-                    className="px-4 py-2 text-sm text-gray-400 hover:text-white transition"
+                    onClick={() => { setShowModal(false); setKeyName(''); }}
+                    style={{ padding: '0.5rem 1rem', fontSize: 'var(--text-sm)', color: 'rgba(255, 255, 255, 0.6)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleCreate}
                     disabled={loading}
-                    className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded-lg px-4 py-2 text-sm font-medium transition"
+                    style={{
+                      background: 'var(--color-orange)',
+                      color: 'var(--color-text-on-dark)',
+                      borderRadius: 'var(--radius-md)',
+                      padding: '0.5rem 1rem',
+                      fontSize: 'var(--text-sm)',
+                      fontWeight: 500,
+                      border: 'none',
+                      cursor: loading ? 'not-allowed' : 'pointer',
+                      opacity: loading ? 0.6 : 1,
+                      fontFamily: 'inherit',
+                    }}
                   >
                     {loading ? 'Creating…' : 'Create'}
                   </button>
@@ -89,25 +140,70 @@ export function KeyActions({ userId }: { userId: string }) {
               </>
             ) : (
               <>
-                <h3 className="text-lg font-semibold mb-2">API Key Created</h3>
-                <div className="flex items-center gap-2 bg-gray-950 border border-gray-700 rounded-lg p-3 mb-3">
-                  <code className="flex-1 text-sm text-emerald-400 font-mono break-all select-all">
+                <h3 style={{
+                  fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+                  fontSize: 'var(--text-lg)',
+                  fontWeight: 500,
+                  color: 'var(--color-text-on-green)',
+                  marginBottom: '0.5rem',
+                }}>
+                  API Key Created
+                </h3>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  background: 'var(--color-green-darker)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '0.75rem',
+                  marginBottom: '0.75rem',
+                }}>
+                  <code style={{
+                    flex: 1,
+                    fontSize: 'var(--text-sm)',
+                    color: 'var(--color-success)',
+                    fontFamily: 'var(--font-jetbrains, JetBrains Mono, monospace)',
+                    wordBreak: 'break-all',
+                    userSelect: 'all',
+                  }}>
                     {newKey}
                   </code>
                   <button
                     onClick={handleCopy}
-                    className="shrink-0 bg-gray-800 hover:bg-gray-700 rounded px-3 py-1 text-xs font-medium transition"
+                    style={{
+                      flexShrink: 0,
+                      background: 'var(--color-green-dark)',
+                      color: 'var(--color-text-on-green)',
+                      borderRadius: 'var(--radius-sm)',
+                      padding: '0.25rem 0.75rem',
+                      fontSize: 'var(--text-xs)',
+                      fontWeight: 500,
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
                   >
                     {copied ? 'Copied!' : 'Copy'}
                   </button>
                 </div>
-                <p className="text-sm text-amber-400 mb-4">
+                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-amber)', marginBottom: '1rem' }}>
                   Save this key now — it will not be shown again.
                 </p>
-                <div className="flex justify-end">
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <button
                     onClick={handleClose}
-                    className="bg-indigo-600 hover:bg-indigo-500 rounded-lg px-4 py-2 text-sm font-medium transition"
+                    style={{
+                      background: 'var(--color-orange)',
+                      color: 'var(--color-text-on-dark)',
+                      borderRadius: 'var(--radius-md)',
+                      padding: '0.5rem 1rem',
+                      fontSize: 'var(--text-sm)',
+                      fontWeight: 500,
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
                   >
                     Done
                   </button>

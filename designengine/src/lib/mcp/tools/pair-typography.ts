@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { openai } from '@/lib/openai/client';
-import { loadDesignProfile, profileToContextPrompt } from './shared/load-profile';
+import { buildFullContextPrompt, loadDesignProfile, profileToContextPrompt } from './shared/load-profile';
 
 const SCALE_RATIOS: Record<string, number> = {
   'minor-third': 1.2,
@@ -52,7 +52,7 @@ export async function pairTypography(input: {
   const scale = buildTypeScale(1, ratio);
 
   const profile = await loadDesignProfile(projectName);
-  const profileContext = profile ? profileToContextPrompt(profile) : '';
+  const profileContext = profile ? await buildFullContextPrompt(profile, 'pairing typography fonts') : '';
 
   const prompt = `You are a world-class typographer. Suggest 3 optimal font pairings:
 

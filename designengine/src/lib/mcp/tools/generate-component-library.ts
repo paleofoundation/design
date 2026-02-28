@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { openai } from '@/lib/openai/client';
-import { loadDesignProfile, profileToContextPrompt } from './shared/load-profile';
+import { buildFullContextPrompt, loadDesignProfile, profileToContextPrompt } from './shared/load-profile';
 
 const ALL_COMPONENTS = [
   'Button', 'Card', 'Input', 'Select', 'Textarea', 'Modal', 'Badge',
@@ -14,7 +14,7 @@ async function generateComponents(
   framework: string,
   components: string[],
 ) {
-  const contextPrompt = profileToContextPrompt(profile);
+  const contextPrompt = await buildFullContextPrompt(profile, 'generating styled component library');
   const componentList = components.join(', ');
 
   const frameworkInstructions: Record<string, string> = {

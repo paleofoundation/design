@@ -72,6 +72,13 @@ When building UI, use these tools in order of relevance:
 
 ## Anti-Patterns — What AI Typically Gets Wrong
 
+**#1 — Hardcoded hex values.** This is the single most common source of design drift.
+- WRONG: `color: '#28A745'` or `color: '#fff'` or `background: '#DC3545'`
+- RIGHT: `color: 'var(--color-success)'` or `color: 'var(--color-text-on-dark)'` or `background: 'var(--color-error)'`
+- WRONG: `rgba(220, 53, 69, 0.1)` (raw RGB channels of a token color)
+- RIGHT: `color-mix(in srgb, var(--color-error) 10%, transparent)`
+
+Other anti-patterns:
 - Using bg-gray-950 with indigo-600 accents (the "AI developer tool" aesthetic)
 - Using Inter/Geist for everything
 - rounded-xl on everything (12-16px is too much for most designs)
@@ -80,6 +87,16 @@ When building UI, use these tools in order of relevance:
 - No breathing room — elements crammed together
 - Gray shadows instead of warm-tinted ones
 - Missing focus states and hover transitions
+- Using "close enough" colors (#4A8E7A instead of #306E5E) — use the exact token
+
+## Self-Check Before Submitting UI Code
+
+Before finishing any UI file, run this mental checklist:
+1. Search the file for `#` followed by hex digits — if ANY hardcoded hex colors exist, replace them with `var(--color-*)` variables
+2. Search for `rgba(` — if the RGB values match a palette color, replace with `color-mix(in srgb, var(--color-*) N%, transparent)`
+3. Verify all font-family values reference CSS variables (`var(--font-fraunces)`, `var(--font-source-sans)`, `var(--font-jetbrains)`)
+4. Verify all spacing uses the 8px grid values from the design tokens
+5. Confirm no generic Tailwind color classes (bg-gray-*, text-slate-*, etc.) are present
 
 ## When In Doubt
 

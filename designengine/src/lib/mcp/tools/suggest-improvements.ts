@@ -2,7 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { openai } from '@/lib/openai/client';
 import { ingestDesignFromUrl } from '@/lib/firecrawl/ingest';
-import { loadDesignProfile, profileToContextPrompt } from './shared/load-profile';
+import { loadDesignProfile, buildFullContextPrompt } from './shared/load-profile';
 
 const FOCUS_AREAS = [
   'accessibility', 'whitespace', 'hierarchy', 'contrast',
@@ -48,7 +48,7 @@ export function registerSuggestImprovementsTool(server: McpServer): void {
         }
 
         const profile = await loadDesignProfile(projectName);
-        const profileContext = profile ? profileToContextPrompt(profile) : '';
+        const profileContext = profile ? await buildFullContextPrompt(profile, 'suggesting design improvements') : '';
 
         const focusInstructions = focusAreas.includes('all')
           ? 'Analyze ALL areas: accessibility, whitespace, visual hierarchy, contrast, responsive behavior, animation opportunities, and design consistency.'

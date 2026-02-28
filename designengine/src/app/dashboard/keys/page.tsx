@@ -49,44 +49,53 @@ export default async function KeysPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h2 className="text-2xl font-bold">API Keys</h2>
-          <p className="mt-1 text-sm text-gray-400">
+          <h2 style={{
+            fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+            fontSize: 'var(--text-2xl)',
+            fontWeight: 400,
+            color: 'var(--color-text-on-green)',
+            letterSpacing: '-0.02em',
+          }}>
+            API Keys
+          </h2>
+          <p style={{ marginTop: '0.25rem', fontSize: 'var(--text-sm)', color: 'rgba(255, 255, 255, 0.5)' }}>
             Manage your API keys for accessing DesignEngine tools.
           </p>
         </div>
         <KeyActions userId={userId} />
       </div>
 
-      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
+      <div style={{
+        background: 'var(--color-green-dark)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        borderRadius: 'var(--radius-md)',
+        overflow: 'hidden',
+      }}>
+        <table style={{ width: '100%', fontSize: 'var(--text-sm)', borderCollapse: 'collapse' }}>
           <thead>
-            <tr className="border-b border-gray-800 text-left text-gray-400">
-              <th className="px-6 py-3 font-medium">Name</th>
-              <th className="px-6 py-3 font-medium">Prefix</th>
-              <th className="px-6 py-3 font-medium">Status</th>
-              <th className="px-6 py-3 font-medium">Created</th>
-              <th className="px-6 py-3 font-medium">Last Used</th>
-              <th className="px-6 py-3 font-medium text-right">Calls</th>
-              <th className="px-6 py-3 font-medium text-right">Actions</th>
+            <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', textAlign: 'left', color: 'rgba(255, 255, 255, 0.5)' }}>
+              <th style={{ padding: '0.75rem 1.5rem', fontWeight: 500 }}>Name</th>
+              <th style={{ padding: '0.75rem 1.5rem', fontWeight: 500 }}>Prefix</th>
+              <th style={{ padding: '0.75rem 1.5rem', fontWeight: 500 }}>Status</th>
+              <th style={{ padding: '0.75rem 1.5rem', fontWeight: 500 }}>Created</th>
+              <th style={{ padding: '0.75rem 1.5rem', fontWeight: 500 }}>Last Used</th>
+              <th style={{ padding: '0.75rem 1.5rem', fontWeight: 500, textAlign: 'right' }}>Calls</th>
+              <th style={{ padding: '0.75rem 1.5rem', fontWeight: 500, textAlign: 'right' }}>Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-800">
+          <tbody>
             {(!keys || keys.length === 0) && (
               <tr>
-                <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                <td colSpan={7} style={{ padding: '2rem 1.5rem', textAlign: 'center', color: 'rgba(255, 255, 255, 0.4)' }}>
                   No API keys yet. Create one to get started.
                 </td>
               </tr>
             )}
             {keys?.map((k) => (
-              <KeyRow
-                key={k.id}
-                apiKey={k}
-                calls={callCounts[k.id] ?? 0}
-              />
+              <KeyRow key={k.id} apiKey={k} calls={callCounts[k.id] ?? 0} />
             ))}
           </tbody>
         </table>
@@ -97,37 +106,40 @@ export default async function KeysPage() {
 
 function KeyRow({ apiKey, calls }: { apiKey: ApiKeyRow; calls: number }) {
   return (
-    <tr className="text-gray-300">
-      <td className="px-6 py-4 font-medium text-white">{apiKey.name}</td>
-      <td className="px-6 py-4 font-mono text-xs text-gray-400">
+    <tr style={{ borderTop: '1px solid rgba(255, 255, 255, 0.06)', color: 'rgba(255, 255, 255, 0.85)' }}>
+      <td style={{ padding: '1rem 1.5rem', fontWeight: 500, color: 'var(--color-text-on-green)' }}>{apiKey.name}</td>
+      <td style={{ padding: '1rem 1.5rem', fontFamily: 'var(--font-jetbrains, JetBrains Mono, monospace)', fontSize: 'var(--text-xs)', color: 'rgba(255, 255, 255, 0.5)' }}>
         {apiKey.key_prefix}••••••••
       </td>
-      <td className="px-6 py-4">
-        <span
-          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            apiKey.is_active
-              ? 'bg-emerald-500/10 text-emerald-400'
-              : 'bg-red-500/10 text-red-400'
-          }`}
-        >
-          <span
-            className={`w-1.5 h-1.5 rounded-full ${
-              apiKey.is_active ? 'bg-emerald-500' : 'bg-red-500'
-            }`}
-          />
+      <td style={{ padding: '1rem 1.5rem' }}>
+        <span style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.375rem',
+          borderRadius: '9999px',
+          padding: '0.125rem 0.625rem',
+          fontSize: 'var(--text-xs)',
+          fontWeight: 500,
+          background: apiKey.is_active ? 'color-mix(in srgb, var(--color-success) 10%, transparent)' : 'color-mix(in srgb, var(--color-error) 10%, transparent)',
+          color: apiKey.is_active ? 'var(--color-success)' : 'var(--color-error)',
+        }}>
+          <span style={{
+            width: '0.375rem',
+            height: '0.375rem',
+            borderRadius: '9999px',
+            background: apiKey.is_active ? 'var(--color-success)' : 'var(--color-error)',
+          }} />
           {apiKey.is_active ? 'Active' : 'Revoked'}
         </span>
       </td>
-      <td className="px-6 py-4 text-gray-400">
+      <td style={{ padding: '1rem 1.5rem', color: 'rgba(255, 255, 255, 0.5)' }}>
         {new Date(apiKey.created_at).toLocaleDateString()}
       </td>
-      <td className="px-6 py-4 text-gray-400">
-        {apiKey.last_used_at
-          ? new Date(apiKey.last_used_at).toLocaleDateString()
-          : '—'}
+      <td style={{ padding: '1rem 1.5rem', color: 'rgba(255, 255, 255, 0.5)' }}>
+        {apiKey.last_used_at ? new Date(apiKey.last_used_at).toLocaleDateString() : '—'}
       </td>
-      <td className="px-6 py-4 text-right tabular-nums">{calls.toLocaleString()}</td>
-      <td className="px-6 py-4 text-right">
+      <td style={{ padding: '1rem 1.5rem', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{calls.toLocaleString()}</td>
+      <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
         {apiKey.is_active && <RevokeButton keyId={apiKey.id} />}
       </td>
     </tr>
@@ -140,16 +152,10 @@ function RevokeButton({ keyId }: { keyId: string }) {
       action={async () => {
         'use server';
         const { supabaseAdmin: admin } = await import('@/lib/supabase/admin');
-        await admin
-          .from('api_keys')
-          .update({ is_active: false })
-          .eq('id', keyId);
+        await admin.from('api_keys').update({ is_active: false }).eq('id', keyId);
       }}
     >
-      <button
-        type="submit"
-        className="text-red-400 hover:text-red-300 text-xs font-medium transition"
-      >
+      <button type="submit" style={{ background: 'none', border: 'none', color: 'var(--color-error)', fontSize: 'var(--text-xs)', fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
         Revoke
       </button>
     </form>

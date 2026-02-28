@@ -2,7 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { openai } from '@/lib/openai/client';
 import { ingestDesignFromUrl } from '@/lib/firecrawl/ingest';
-import { loadDesignProfile, profileToContextPrompt } from './shared/load-profile';
+import { loadDesignProfile, buildFullContextPrompt } from './shared/load-profile';
 
 export function registerGenerateResponsiveRulesTool(server: McpServer): void {
   server.tool(
@@ -27,7 +27,7 @@ export function registerGenerateResponsiveRulesTool(server: McpServer): void {
           };
         }
 
-        const contextPrompt = profileToContextPrompt(profile);
+        const contextPrompt = await buildFullContextPrompt(profile, 'generating responsive design rules and breakpoints');
 
         let siteContext = '';
         if (url) {
