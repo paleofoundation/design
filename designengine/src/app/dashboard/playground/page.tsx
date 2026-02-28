@@ -3,22 +3,22 @@
 import { useState, type FormEvent } from 'react';
 
 type ToolName =
-  | 'ingest_design'
-  | 'search_design_patterns'
-  | 'generate_font'
-  | 'pair_typography'
-  | 'convert_design_to_code';
+  | 'ingest-design'
+  | 'search-design-patterns'
+  | 'generate-font'
+  | 'pair-typography'
+  | 'convert-design-to-code';
 
 const TOOLS: { value: ToolName; label: string }[] = [
-  { value: 'ingest_design', label: 'Ingest Design' },
-  { value: 'search_design_patterns', label: 'Search Design Patterns' },
-  { value: 'generate_font', label: 'Generate Font' },
-  { value: 'pair_typography', label: 'Pair Typography' },
-  { value: 'convert_design_to_code', label: 'Convert Design to Code' },
+  { value: 'ingest-design', label: 'Ingest Design' },
+  { value: 'search-design-patterns', label: 'Search Design Patterns' },
+  { value: 'generate-font', label: 'Generate Font' },
+  { value: 'pair-typography', label: 'Pair Typography' },
+  { value: 'convert-design-to-code', label: 'Convert Design to Code' },
 ];
 
 export default function PlaygroundPage() {
-  const [tool, setTool] = useState<ToolName>('ingest_design');
+  const [tool, setTool] = useState<ToolName>('ingest-design');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -52,28 +52,28 @@ export default function PlaygroundPage() {
 
   function buildParams(): Record<string, unknown> {
     switch (tool) {
-      case 'ingest_design':
+      case 'ingest-design':
         return { url };
-      case 'search_design_patterns': {
+      case 'search-design-patterns': {
         const p: Record<string, unknown> = { query };
         if (category) p.category = category;
         if (tags) p.tags = tags.split(',').map((t) => t.trim());
         return p;
       }
-      case 'generate_font': {
+      case 'generate-font': {
         const p: Record<string, unknown> = { description };
         if (fontStyle) p.style = fontStyle;
         if (weight) p.weight = weight;
         if (useCase) p.useCase = useCase;
         return p;
       }
-      case 'pair_typography':
+      case 'pair-typography':
         return {
           headingFont: headingFont || undefined,
           mood: mood || undefined,
           context: context || undefined,
         };
-      case 'convert_design_to_code':
+      case 'convert-design-to-code':
         return {
           imageUrl: imageBase64
             ? `data:image/png;base64,${imageBase64}`
@@ -190,11 +190,11 @@ export default function PlaygroundPage() {
               </select>
             </div>
 
-            {tool === 'ingest_design' && (
+            {tool === 'ingest-design' && (
               <Field label="URL" value={url} onChange={setUrl} placeholder="https://example.com" />
             )}
 
-            {tool === 'search_design_patterns' && (
+            {tool === 'search-design-patterns' && (
               <>
                 <Field
                   label="Query"
@@ -217,7 +217,7 @@ export default function PlaygroundPage() {
               </>
             )}
 
-            {tool === 'generate_font' && (
+            {tool === 'generate-font' && (
               <>
                 <div>
                   <label className="block text-sm text-gray-400 mb-1">Description</label>
@@ -252,7 +252,7 @@ export default function PlaygroundPage() {
               </>
             )}
 
-            {tool === 'pair_typography' && (
+            {tool === 'pair-typography' && (
               <>
                 <Field
                   label="Heading Font (optional)"
@@ -275,7 +275,7 @@ export default function PlaygroundPage() {
               </>
             )}
 
-            {tool === 'convert_design_to_code' && (
+            {tool === 'convert-design-to-code' && (
               <>
                 <Field
                   label="Image URL"
