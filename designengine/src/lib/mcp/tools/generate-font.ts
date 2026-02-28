@@ -2,10 +2,6 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { openai } from '@/lib/openai/client';
 
-// =============================================
-// TYPES
-// =============================================
-
 export interface GenerateFontInput {
   description: string;
   style?: 'serif' | 'sans-serif' | 'monospace'
@@ -16,77 +12,31 @@ export interface GenerateFontInput {
     | 'display' | 'ui';
 }
 
-export interface GenerateFontResult {
-  recommendation: {
-    primaryFont: string;
-    fallbackStack: string;
-    googleFontsUrl: string;
-    weights: number[];
-    italicAvailable: boolean;
-    category: string;
-  };
-  alternatives: Array<{
-    font: string;
-    reason: string;
-    googleFontsUrl: string;
-  }>;
-  css: {
-    importStatement: string;
-    fontFaceDeclarations: string;
-    cssVariables: string;
-    utilityClasses: string;
-  };
-  htmlPreview: string;
-  designRationale: string;
-}
-
-// =============================================
-// CORE GENERATION FUNCTION
-// =============================================
-
-export async function generateFont(
-  input: GenerateFontInput
-): Promise<GenerateFontResult> {
+export async function generateFont(input: GenerateFontInput) {
   const { description, style, weight, useCase } = input;
 
-  const prompt = `You are an expert typographer and font designer. A user wants a font matching this description:
+  const prompt = `You are an expert typographer. Recommend a Google Font matching this description:
 
 Description: "${description}"
-${style ? `Style preference: ${style}` : ''}
-${weight ? `Weight preference: ${weight}` : ''}
+${style ? `Style: ${style}` : ''}
+${weight ? `Weight: ${weight}` : ''}
 ${useCase ? `Use case: ${useCase}` : ''}
 
-Respond with ONLY valid JSON (no markdown, no code blocks) matching this exact structure:
+Return ONLY valid JSON:
 {
-  "recommendation": {
-    "primaryFont": "Font Name",
-    "fallbackStack": "'Font Name', Arial, sans-serif",
-    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Font+Name:wght@300;400;500;600;700&display=swap",
-    "weights": [300, 400, 500, 600, 700],
-    "italicAvailable": true,
-    "category": "sans-serif"
-  },
+  "primaryFont": "Font Name",
+  "fallbackStack": "'Font Name', Arial, sans-serif",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Font+Name:wght@300;400;500;600;700&display=swap",
+  "weights": [300, 400, 500, 600, 700],
+  "category": "sans-serif",
   "alternatives": [
-    {
-      "font": "Alternative Font 1",
-      "reason": "Why this is a good alternative",
-      "googleFontsUrl": "https://fonts.googleapis.com/css2?family=..."
-    },
-    {
-      "font": "Alternative Font 2",
-      "reason": "Why this is a good alternative",
-      "googleFontsUrl": "https://fonts.googleapis.com/css2?family=..."
-    },
-    {
-      "font": "Alternative Font 3",
-      "reason": "Why this is a good alternative",
-      "googleFontsUrl": "https://fonts.googleapis.com/css2?family=..."
-    }
+    { "font": "Alt 1", "reason": "Why", "googleFontsUrl": "..." },
+    { "font": "Alt 2", "reason": "Why", "googleFontsUrl": "..." }
   ],
-  "designRationale": "2-3 sentences explaining why this font matches the description and use case."
+  "designRationale": "Why this font matches."
 }
 
-Only recommend fonts available on Google Fonts. Be specific with weights and include the full Google Fonts CSS URL with all recommended weights.`;
+Only recommend fonts on Google Fonts. Include all recommended weights in the URL.`;
 
   const response = await openai.chat.completions.create({
     model: 'gpt-4o',
@@ -95,187 +45,102 @@ Only recommend fonts available on Google Fonts. Be specific with weights and inc
     response_format: { type: 'json_object' },
   });
 
-  const rawResult = JSON.parse(
-    response.choices[0].message.content || '{}'
-  );
-  const rec = rawResult.recommendation;
+  const raw = JSON.parse(response.choices[0].message.content || '{}');
 
-  if (!rec?.primaryFont) {
-    throw new Error(
-      'OpenAI response missing font recommendation'
-    );
+  if (!raw.primaryFont) {
+    throw new Error('OpenAI response missing font recommendation');
   }
 
-  const importStatement =
-    `@import url('${rec.googleFontsUrl}');`;
+  const font = raw.primaryFont as string;
+  const fallback = raw.fallbackStack as string;
+  const url = raw.googleFontsUrl as string;
+  const weights = (raw.weights || [400, 700]) as number[];
+  const category = (raw.category || 'sans-serif') as string;
 
-  const fontSlug = rec.primaryFont
-    .toLowerCase().replace(/\s+/g, '-');
+  const fontSlug = font.toLowerCase().replace(/\s+/g, '-');
 
-  const fontFaceDeclarations = (rec.weights as number[])
-    .map((w: number) =>
-      `/* ${rec.primaryFont} ${w} */\n` +
-      `.font-${fontSlug}-${w} {\n` +
-      `  font-family: ${rec.fallbackStack};\n` +
-      `  font-weight: ${w};\n` +
-      `}`
-    )
-    .join('\n\n');
+  const htmlLink = `<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="${url}" rel="stylesheet">`;
 
-  const cssVariables = [
-    `:root {`,
-    `  --font-generated: ${rec.fallbackStack};`,
-    `  --font-generated-category: '${rec.category}';`,
-    `}`,
-  ].join('\n');
+  const cssVariables = `:root {
+  --font-${fontSlug}: ${fallback};
+  --font-${fontSlug}-family: '${font}';
+  --font-${fontSlug}-fallback: ${category === 'serif' ? 'Georgia, "Times New Roman", serif' : category === 'monospace' ? '"Courier New", Courier, monospace' : 'system-ui, -apple-system, sans-serif'};
+}`;
 
-  const utilityClasses = [
-    `.font-generated {`,
-    `  font-family: var(--font-generated);`,
-    `}`,
-    `.font-generated-light {`,
-    `  font-family: var(--font-generated);`,
-    `  font-weight: 300;`,
-    `}`,
-    `.font-generated-regular {`,
-    `  font-family: var(--font-generated);`,
-    `  font-weight: 400;`,
-    `}`,
-    `.font-generated-medium {`,
-    `  font-family: var(--font-generated);`,
-    `  font-weight: 500;`,
-    `}`,
-    `.font-generated-bold {`,
-    `  font-family: var(--font-generated);`,
-    `  font-weight: 700;`,
-    `}`,
-  ].join('\n');
+  const tailwindConfig = `// Add to tailwind.config.ts → theme.extend.fontFamily
+fontFamily: {
+  '${fontSlug}': ['${font}', ${category === 'serif' ? "'Georgia', 'Times New Roman', serif" : category === 'monospace' ? "'Courier New', 'Courier', monospace" : "'system-ui', '-apple-system', 'sans-serif'"}],
+}`;
 
-  const weightSamples = (rec.weights as number[])
-    .map((w: number) =>
-      `    <div class="weight-sample">` +
-      `<div class="weight-label">${w}</div>` +
-      `<div style="font-weight:${w};` +
-      `font-size:1.25rem;">Aa Bb Cc</div></div>`
-    )
-    .join('\n');
+  const utilityClasses = weights.map((w) =>
+    `.font-${fontSlug}-${w} { font-family: ${fallback}; font-weight: ${w}; }`
+  ).join('\n');
 
   const htmlPreview = `<!DOCTYPE html>
 <html>
 <head>
-  ${importStatement}
+  ${htmlLink}
   <style>
-    body {
-      font-family: ${rec.fallbackStack};
-      padding: 2rem;
-    }
-    h1 {
-      font-weight: 700;
-      font-size: 3rem;
-      margin-bottom: 0.5rem;
-    }
-    h2 {
-      font-weight: 500;
-      font-size: 1.5rem;
-      color: #666;
-      margin-bottom: 2rem;
-    }
-    p {
-      font-weight: 400;
-      font-size: 1rem;
-      line-height: 1.7;
-      max-width: 65ch;
-    }
-    .weights {
-      display: flex;
-      gap: 2rem;
-      margin-top: 2rem;
-    }
-    .weight-label {
-      font-size: 0.75rem;
-      color: #999;
-      margin-bottom: 0.25rem;
-    }
+    body { font-family: ${fallback}; padding: 2rem; }
+    h1 { font-weight: 700; font-size: 3rem; margin-bottom: 0.5rem; }
+    h2 { font-weight: 500; font-size: 1.5rem; color: #666; margin-bottom: 2rem; }
+    p { font-weight: 400; font-size: 1rem; line-height: 1.7; max-width: 65ch; }
+    .weights { display: flex; gap: 2rem; margin-top: 2rem; }
+    .weight-label { font-size: 0.75rem; color: #999; margin-bottom: 0.25rem; }
   </style>
 </head>
 <body>
-  <h1>${rec.primaryFont}</h1>
-  <h2>${rec.category} — ${description}</h2>
-  <p>The quick brown fox jumps over the lazy dog.
-  Pack my box with five dozen liquor jugs.
-  How vexingly quick daft zebras jump.</p>
+  <h1>${font}</h1>
+  <h2>${category} — ${description}</h2>
+  <p>The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.</p>
   <div class="weights">
-${weightSamples}
+${weights.map((w) => `    <div><div class="weight-label">${w}</div><div style="font-weight:${w};font-size:1.25rem;">Aa Bb Cc 123</div></div>`).join('\n')}
   </div>
 </body>
 </html>`;
 
   return {
-    recommendation: rec,
-    alternatives: rawResult.alternatives || [],
-    css: {
-      importStatement,
-      fontFaceDeclarations,
-      cssVariables,
-      utilityClasses,
+    recommendation: {
+      primaryFont: font,
+      fallbackStack: fallback,
+      googleFontsUrl: url,
+      weights,
+      category,
     },
-    htmlPreview,
-    designRationale: rawResult.designRationale || '',
+    alternatives: raw.alternatives || [],
+    designRationale: raw.designRationale || '',
+    codeArtifacts: {
+      htmlLink,
+      cssVariables,
+      tailwindConfig,
+      utilityClasses,
+      htmlPreview,
+    },
   };
 }
-
-// =============================================
-// MCP TOOL REGISTRATION
-// =============================================
 
 export function registerGenerateFontTool(server: McpServer): void {
   server.tool(
     'generate-font',
-    'Generate font recommendations based on design context, mood, or reference URL. Returns Google Fonts URLs, CSS, and preview HTML.',
+    'Generate font recommendations with ready-to-use code artifacts: HTML link tags, CSS variables, Tailwind config, and preview HTML.',
     {
-      description: z
-        .string()
-        .describe('Description of the project, brand, or design context (e.g. "modern fintech startup with clean aesthetic")'),
-      style: z
-        .enum(['serif', 'sans-serif', 'monospace', 'display', 'handwriting'])
-        .optional()
-        .describe('Preferred font style category'),
-      weight: z
-        .enum(['light', 'regular', 'medium', 'bold', 'black'])
-        .optional()
-        .describe('Preferred weight emphasis'),
-      useCase: z
-        .enum(['heading', 'body', 'code', 'display', 'ui'])
-        .optional()
-        .describe('Primary use case for the font'),
+      description: z.string().describe('Description of the project, brand, or design context'),
+      style: z.enum(['serif', 'sans-serif', 'monospace', 'display', 'handwriting']).optional().describe('Preferred font style category'),
+      weight: z.enum(['light', 'regular', 'medium', 'bold', 'black']).optional().describe('Preferred weight emphasis'),
+      useCase: z.enum(['heading', 'body', 'code', 'display', 'ui']).optional().describe('Primary use case for the font'),
     },
     async ({ description, style, weight, useCase }) => {
       try {
-        const result = await generateFont({
-          description,
-          style,
-          weight,
-          useCase,
-        });
-
+        const result = await generateFont({ description, style, weight, useCase });
         return {
-          content: [
-            {
-              type: 'text' as const,
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
+          content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }],
         };
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : 'Unknown font generation error';
+        const message = err instanceof Error ? err.message : 'Unknown font generation error';
         return {
-          content: [
-            {
-              type: 'text' as const,
-              text: JSON.stringify({ error: message }, null, 2),
-            },
-          ],
+          content: [{ type: 'text' as const, text: JSON.stringify({ error: message }) }],
           isError: true,
         };
       }
