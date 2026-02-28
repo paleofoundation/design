@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Fraunces, Source_Sans_3, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import CookieBanner from "@/components/cookie-banner";
+// TODO: re-enable cookie consent banner (indigo, cheeky copy)
+// import CookieBanner from "@/components/cookie-banner";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -46,7 +47,6 @@ export default function RootLayout({
         className={`${fraunces.variable} ${sourceSans.variable} ${jetbrainsMono.variable} antialiased`}
       >
         {children}
-        <CookieBanner />
       </body>
     </html>
   );
