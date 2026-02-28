@@ -98,28 +98,26 @@ function chunkText(text: string): TextChunk[] {
 }
 
 export async function parsePdf(buffer: Buffer): Promise<string> {
-  try {
-    const { PDFParse } = await import('pdf-parse');
-    const parser = new PDFParse({ data: new Uint8Array(buffer) });
-    const result = await parser.getText();
-    await parser.destroy();
-    return result.text;
-  } catch {
-    // Fallback: extract visible ASCII text from PDF binary
-    const raw = buffer.toString('latin1');
-    const textBlocks: string[] = [];
-    const btRegex = /BT\s([\s\S]*?)ET/g;
-    let match;
-    while ((match = btRegex.exec(raw)) !== null) {
-      const block = match[1];
-      const tjMatches = block.match(/\(([^)]*)\)/g);
-      if (tjMatches) {
-        textBlocks.push(tjMatches.map((s) => s.slice(1, -1)).join(' '));
-      }
-    }
-    if (textBlocks.length > 0) return textBlocks.join('\n');
-    throw new Error('PDF parsing failed. Try uploading as .txt instead.');
+  const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
+  const data = new Uint8Array(buffer);
+  const doc = await pdfjsLib.getDocument({ data, useSystemFonts: true }).promise;
+  const pages: string[] = [];
+
+  for (let i = 1; i <= doc.numPages; i++) {
+    const page = await doc.getPage(i);
+    const content = await page.getTextContent();
+    const text = content.items
+      .filter((item) => 'str' in item && typeof (item as Record<string, unknown>).str === 'string')
+      .map((item) => (item as Record<string, unknown>).str as string)
+      .join(' ');
+    if (text.trim()) pages.push(text);
   }
+
+  if (pages.length === 0) {
+    throw new Error('No text could be extracted from this PDF. Try uploading as .txt instead.');
+  }
+
+  return pages.join('\n');
 }
 
 export function parseMarkdown(text: string): string {
