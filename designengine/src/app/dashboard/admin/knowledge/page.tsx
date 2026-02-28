@@ -52,6 +52,14 @@ export default function AdminKnowledgePage() {
     setUploading(true);
     setUploadStatus(null);
     setUploadError(null);
+
+    const sizeMB = file.size / (1024 * 1024);
+    if (sizeMB > 4) {
+      setUploadError(`File is ${sizeMB.toFixed(1)}MB. Maximum is 4MB. For larger files, split into smaller parts.`);
+      setUploading(false);
+      return;
+    }
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('sourceName', file.name);
@@ -60,6 +68,20 @@ export default function AdminKnowledgePage() {
         method: 'POST',
         body: formData,
       });
+
+      if (!res.ok) {
+        const text = await res.text();
+        let errorMsg: string;
+        try {
+          const json = JSON.parse(text);
+          errorMsg = json.error || `Server error (${res.status})`;
+        } catch {
+          errorMsg = `Server error (${res.status}): ${text.substring(0, 120)}`;
+        }
+        setUploadError(errorMsg);
+        return;
+      }
+
       const data = await res.json();
       if (data.success) {
         setUploadStatus(
