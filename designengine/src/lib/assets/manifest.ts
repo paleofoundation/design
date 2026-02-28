@@ -1,7 +1,7 @@
 export interface AssetEntry {
   path: string;
   type: 'svg' | 'png' | 'css' | 'js' | 'json';
-  category: 'favicon' | 'pattern' | 'divider' | 'hero' | 'animation' | 'manifest';
+  category: 'favicon' | 'pattern' | 'divider' | 'hero' | 'animation' | 'art-style' | 'illustration' | 'manifest';
   description: string;
   encoding: 'utf-8' | 'base64';
   usage?: string;

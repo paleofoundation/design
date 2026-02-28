@@ -16,6 +16,9 @@ import { registerGenerateResponsiveRulesTool } from './tools/generate-responsive
 import { registerQueryDesignKnowledgeTool } from './tools/query-design-knowledge';
 import { registerGenerateFaviconTool } from './tools/generate-favicon';
 import { registerGenerateSvgAssetsTool } from './tools/generate-svg-assets';
+import { registerGenerateArtStyleTool } from './tools/generate-art-style';
+import { registerGenerateMicroInteractionsTool } from './tools/generate-micro-interactions';
+import { registerGenerateIllustrationsTool } from './tools/generate-illustrations';
 import { registerScaffoldAssetsTool } from './tools/scaffold-assets';
 
 export function initializeDesignEngine(server: McpServer): void {
@@ -36,5 +39,8 @@ export function initializeDesignEngine(server: McpServer): void {
   registerQueryDesignKnowledgeTool(server);
   registerGenerateFaviconTool(server);
   registerGenerateSvgAssetsTool(server);
+  registerGenerateArtStyleTool(server);
+  registerGenerateMicroInteractionsTool(server);
+  registerGenerateIllustrationsTool(server);
   registerScaffoldAssetsTool(server);
 }

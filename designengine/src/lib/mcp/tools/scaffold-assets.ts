@@ -7,6 +7,11 @@ import { generateAllPatterns } from '@/lib/svg/patterns';
 import { generateAllDividers } from '@/lib/svg/dividers';
 import { generateAllHeroes } from '@/lib/svg/hero-backgrounds';
 import { generateAllAnimations } from '@/lib/assets/animations';
+import {
+  type ArtStylePreset,
+  generateArtStyle,
+  recommendPreset,
+} from '@/lib/assets/art-style';
 import { buildManifest, type AssetEntry } from '@/lib/assets/manifest';
 import { loadDesignProfile } from './shared/load-profile';
 
@@ -26,6 +31,12 @@ export function registerScaffoldAssetsTool(server: McpServer): void {
       surfaceColor: z.string().optional().describe('Warm surface color (hex). Defaults to #FDFBF7.'),
       faviconShape: z.enum(['rounded-rect', 'circle', 'hexagon', 'squircle']).optional().default('rounded-rect')
         .describe('Favicon shape'),
+      artStylePreset: z.enum([
+        'line-art', 'flat-vector', 'watercolor',
+        'isometric', 'abstract-geometric', 'photo-overlay',
+      ]).optional().describe('Art style preset for illustrations. Auto-recommended if omitted.'),
+      industry: z.string().optional().describe('Industry keyword for art style auto-recommendation'),
+      mood: z.string().optional().describe('Mood keyword for art style auto-recommendation'),
       includeAnimations: z.boolean().optional().default(true)
         .describe('Include micro-interaction CSS/JS (cursor follower, button states, scroll reveal, etc.)'),
       includePatterns: z.boolean().optional().default(true)
@@ -34,12 +45,18 @@ export function registerScaffoldAssetsTool(server: McpServer): void {
         .describe('Include section divider SVGs'),
       includeHeroes: z.boolean().optional().default(true)
         .describe('Include hero background SVGs'),
+      includeArtStyle: z.boolean().optional().default(true)
+        .describe('Include art style manifest for downstream illustration generation'),
+      includeIllustrationPrompts: z.boolean().optional().default(true)
+        .describe('Include DALL-E prompts for hero, feature icon, and empty state illustrations'),
     },
     async ({
       brandName, projectName,
       primaryColor, secondaryColor, accentColor, backgroundColor,
       amberColor, lavenderColor, surfaceColor,
-      faviconShape, includeAnimations, includePatterns, includeDividers, includeHeroes,
+      faviconShape, artStylePreset, industry, mood,
+      includeAnimations, includePatterns, includeDividers, includeHeroes,
+      includeArtStyle, includeIllustrationPrompts,
     }) => {
       try {
         let colors: PaletteColors = {
@@ -160,6 +177,76 @@ export function registerScaffoldAssetsTool(server: McpServer): void {
           }
         }
 
+        // --- Art Style (Layer 2) ---
+        const resolvedPreset: ArtStylePreset = artStylePreset ?? recommendPreset(industry, mood);
+        const artStyle = includeArtStyle
+          ? generateArtStyle(resolvedPreset, colors)
+          : null;
+
+        if (artStyle) {
+          files['assets/art-style.json'] = {
+            content: JSON.stringify(artStyle, null, 2),
+            encoding: 'utf-8',
+          };
+          manifestEntries.push({
+            path: 'assets/art-style.json', type: 'json', category: 'art-style',
+            description: `Art style manifest (${artStyle.preset})`, encoding: 'utf-8',
+          });
+        }
+
+        // --- Illustration Prompts (Layer 4) ---
+        interface IllustrationPrompt {
+          subject: string;
+          description: string;
+          prompt: string;
+          suggestedSize: string;
+        }
+        let illustrationPrompts: IllustrationPrompt[] | null = null;
+        if (includeIllustrationPrompts && artStyle) {
+          const subjects = ['hero', 'feature-icon', 'empty-state', 'error-page'] as const;
+          illustrationPrompts = subjects.map(subject => {
+            const sceneMap: Record<string, { desc: string; size: string; scene: string }> = {
+              'hero': {
+                desc: 'Main hero illustration',
+                size: '1792x1024',
+                scene: `a hero section illustration for "${brandName}", conveying innovation and trust, centered composition with breathing room for overlaid text`,
+              },
+              'feature-icon': {
+                desc: 'Feature/benefit icon illustration',
+                size: '512x512',
+                scene: `a simple iconic illustration for "${brandName}", representing a product feature, centered on a white background`,
+              },
+              'empty-state': {
+                desc: 'Empty/zero-data state illustration',
+                size: '512x512',
+                scene: `a friendly empty state illustration for "${brandName}", conveying "nothing here yet" in an encouraging way`,
+              },
+              'error-page': {
+                desc: '404/error page illustration',
+                size: '512x512',
+                scene: `a lighthearted error page illustration for "${brandName}", conveying "something went wrong" without being alarming`,
+              },
+            };
+            const spec = sceneMap[subject];
+            const prompt = [
+              spec.scene,
+              artStyle.promptSuffix,
+              `Style: ${artStyle.mood}.`,
+              'No text or words in the image.',
+            ].join('. ');
+            return { subject, description: spec.desc, prompt, suggestedSize: spec.size };
+          });
+
+          files['assets/illustration-prompts.json'] = {
+            content: JSON.stringify(illustrationPrompts, null, 2),
+            encoding: 'utf-8',
+          };
+          manifestEntries.push({
+            path: 'assets/illustration-prompts.json', type: 'json', category: 'illustration',
+            description: 'DALL-E prompts for brand-coherent illustrations', encoding: 'utf-8',
+          });
+        }
+
         // --- Manifest ---
         const manifest = buildManifest({
           projectName: brandName,
@@ -179,6 +266,7 @@ export function registerScaffoldAssetsTool(server: McpServer): void {
               brandName,
               colorsUsed: colors,
               faviconShape,
+              artStylePreset: resolvedPreset,
               pngsGenerated: hasPngs,
               totalFiles: Object.keys(files).length,
               breakdown: {
@@ -187,10 +275,14 @@ export function registerScaffoldAssetsTool(server: McpServer): void {
                 dividers: manifestEntries.filter(e => e.category === 'divider').length,
                 heroes: manifestEntries.filter(e => e.category === 'hero').length,
                 animations: manifestEntries.filter(e => e.category === 'animation').length,
+                artStyle: artStyle ? 1 : 0,
+                illustrationPrompts: illustrationPrompts?.length ?? 0,
               },
               files,
               htmlHead: faviconPkg.htmlHead,
               integrationCode,
+              artStyle: artStyle ?? undefined,
+              illustrationPrompts: illustrationPrompts ?? undefined,
               cssImports: manifest.cssImports,
               instructions: [
                 '1. Write each file to the specified path relative to your project\'s public/ directory.',
@@ -202,10 +294,12 @@ export function registerScaffoldAssetsTool(server: McpServer): void {
                 '7. For Remix: add the links to the root.tsx links export.',
                 '8. Import the CSS files listed in cssImports into your global stylesheet.',
                 '9. Include the JS animation files before </body> or import as modules.',
-                '10. assets/assets.json is the manifest — it tells other tools what assets are available.',
+                '10. assets/art-style.json defines the visual language — use it for any custom illustrations.',
+                '11. Use the illustration prompts (or call generate-illustrations) with DALL-E 3 for brand-coherent AI imagery.',
+                '12. assets/assets.json is the manifest — it tells other tools what assets are available.',
                 hasPngs
-                  ? '11. PNG favicons are ready to use.'
-                  : '11. Run `cd assets/favicon && npm install sharp && node generate-pngs.mjs` for PNG favicons.',
+                  ? '13. PNG favicons are ready to use.'
+                  : '13. Run `cd assets/favicon && npm install sharp && node generate-pngs.mjs` for PNG favicons.',
               ],
             }, null, 2),
           }],
