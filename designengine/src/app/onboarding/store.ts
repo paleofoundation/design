@@ -49,6 +49,14 @@ export interface ExtractionBranding {
   };
 }
 
+export interface DetectedColor {
+  hex: string;
+  name: string;
+  usage: string;
+}
+
+export type ColorRole = 'primary' | 'secondary' | 'accent' | 'background' | 'text';
+
 export interface Adoptions {
   colors: boolean;
   typography: boolean;
@@ -81,8 +89,20 @@ export interface OnboardingState {
   adoptions: Adoptions;
   additionalContext: string;
 
+  detectedColors: DetectedColor[];
+  colorRoleAssignments: Record<ColorRole, string>;
+
   setField: <K extends keyof OnboardingState>(key: K, value: OnboardingState[K]) => void;
-  applyExtraction: (branding: ExtractionBranding, screenshot: string | null) => void;
+  applyExtraction: (
+    branding: ExtractionBranding,
+    screenshot: string | null,
+    aiColors?: {
+      colors: Array<{ hex: string; name: string; usage: string }>;
+      suggestedRoles: Record<string, string>;
+    } | null,
+  ) => void;
+  assignColorRole: (role: ColorRole, hex: string) => void;
+  addDetectedColor: (hex: string) => void;
 }
 
 function mapPersonalityToMood(personality?: { tone?: string; energy?: string }): string {
@@ -101,6 +121,16 @@ function mapPersonalityToMood(personality?: { tone?: string; energy?: string }):
   if (/creative|artistic|daring/.test(combined)) return 'bold';
 
   return '';
+}
+
+function deduplicateColors(colors: DetectedColor[]): DetectedColor[] {
+  const seen = new Set<string>();
+  return colors.filter((c) => {
+    const normalized = c.hex.toUpperCase();
+    if (seen.has(normalized)) return false;
+    seen.add(normalized);
+    return true;
+  });
 }
 
 export const useOnboardingStore = create<OnboardingState>((set) => ({
@@ -128,9 +158,12 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
   adoptions: { colors: true, typography: true, mood: true, spacing: true },
   additionalContext: '',
 
+  detectedColors: [],
+  colorRoleAssignments: { primary: '', secondary: '', accent: '', background: '', text: '' },
+
   setField: (key, value) => set({ [key]: value }),
 
-  applyExtraction: (branding, screenshot) => {
+  applyExtraction: (branding, screenshot, aiColors) => {
     const detectedMood = mapPersonalityToMood(branding.personality);
 
     set((state) => {
@@ -142,13 +175,44 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
         extractedTokens: branding as unknown as Record<string, unknown>,
       };
 
-      if (state.adoptions.colors && branding.colors) {
+      if (aiColors?.colors?.length) {
+        updates.detectedColors = deduplicateColors(aiColors.colors);
+
+        const roles = aiColors.suggestedRoles;
+        updates.colorRoleAssignments = {
+          primary: roles?.primary || branding.colors.primary || '',
+          secondary: roles?.secondary || branding.colors.secondary || '',
+          accent: roles?.accent || branding.colors.accent || '',
+          background: roles?.background || branding.colors.background || '',
+          text: roles?.text || branding.colors.textPrimary || '',
+        };
+      } else {
+        const fc = branding.colors;
+        const fallbackColors: DetectedColor[] = [];
+        if (fc.primary) fallbackColors.push({ hex: fc.primary, name: 'Primary', usage: 'Main brand color' });
+        if (fc.secondary) fallbackColors.push({ hex: fc.secondary, name: 'Secondary', usage: 'Supporting color' });
+        if (fc.accent) fallbackColors.push({ hex: fc.accent, name: 'Accent', usage: 'Highlight color' });
+        if (fc.background) fallbackColors.push({ hex: fc.background, name: 'Background', usage: 'Page background' });
+        if (fc.textPrimary) fallbackColors.push({ hex: fc.textPrimary, name: 'Text', usage: 'Body text' });
+
+        updates.detectedColors = deduplicateColors(fallbackColors);
+        updates.colorRoleAssignments = {
+          primary: fc.primary || '',
+          secondary: fc.secondary || '',
+          accent: fc.accent || '',
+          background: fc.background || '',
+          text: fc.textPrimary || '',
+        };
+      }
+
+      if (state.adoptions.colors && updates.colorRoleAssignments) {
+        const r = updates.colorRoleAssignments;
         updates.colors = {
-          primary: branding.colors.primary || state.colors.primary,
-          secondary: branding.colors.secondary || state.colors.secondary,
-          accent: branding.colors.accent || state.colors.accent,
-          background: branding.colors.background || state.colors.background,
-          text: branding.colors.textPrimary || state.colors.text,
+          primary: r.primary || state.colors.primary,
+          secondary: r.secondary || state.colors.secondary,
+          accent: r.accent || state.colors.accent,
+          background: r.background || state.colors.background,
+          text: r.text || state.colors.text,
         };
       }
 
@@ -163,6 +227,28 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
       }
 
       return updates;
+    });
+  },
+
+  assignColorRole: (role, hex) => {
+    set((state) => ({
+      colorRoleAssignments: { ...state.colorRoleAssignments, [role]: hex },
+      colors: { ...state.colors, [role]: hex },
+    }));
+  },
+
+  addDetectedColor: (hex) => {
+    set((state) => {
+      const normalized = hex.toUpperCase();
+      if (state.detectedColors.some((c) => c.hex.toUpperCase() === normalized)) {
+        return state;
+      }
+      return {
+        detectedColors: [
+          ...state.detectedColors,
+          { hex, name: 'Picked', usage: 'From screenshot' },
+        ],
+      };
     });
   },
 }));

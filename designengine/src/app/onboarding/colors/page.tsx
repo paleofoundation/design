@@ -47,23 +47,24 @@ const COLOR_LABELS: Record<string, string> = {
 
 export default function OnboardingColors() {
   const router = useRouter();
-  const { mood, colors, setField, extractionStatus, adoptions, extraction, inspirationUrl } = useOnboardingStore();
+  const { mood, colors, setField, extractionStatus, adoptions, inspirationUrl, colorRoleAssignments } = useOnboardingStore();
   const hasExtraction = extractionStatus === 'done';
-  const hasExtractedColors = hasExtraction && adoptions.colors && extraction?.colors;
+  const hasExtractedColors = hasExtraction && adoptions.colors;
 
   const stepNumber = hasExtraction ? 4 : 3;
 
   const palettes = CURATED_PALETTES[mood] || CURATED_PALETTES.editorial;
 
-  const extractedPalette = hasExtractedColors && extraction?.colors
+  const r = colorRoleAssignments;
+  const extractedPalette = hasExtractedColors && (r.primary || r.secondary || r.accent)
     ? {
         name: `From ${extractDomain(inspirationUrl)}`,
         colors: {
-          primary: extraction.colors.primary || colors.primary,
-          secondary: extraction.colors.secondary || colors.secondary,
-          accent: extraction.colors.accent || colors.accent,
-          background: extraction.colors.background || colors.background,
-          text: extraction.colors.textPrimary || colors.text,
+          primary: r.primary || colors.primary,
+          secondary: r.secondary || colors.secondary,
+          accent: r.accent || colors.accent,
+          background: r.background || colors.background,
+          text: r.text || colors.text,
         },
       }
     : null;
