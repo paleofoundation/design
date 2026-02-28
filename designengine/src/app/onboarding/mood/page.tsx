@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useOnboardingStore } from '../store';
+import { StepIndicator } from '../components';
 
 const MOODS = [
   {
@@ -50,7 +51,19 @@ const MOODS = [
 
 export default function OnboardingMood() {
   const router = useRouter();
-  const { mood, setField } = useOnboardingStore();
+  const { mood, setField, extractionStatus, adoptions, inspirationUrl } = useOnboardingStore();
+  const hasExtraction = extractionStatus === 'done';
+  const moodWasDetected = hasExtraction && adoptions.mood && mood !== '';
+
+  const stepNumber = hasExtraction ? 3 : 2;
+
+  function extractDomain(url: string): string {
+    try {
+      return new URL(url.startsWith('http') ? url : `https://${url}`).hostname.replace('www.', '');
+    } catch {
+      return url;
+    }
+  }
 
   return (
     <div style={{
@@ -59,7 +72,7 @@ export default function OnboardingMood() {
       padding: 'var(--space-8) var(--space-4)',
       width: '100%',
     }}>
-      <StepIndicator current={2} total={5} />
+      <StepIndicator current={stepNumber} />
 
       <h1 style={{
         fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
@@ -69,14 +82,17 @@ export default function OnboardingMood() {
         lineHeight: 'var(--leading-tight)',
         marginBottom: 'var(--space-1)',
       }}>
-        What&rsquo;s the mood?
+        {moodWasDetected ? 'Confirm the mood' : 'What\u2019s the mood?'}
       </h1>
       <p style={{
         fontSize: 'var(--text-base)',
         color: 'var(--color-text-body)',
         marginBottom: 'var(--space-6)',
       }}>
-        This shapes everything — color choices, typography weight, spacing density, corner radii.
+        {moodWasDetected
+          ? <>Based on {extractDomain(inspirationUrl)}, we detected a <strong style={{ color: 'var(--color-green-deep)', textTransform: 'capitalize' }}>{mood}</strong> feel. Confirm or pick a different direction.</>
+          : 'This shapes everything \u2014 color choices, typography weight, spacing density, corner radii.'
+        }
       </p>
 
       <div style={{
@@ -84,67 +100,89 @@ export default function OnboardingMood() {
         gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 16rem), 1fr))',
         gap: 'var(--space-3)',
       }}>
-        {MOODS.map((m) => (
-          <button
-            key={m.id}
-            onClick={() => setField('mood', m.id)}
-            style={{
-              textAlign: 'left',
-              background: mood === m.id ? 'var(--color-white)' : 'var(--color-white)',
-              border: mood === m.id
-                ? '2px solid var(--color-green-deep)'
-                : '1.5px solid var(--color-border)',
-              borderRadius: 'var(--radius-md)',
-              padding: 'var(--space-3)',
-              cursor: 'pointer',
-              transition: 'border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out)',
-              boxShadow: mood === m.id ? 'var(--shadow-md)' : 'none',
-              fontFamily: 'inherit',
-            }}
-          >
-            <div style={{
-              display: 'flex',
-              gap: '0.25rem',
-              marginBottom: 'var(--space-2)',
-            }}>
-              {m.palette.map((c, i) => (
-                <div
-                  key={i}
-                  style={{
-                    width: '2rem',
-                    height: '2rem',
-                    borderRadius: 'var(--radius-sm)',
-                    background: c,
-                    border: '1px solid rgba(0,0,0,0.08)',
-                  }}
-                />
-              ))}
-            </div>
-            <p style={{
-              fontSize: 'var(--text-base)',
-              fontWeight: 600,
-              color: 'var(--color-text-primary)',
-              marginBottom: '0.125rem',
-            }}>
-              {m.label}
-            </p>
-            <p style={{
-              fontSize: 'var(--text-xs)',
-              fontWeight: 500,
-              color: 'var(--color-green-deep)',
-              marginBottom: 'var(--space-1)',
-            }}>
-              {m.subtitle}
-            </p>
-            <p style={{
-              fontSize: 'var(--text-xs)',
-              color: 'var(--color-text-muted)',
-              lineHeight: 'var(--leading-normal)',
-            }}>
-              {m.description}
-            </p>
-          </button>
-        ))}
+        {MOODS.map((m) => {
+          const isDetected = moodWasDetected && m.id === mood;
+          return (
+            <button
+              key={m.id}
+              onClick={() => setField('mood', m.id)}
+              style={{
+                textAlign: 'left',
+                background: 'var(--color-white)',
+                border: mood === m.id
+                  ? '2px solid var(--color-green-deep)'
+                  : '1.5px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)',
+                padding: 'var(--space-3)',
+                cursor: 'pointer',
+                transition: 'border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out)',
+                boxShadow: mood === m.id ? 'var(--shadow-md)' : 'none',
+                fontFamily: 'inherit',
+                position: 'relative',
+              }}
+            >
+              {isDetected && (
+                <span style={{
+                  position: 'absolute',
+                  top: '-0.5rem',
+                  right: 'var(--space-2)',
+                  fontSize: '0.625rem',
+                  fontWeight: 600,
+                  color: 'var(--color-green-deep)',
+                  background: 'var(--color-green-muted)',
+                  padding: '0.1rem 0.5rem',
+                  borderRadius: 'var(--radius-full)',
+                  letterSpacing: 'var(--tracking-wider)',
+                  textTransform: 'uppercase',
+                  border: '1px solid var(--color-green-deep)',
+                }}>
+                  Detected
+                </span>
+              )}
+              <div style={{
+                display: 'flex',
+                gap: '0.25rem',
+                marginBottom: 'var(--space-2)',
+              }}>
+                {m.palette.map((c, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      width: '2rem',
+                      height: '2rem',
+                      borderRadius: 'var(--radius-sm)',
+                      background: c,
+                      border: '1px solid rgba(0,0,0,0.08)',
+                    }}
+                  />
+                ))}
+              </div>
+              <p style={{
+                fontSize: 'var(--text-base)',
+                fontWeight: 600,
+                color: 'var(--color-text-primary)',
+                marginBottom: '0.125rem',
+              }}>
+                {m.label}
+              </p>
+              <p style={{
+                fontSize: 'var(--text-xs)',
+                fontWeight: 500,
+                color: 'var(--color-green-deep)',
+                marginBottom: 'var(--space-1)',
+              }}>
+                {m.subtitle}
+              </p>
+              <p style={{
+                fontSize: 'var(--text-xs)',
+                color: 'var(--color-text-muted)',
+                lineHeight: 'var(--leading-normal)',
+              }}>
+                {m.description}
+              </p>
+            </button>
+          );
+        })}
       </div>
 
       <div style={{
@@ -153,7 +191,7 @@ export default function OnboardingMood() {
         marginTop: 'var(--space-8)',
       }}>
         <button
-          onClick={() => router.push('/onboarding')}
+          onClick={() => router.push(hasExtraction ? '/onboarding/analyze' : '/onboarding')}
           style={{
             background: 'none',
             border: '1.5px solid var(--color-border)',
@@ -185,19 +223,6 @@ export default function OnboardingMood() {
           Next: Colors &rarr;
         </button>
       </div>
-    </div>
-  );
-}
-
-function StepIndicator({ current, total }: { current: number; total: number }) {
-  return (
-    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: 'var(--space-6)' }}>
-      {Array.from({ length: total }, (_, i) => (
-        <div key={i} style={{
-          flex: 1, height: '3px', borderRadius: '2px',
-          background: i < current ? 'var(--color-green-deep)' : 'var(--color-border)',
-        }} />
-      ))}
     </div>
   );
 }

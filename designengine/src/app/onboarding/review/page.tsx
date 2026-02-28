@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useOnboardingStore } from '../store';
+import { StepIndicator, ProvenanceBadge } from '../components';
 
 export default function OnboardingReview() {
   const router = useRouter();
@@ -10,6 +11,17 @@ export default function OnboardingReview() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+
+  const hasExtraction = store.extractionStatus === 'done';
+  const stepNumber = hasExtraction ? 6 : 5;
+
+  function extractDomain(url: string): string {
+    try {
+      return new URL(url.startsWith('http') ? url : `https://${url}`).hostname.replace('www.', '');
+    } catch {
+      return url;
+    }
+  }
 
   async function handleSave() {
     setSaving(true);
@@ -180,7 +192,7 @@ export default function OnboardingReview() {
       padding: 'var(--space-8) var(--space-4)',
       width: '100%',
     }}>
-      <StepIndicator current={5} total={5} />
+      <StepIndicator current={stepNumber} />
 
       <h1 style={{
         fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
@@ -198,6 +210,9 @@ export default function OnboardingReview() {
         marginBottom: 'var(--space-6)',
       }}>
         This is what every AI tool will use when building for &ldquo;{store.projectName}&rdquo;.
+        {hasExtraction && (
+          <> Elements sourced from <strong style={{ color: 'var(--color-green-deep)' }}>{extractDomain(store.inspirationUrl)}</strong> are marked in green.</>
+        )}
       </p>
 
       <div style={{
@@ -207,7 +222,11 @@ export default function OnboardingReview() {
         marginBottom: 'var(--space-6)',
       }}>
         {/* Colors */}
-        <ReviewSection title="Colors">
+        <ReviewSection
+          title="Colors"
+          provenance={hasExtraction && store.adoptions.colors ? 'extracted' : 'manual'}
+          showProvenance={hasExtraction}
+        >
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
             {Object.entries(store.colors).map(([k, v]) => (
               <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)' }}>
@@ -220,7 +239,11 @@ export default function OnboardingReview() {
         </ReviewSection>
 
         {/* Typography */}
-        <ReviewSection title="Typography">
+        <ReviewSection
+          title="Typography"
+          provenance={hasExtraction && store.adoptions.typography ? 'extracted' : 'manual'}
+          showProvenance={hasExtraction}
+        >
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
             <div>
               <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginBottom: '0.125rem' }}>Headings</p>
@@ -234,7 +257,11 @@ export default function OnboardingReview() {
         </ReviewSection>
 
         {/* Mood */}
-        <ReviewSection title="Mood">
+        <ReviewSection
+          title="Mood"
+          provenance={hasExtraction && store.adoptions.mood ? 'extracted' : 'manual'}
+          showProvenance={hasExtraction}
+        >
           <p style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--color-green-deep)', textTransform: 'capitalize' }}>{store.mood || 'Not selected'}</p>
           {store.brandDescription && (
             <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', marginTop: 'var(--space-1)', lineHeight: 'var(--leading-normal)' }}>&ldquo;{store.brandDescription}&rdquo;</p>
@@ -242,7 +269,7 @@ export default function OnboardingReview() {
         </ReviewSection>
 
         {/* Project */}
-        <ReviewSection title="Project">
+        <ReviewSection title="Project" provenance="manual" showProvenance={false}>
           <p style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--color-text-primary)' }}>{store.projectName}</p>
           {store.inspirationUrl && (
             <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginTop: '0.25rem', wordBreak: 'break-all' }}>{store.inspirationUrl}</p>
@@ -304,7 +331,12 @@ export default function OnboardingReview() {
   );
 }
 
-function ReviewSection({ title, children }: { title: string; children: React.ReactNode }) {
+function ReviewSection({ title, children, provenance, showProvenance }: {
+  title: string;
+  children: React.ReactNode;
+  provenance: 'extracted' | 'manual';
+  showProvenance: boolean;
+}) {
   return (
     <div style={{
       background: 'var(--color-white)',
@@ -312,27 +344,24 @@ function ReviewSection({ title, children }: { title: string; children: React.Rea
       borderRadius: 'var(--radius-md)',
       padding: 'var(--space-3)',
     }}>
-      <p style={{
-        fontSize: 'var(--text-xs)',
-        fontWeight: 500,
-        color: 'var(--color-text-muted)',
-        letterSpacing: 'var(--tracking-wider)',
-        textTransform: 'uppercase',
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
         marginBottom: 'var(--space-2)',
       }}>
-        {title}
-      </p>
+        <p style={{
+          fontSize: 'var(--text-xs)',
+          fontWeight: 500,
+          color: 'var(--color-text-muted)',
+          letterSpacing: 'var(--tracking-wider)',
+          textTransform: 'uppercase',
+        }}>
+          {title}
+        </p>
+        {showProvenance && <ProvenanceBadge source={provenance} />}
+      </div>
       {children}
-    </div>
-  );
-}
-
-function StepIndicator({ current, total }: { current: number; total: number }) {
-  return (
-    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: 'var(--space-6)' }}>
-      {Array.from({ length: total }, (_, i) => (
-        <div key={i} style={{ flex: 1, height: '3px', borderRadius: '2px', background: i < current ? 'var(--color-green-deep)' : 'var(--color-border)' }} />
-      ))}
     </div>
   );
 }

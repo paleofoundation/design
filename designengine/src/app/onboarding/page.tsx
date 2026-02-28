@@ -1,13 +1,66 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useOnboardingStore } from './store';
+import { StepIndicator, LoadingDots } from './components';
 
 export default function OnboardingStep1() {
   const router = useRouter();
   const { projectName, inspirationUrl, brandDescription, setField } = useOnboardingStore();
+  const applyExtraction = useOnboardingStore((s) => s.applyExtraction);
+  const [extracting, setExtracting] = useState(false);
+  const [extractError, setExtractError] = useState('');
 
   const canProceed = projectName.trim().length > 0;
+  const hasUrl = inspirationUrl.trim().length > 0;
+
+  async function handleNext() {
+    if (!canProceed) return;
+
+    if (!hasUrl) {
+      useOnboardingStore.setState({ extractionStatus: 'skipped' });
+      router.push('/onboarding/mood');
+      return;
+    }
+
+    setExtracting(true);
+    setExtractError('');
+    useOnboardingStore.setState({ extractionStatus: 'loading' });
+
+    try {
+      const res = await fetch('/api/onboarding/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: inspirationUrl.trim() }),
+      });
+
+      const data = await res.json();
+
+      if (data.success && data.branding) {
+        applyExtraction(data.branding, data.screenshot);
+        router.push('/onboarding/analyze');
+      } else {
+        useOnboardingStore.setState({ extractionStatus: 'skipped' });
+        router.push('/onboarding/mood');
+      }
+    } catch {
+      setExtractError('Could not reach the server. Proceeding manually.');
+      useOnboardingStore.setState({ extractionStatus: 'skipped' });
+      setTimeout(() => router.push('/onboarding/mood'), 1500);
+    } finally {
+      setExtracting(false);
+    }
+  }
+
+  function extractDomain(url: string): string {
+    try {
+      const u = url.startsWith('http') ? url : `https://${url}`;
+      return new URL(u).hostname.replace('www.', '');
+    } catch {
+      return url;
+    }
+  }
 
   return (
     <div style={{
@@ -16,7 +69,7 @@ export default function OnboardingStep1() {
       padding: 'var(--space-8) var(--space-4)',
       width: '100%',
     }}>
-      <StepIndicator current={1} total={5} />
+      <StepIndicator current={1} />
 
       <h1 style={{
         fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
@@ -51,7 +104,10 @@ export default function OnboardingStep1() {
           placeholder="https://example.com"
           value={inspirationUrl}
           onChange={(v) => setField('inspirationUrl', v)}
-          hint="We'll extract colors, fonts, and spacing from this site to use as a starting point."
+          hint={hasUrl
+            ? "When you continue, we'll analyze this site and show you what we found."
+            : "We'll extract colors, fonts, and spacing from this site to use as a starting point."
+          }
         />
 
         <div>
@@ -88,53 +144,55 @@ export default function OnboardingStep1() {
         </div>
       </div>
 
+      {extractError && (
+        <div style={{
+          marginTop: 'var(--space-2)',
+          padding: 'var(--space-1) var(--space-2)',
+          background: 'var(--color-orange-muted)',
+          border: '1px solid rgba(255,103,25,0.2)',
+          borderRadius: 'var(--radius-md)',
+          fontSize: 'var(--text-sm)',
+          color: 'var(--color-orange)',
+        }}>
+          {extractError}
+        </div>
+      )}
+
       <div style={{
         display: 'flex',
         justifyContent: 'flex-end',
         marginTop: 'var(--space-8)',
       }}>
         <button
-          onClick={() => router.push('/onboarding/mood')}
-          disabled={!canProceed}
+          onClick={handleNext}
+          disabled={!canProceed || extracting}
           style={{
-            background: canProceed ? 'var(--color-orange)' : 'var(--color-border)',
+            background: canProceed && !extracting ? 'var(--color-orange)' : 'var(--color-border)',
             color: '#fff',
             fontWeight: 600,
             fontSize: 'var(--text-base)',
             padding: '0.75rem 2rem',
             borderRadius: 'var(--radius-md)',
             border: 'none',
-            cursor: canProceed ? 'pointer' : 'not-allowed',
+            cursor: canProceed && !extracting ? 'pointer' : 'not-allowed',
             transition: 'background var(--duration-fast) var(--ease-out)',
             fontFamily: 'inherit',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            minWidth: '10rem',
+            justifyContent: 'center',
           }}
         >
-          Next: Pick a mood &rarr;
+          {extracting ? (
+            <>Analyzing {extractDomain(inspirationUrl)} <LoadingDots /></>
+          ) : hasUrl ? (
+            <>Next: Analyze site &rarr;</>
+          ) : (
+            <>Next: Pick a mood &rarr;</>
+          )}
         </button>
       </div>
-    </div>
-  );
-}
-
-function StepIndicator({ current, total }: { current: number; total: number }) {
-  return (
-    <div style={{
-      display: 'flex',
-      gap: '0.5rem',
-      marginBottom: 'var(--space-6)',
-    }}>
-      {Array.from({ length: total }, (_, i) => (
-        <div
-          key={i}
-          style={{
-            flex: 1,
-            height: '3px',
-            borderRadius: '2px',
-            background: i < current ? 'var(--color-green-deep)' : 'var(--color-border)',
-            transition: 'background var(--duration-slow) var(--ease-out)',
-          }}
-        />
-      ))}
     </div>
   );
 }

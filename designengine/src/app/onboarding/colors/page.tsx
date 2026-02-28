@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useOnboardingStore } from '../store';
+import { StepIndicator } from '../components';
 
 const CURATED_PALETTES: Record<string, Array<{ name: string; colors: { primary: string; secondary: string; accent: string; background: string; text: string } }>> = {
   corporate: [
@@ -46,11 +47,36 @@ const COLOR_LABELS: Record<string, string> = {
 
 export default function OnboardingColors() {
   const router = useRouter();
-  const { mood, colors, setField } = useOnboardingStore();
+  const { mood, colors, setField, extractionStatus, adoptions, extraction, inspirationUrl } = useOnboardingStore();
+  const hasExtraction = extractionStatus === 'done';
+  const hasExtractedColors = hasExtraction && adoptions.colors && extraction?.colors;
+
+  const stepNumber = hasExtraction ? 4 : 3;
 
   const palettes = CURATED_PALETTES[mood] || CURATED_PALETTES.editorial;
 
-  function selectPalette(palette: typeof palettes[0]) {
+  const extractedPalette = hasExtractedColors && extraction?.colors
+    ? {
+        name: `From ${extractDomain(inspirationUrl)}`,
+        colors: {
+          primary: extraction.colors.primary || colors.primary,
+          secondary: extraction.colors.secondary || colors.secondary,
+          accent: extraction.colors.accent || colors.accent,
+          background: extraction.colors.background || colors.background,
+          text: extraction.colors.textPrimary || colors.text,
+        },
+      }
+    : null;
+
+  function extractDomain(url: string): string {
+    try {
+      return new URL(url.startsWith('http') ? url : `https://${url}`).hostname.replace('www.', '');
+    } catch {
+      return url;
+    }
+  }
+
+  function selectPalette(palette: { colors: typeof colors }) {
     setField('colors', { ...palette.colors });
   }
 
@@ -65,7 +91,7 @@ export default function OnboardingColors() {
       padding: 'var(--space-8) var(--space-4)',
       width: '100%',
     }}>
-      <StepIndicator current={3} total={5} />
+      <StepIndicator current={stepNumber} />
 
       <h1 style={{
         fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
@@ -75,15 +101,72 @@ export default function OnboardingColors() {
         lineHeight: 'var(--leading-tight)',
         marginBottom: 'var(--space-1)',
       }}>
-        Choose your colors
+        {hasExtractedColors ? 'Refine your colors' : 'Choose your colors'}
       </h1>
       <p style={{
         fontSize: 'var(--text-base)',
         color: 'var(--color-text-body)',
         marginBottom: 'var(--space-6)',
       }}>
-        Pick a curated palette or fine-tune each color. These become the CSS variables and Tailwind config for your entire project.
+        {hasExtractedColors
+          ? 'We\'ve pre-filled with the palette we extracted. Swap to a curated alternative or fine-tune each color.'
+          : 'Pick a curated palette or fine-tune each color. These become the CSS variables and Tailwind config for your entire project.'
+        }
       </p>
+
+      {/* Extracted palette card */}
+      {extractedPalette && (
+        <div style={{ marginBottom: 'var(--space-4)' }}>
+          <p style={{
+            fontSize: 'var(--text-sm)',
+            fontWeight: 500,
+            color: 'var(--color-green-deep)',
+            marginBottom: 'var(--space-2)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--space-1)',
+          }}>
+            <span style={{
+              fontSize: '0.625rem',
+              fontWeight: 600,
+              background: 'var(--color-green-muted)',
+              padding: '0.1rem 0.5rem',
+              borderRadius: 'var(--radius-full)',
+              letterSpacing: 'var(--tracking-wider)',
+              textTransform: 'uppercase',
+            }}>
+              Extracted
+            </span>
+            {extractedPalette.name}
+          </p>
+          <button
+            onClick={() => selectPalette(extractedPalette)}
+            style={{
+              textAlign: 'left',
+              width: '100%',
+              background: 'var(--color-white)',
+              border: '2px solid var(--color-green-deep)',
+              borderRadius: 'var(--radius-md)',
+              padding: 'var(--space-2)',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              boxShadow: 'var(--shadow-sm)',
+            }}
+          >
+            <div style={{ display: 'flex', gap: '0.25rem', marginBottom: 'var(--space-1)' }}>
+              {Object.values(extractedPalette.colors).map((c, i) => (
+                <div key={i} style={{
+                  flex: 1, height: '2.5rem', borderRadius: 'var(--radius-sm)',
+                  background: c, border: '1px solid rgba(0,0,0,0.06)',
+                }} />
+              ))}
+            </div>
+            <p style={{ fontSize: 'var(--text-xs)', fontWeight: 500, color: 'var(--color-text-primary)' }}>
+              {extractedPalette.name}
+            </p>
+          </button>
+        </div>
+      )}
 
       {/* Curated palettes */}
       <div style={{ marginBottom: 'var(--space-6)' }}>
@@ -93,7 +176,7 @@ export default function OnboardingColors() {
           color: 'var(--color-text-primary)',
           marginBottom: 'var(--space-2)',
         }}>
-          Curated for &ldquo;{mood || 'editorial'}&rdquo; mood
+          {hasExtractedColors ? 'Or pick a curated alternative' : <>Curated for &ldquo;{mood || 'editorial'}&rdquo; mood</>}
         </p>
         <div style={{
           display: 'grid',
@@ -213,16 +296,6 @@ export default function OnboardingColors() {
           Next: Typography &rarr;
         </button>
       </div>
-    </div>
-  );
-}
-
-function StepIndicator({ current, total }: { current: number; total: number }) {
-  return (
-    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: 'var(--space-6)' }}>
-      {Array.from({ length: total }, (_, i) => (
-        <div key={i} style={{ flex: 1, height: '3px', borderRadius: '2px', background: i < current ? 'var(--color-green-deep)' : 'var(--color-border)' }} />
-      ))}
     </div>
   );
 }
