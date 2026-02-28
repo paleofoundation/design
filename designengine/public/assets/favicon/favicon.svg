@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="102.4" fill="#306E5E"/>
+  <rect x="20.5" y="20.5" width="471.0" height="471.0" rx="87.0" fill="none" stroke="#FF6719" stroke-width="7.7" opacity="0.2"/>
+  <text x="256" y="256" text-anchor="middle" dominant-baseline="central"
+    fill="#224d42" opacity="0.12" font-family="system-ui,-apple-system,Segoe UI,sans-serif" font-weight="800"
+    font-size="266" dx="2" dy="2">D</text>
+  <text x="256" y="256" text-anchor="middle" dominant-baseline="central"
+    fill="#FFFFFF" font-family="system-ui,-apple-system,Segoe UI,sans-serif" font-weight="800"
+    font-size="266" letter-spacing="-0.03em">D</text>
+</svg>

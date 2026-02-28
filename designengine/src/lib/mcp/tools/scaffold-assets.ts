@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import type { PaletteColors } from '@/lib/svg/utils';
-import { type FaviconShape } from '@/lib/svg/favicon';
+import { type FaviconShape, buildIntegrationCode } from '@/lib/svg/favicon';
 import { generateFaviconPackage } from '@/lib/svg/favicon-package';
 import { generateAllPatterns } from '@/lib/svg/patterns';
 import { generateAllDividers } from '@/lib/svg/dividers';
@@ -169,6 +169,8 @@ export function registerScaffoldAssetsTool(server: McpServer): void {
         });
         files['assets/assets.json'] = { content: JSON.stringify(manifest, null, 2), encoding: 'utf-8' };
 
+        const integrationCode = buildIntegrationCode();
+
         return {
           content: [{
             type: 'text' as const,
@@ -188,17 +190,21 @@ export function registerScaffoldAssetsTool(server: McpServer): void {
               },
               files,
               htmlHead: faviconPkg.htmlHead,
+              integrationCode,
               cssImports: manifest.cssImports,
               instructions: [
-                '1. Write each file to the specified path relative to your project root.',
+                '1. Write each file to the specified path relative to your project\'s public/ directory.',
                 '2. Files with encoding "base64" are binary — decode before writing.',
-                '3. Add the htmlHead tags to your document <head>.',
-                '4. Import the CSS files listed in cssImports into your global stylesheet.',
-                '5. Include the JS animation files before </body> or import as modules.',
-                '6. assets/assets.json is the manifest — it tells other tools what assets are available.',
+                '3. IMPORTANT: Wire the favicon into the project layout using the integrationCode snippet for your framework.',
+                '4. For Next.js App Router: add the icons and manifest fields to the metadata export in layout.tsx.',
+                '5. For plain HTML or Vite: paste the HTML head tags inside <head>.',
+                '6. For Remix: add the links to the root.tsx links export.',
+                '7. Import the CSS files listed in cssImports into your global stylesheet.',
+                '8. Include the JS animation files before </body> or import as modules.',
+                '9. assets/assets.json is the manifest — it tells other tools what assets are available.',
                 hasPngs
-                  ? '7. PNG favicons are ready to use.'
-                  : '7. Run `cd assets/favicon && npm install sharp && node generate-pngs.mjs` for PNG favicons.',
+                  ? '10. PNG favicons are ready to use.'
+                  : '10. Run `cd assets/favicon && npm install sharp && node generate-pngs.mjs` for PNG favicons.',
               ],
             }, null, 2),
           }],

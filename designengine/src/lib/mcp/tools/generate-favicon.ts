@@ -1,6 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import { type FaviconShape } from '@/lib/svg/favicon';
+import { type FaviconShape, buildIntegrationCode } from '@/lib/svg/favicon';
 import { generateFaviconPackage } from '@/lib/svg/favicon-package';
 import { loadDesignProfile } from './shared/load-profile';
 
@@ -71,6 +71,8 @@ export function registerGenerateFaviconTool(server: McpServer): void {
           files['assets/favicon/generate-pngs.mjs'] = { content: pkg.pngScript, encoding: 'utf-8' };
         }
 
+        const integrationCode = buildIntegrationCode();
+
         return {
           content: [{
             type: 'text' as const,
@@ -85,13 +87,17 @@ export function registerGenerateFaviconTool(server: McpServer): void {
                 : 'sharp not available. Run assets/favicon/generate-pngs.mjs after installing sharp to generate PNGs.',
               files,
               htmlHead: pkg.htmlHead,
+              integrationCode,
               instructions: [
-                '1. Write each file to the specified path in your project.',
+                '1. Write each file to the specified path under your public/ directory.',
                 hasPngs
                   ? '2. PNG files are base64-encoded — decode to binary when writing.'
                   : '2. Run `cd assets/favicon && npm install sharp && node generate-pngs.mjs` to generate PNGs.',
-                '3. Add the htmlHead tags to your <head> element.',
-                '4. The SVG favicon works in all modern browsers immediately.',
+                '3. IMPORTANT: Wire the favicon into your project layout using the integrationCode snippet for your framework.',
+                '4. For Next.js App Router: add the icons and manifest fields to your metadata export in layout.tsx.',
+                '5. For plain HTML or Vite: paste the HTML head tags inside <head>.',
+                '6. For Remix: add the links to your root.tsx links export.',
+                '7. The SVG favicon works in all modern browsers immediately.',
               ],
             }, null, 2),
           }],

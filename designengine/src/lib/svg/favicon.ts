@@ -155,3 +155,49 @@ export function buildHtmlHeadTags(): string {
     '<link rel="manifest" href="/assets/favicon/site.webmanifest">',
   ].join('\n');
 }
+
+export interface IntegrationCode {
+  nextjs: string;
+  html: string;
+  remix: string;
+  description: string;
+}
+
+/**
+ * Returns framework-specific code snippets for wiring favicons into a project.
+ * Consuming AI agents use these to know exactly what code to add.
+ */
+export function buildIntegrationCode(): IntegrationCode {
+  return {
+    nextjs: `// Add to your root layout.tsx metadata export:
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  // ...your existing metadata
+  icons: {
+    icon: [
+      { url: "/assets/favicon/favicon.svg", type: "image/svg+xml" },
+      { url: "/assets/favicon/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/assets/favicon/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: "/assets/favicon/apple-touch-icon.png",
+  },
+  manifest: "/assets/favicon/site.webmanifest",
+};`,
+    html: `<!-- Add inside <head> -->
+<link rel="icon" href="/assets/favicon/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/favicon/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/assets/favicon/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">`,
+    remix: `// Add to your root.tsx links export:
+export const links: LinksFunction = () => [
+  { rel: "icon", href: "/assets/favicon/favicon.svg", type: "image/svg+xml" },
+  { rel: "icon", href: "/assets/favicon/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+  { rel: "icon", href: "/assets/favicon/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+  { rel: "apple-touch-icon", href: "/assets/favicon/apple-touch-icon.png" },
+  { rel: "manifest", href: "/assets/favicon/site.webmanifest" },
+];`,
+    description: 'Copy the snippet matching your framework into your project to wire up the favicon. All files go into public/assets/favicon/.',
+  };
+}
