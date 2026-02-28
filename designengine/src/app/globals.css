@@ -147,45 +147,11 @@
 }
 
 @theme inline {
-  /* Strip ALL default Tailwind colors — only dzyne palette exists */
   --color-*: initial;
 
-  /* --- dzyne palette: the only colors available --- */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  --color-green-deep: #306E5E;
-  --color-green-dark: #275A4C;
-  --color-green-darker: #1E4A3E;
-  --color-green-darkest: #163A30;
-  --color-green-light: #4A8E7A;
-
-  --color-orange: #FF6719;
-  --color-orange-hover: #E85A12;
-  --color-orange-light: #FF8547;
-
-  --color-amber: #F2B245;
-  --color-amber-light: #F5C76A;
-
-  --color-lavender: #CAC5F9;
-  --color-lavender-light: #DDD9FC;
-
-  --color-surface: #FDFBF7;
-  --color-surface-warm: #F5F0E8;
-  --color-surface-hover: #EDE7DC;
-  --color-white: #FFFFFF;
-
-  --color-text-primary: #1A1A1A;
-  --color-text-body: #4A4A4A;
-  --color-text-muted: #7A7A7A;
-  --color-text-on-dark: #FFFFFF;
-  --color-text-on-green: #FFFFFF;
-
-  --color-error: #DC3545;
-  --color-success: #28A745;
-  --color-warning: #F2B245;
-
-  /* --- Fonts --- */
   --font-sans: var(--font-source-sans);
   --font-serif: var(--font-fraunces);
   --font-mono: var(--font-jetbrains);

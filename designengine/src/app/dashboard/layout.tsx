@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { PALETTE, DASH, FONT, RADIUS, TEXT_SIZE } from '@/lib/design-tokens';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,14 +29,11 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div data-theme="dark" style={{
-      minHeight: '100vh',
-      background: 'var(--color-green-deep)',
-      color: 'var(--color-text-on-green)',
-    }}>
+    <div style={{ minHeight: '100vh', background: DASH.bg }}>
+      {/* Green nav strip — brand anchor */}
       <nav style={{
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-        padding: '0 var(--space-4)',
+        background: PALETTE.green.deep,
+        padding: '0 2rem',
       }}>
         <div style={{
           maxWidth: '72rem',
@@ -45,42 +43,41 @@ export default async function DashboardLayout({
           justifyContent: 'space-between',
           height: '3.5rem',
         }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)', textDecoration: 'none' }}>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
             <div style={{
               width: '2rem',
               height: '2rem',
-              background: 'var(--color-orange)',
-              borderRadius: 'var(--radius-md)',
+              background: PALETTE.orange.base,
+              borderRadius: RADIUS.md,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+              fontFamily: FONT.heading,
               fontWeight: 700,
-              fontSize: 'var(--text-xs)',
-              color: 'var(--color-text-on-dark)',
+              fontSize: TEXT_SIZE.xs,
+              color: PALETTE.text.onDark,
             }}>
               dz
             </div>
             <span style={{
-              fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+              fontFamily: FONT.heading,
               fontWeight: 600,
-              fontSize: 'var(--text-lg)',
-              color: 'var(--color-text-on-green)',
+              fontSize: TEXT_SIZE.lg,
+              color: PALETTE.text.onGreen,
             }}>
               dzyne
             </span>
           </Link>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 style={{
-                  fontSize: 'var(--text-sm)',
-                  color: 'rgba(255, 255, 255, 0.6)',
+                  fontSize: TEXT_SIZE.sm,
+                  color: 'rgba(255, 255, 255, 0.75)',
                   textDecoration: 'none',
-                  transition: 'color var(--duration-fast) var(--ease-out)',
                 }}
               >
                 {link.label}
@@ -89,17 +86,19 @@ export default async function DashboardLayout({
           </div>
 
           <span style={{
-            fontSize: 'var(--text-sm)',
-            color: 'rgba(255, 255, 255, 0.5)',
+            fontSize: TEXT_SIZE.sm,
+            color: 'rgba(255, 255, 255, 0.6)',
           }}>
             {user.email}
           </span>
         </div>
       </nav>
+
+      {/* White content area */}
       <main style={{
         maxWidth: '72rem',
         margin: '0 auto',
-        padding: 'var(--space-6) var(--space-4)',
+        padding: '3rem 2rem',
       }}>
         {children}
       </main>

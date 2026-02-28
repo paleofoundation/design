@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { KeyActions } from './key-actions';
+import { PALETTE, DASH, FONT, RADIUS, TEXT_SIZE } from '@/lib/design-tokens';
 
 interface ApiKeyRow {
   id: string;
@@ -53,15 +54,15 @@ export default async function KeysPage() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h2 style={{
-            fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
-            fontSize: 'var(--text-2xl)',
+            fontFamily: FONT.heading,
+            fontSize: TEXT_SIZE['2xl'],
             fontWeight: 400,
-            color: 'var(--color-text-on-green)',
+            color: DASH.heading,
             letterSpacing: '-0.02em',
           }}>
             API Keys
           </h2>
-          <p style={{ marginTop: '0.25rem', fontSize: 'var(--text-sm)', color: 'rgba(255, 255, 255, 0.5)' }}>
+          <p style={{ marginTop: '0.25rem', fontSize: TEXT_SIZE.sm, color: DASH.muted }}>
             Manage your API keys for accessing DesignEngine tools.
           </p>
         </div>
@@ -69,14 +70,14 @@ export default async function KeysPage() {
       </div>
 
       <div style={{
-        background: 'var(--color-green-dark)',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
-        borderRadius: 'var(--radius-md)',
+        background: DASH.card,
+        border: `1px solid ${DASH.cardBorder}`,
+        borderRadius: RADIUS.lg,
         overflow: 'hidden',
       }}>
-        <table style={{ width: '100%', fontSize: 'var(--text-sm)', borderCollapse: 'collapse' }}>
+        <table style={{ width: '100%', fontSize: TEXT_SIZE.sm, borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', textAlign: 'left', color: 'rgba(255, 255, 255, 0.5)' }}>
+            <tr style={{ borderBottom: `1px solid ${DASH.dividerStrong}`, textAlign: 'left', color: DASH.muted, background: DASH.tableHeaderBg }}>
               <th style={{ padding: '0.75rem 1.5rem', fontWeight: 500 }}>Name</th>
               <th style={{ padding: '0.75rem 1.5rem', fontWeight: 500 }}>Prefix</th>
               <th style={{ padding: '0.75rem 1.5rem', fontWeight: 500 }}>Status</th>
@@ -89,7 +90,7 @@ export default async function KeysPage() {
           <tbody>
             {(!keys || keys.length === 0) && (
               <tr>
-                <td colSpan={7} style={{ padding: '2rem 1.5rem', textAlign: 'center', color: 'rgba(255, 255, 255, 0.4)' }}>
+                <td colSpan={7} style={{ padding: '2rem 1.5rem', textAlign: 'center', color: DASH.faint }}>
                   No API keys yet. Create one to get started.
                 </td>
               </tr>
@@ -106,9 +107,9 @@ export default async function KeysPage() {
 
 function KeyRow({ apiKey, calls }: { apiKey: ApiKeyRow; calls: number }) {
   return (
-    <tr style={{ borderTop: '1px solid rgba(255, 255, 255, 0.06)', color: 'rgba(255, 255, 255, 0.85)' }}>
-      <td style={{ padding: '1rem 1.5rem', fontWeight: 500, color: 'var(--color-text-on-green)' }}>{apiKey.name}</td>
-      <td style={{ padding: '1rem 1.5rem', fontFamily: 'var(--font-jetbrains, JetBrains Mono, monospace)', fontSize: 'var(--text-xs)', color: 'rgba(255, 255, 255, 0.5)' }}>
+    <tr style={{ borderTop: `1px solid ${DASH.divider}`, color: DASH.body }}>
+      <td style={{ padding: '1rem 1.5rem', fontWeight: 500, color: DASH.heading }}>{apiKey.name}</td>
+      <td style={{ padding: '1rem 1.5rem', fontFamily: FONT.mono, fontSize: TEXT_SIZE.xs, color: DASH.muted }}>
         {apiKey.key_prefix}••••••••
       </td>
       <td style={{ padding: '1rem 1.5rem' }}>
@@ -116,26 +117,26 @@ function KeyRow({ apiKey, calls }: { apiKey: ApiKeyRow; calls: number }) {
           display: 'inline-flex',
           alignItems: 'center',
           gap: '0.375rem',
-          borderRadius: '9999px',
+          borderRadius: RADIUS.full,
           padding: '0.125rem 0.625rem',
-          fontSize: 'var(--text-xs)',
+          fontSize: TEXT_SIZE.xs,
           fontWeight: 500,
-          background: apiKey.is_active ? 'color-mix(in srgb, var(--color-success) 10%, transparent)' : 'color-mix(in srgb, var(--color-error) 10%, transparent)',
-          color: apiKey.is_active ? 'var(--color-success)' : 'var(--color-error)',
+          background: apiKey.is_active ? PALETTE.semantic.successMuted : PALETTE.semantic.errorMuted,
+          color: apiKey.is_active ? PALETTE.semantic.success : PALETTE.semantic.error,
         }}>
           <span style={{
             width: '0.375rem',
             height: '0.375rem',
-            borderRadius: '9999px',
-            background: apiKey.is_active ? 'var(--color-success)' : 'var(--color-error)',
+            borderRadius: RADIUS.full,
+            background: apiKey.is_active ? PALETTE.semantic.success : PALETTE.semantic.error,
           }} />
           {apiKey.is_active ? 'Active' : 'Revoked'}
         </span>
       </td>
-      <td style={{ padding: '1rem 1.5rem', color: 'rgba(255, 255, 255, 0.5)' }}>
+      <td style={{ padding: '1rem 1.5rem', color: DASH.muted }}>
         {new Date(apiKey.created_at).toLocaleDateString()}
       </td>
-      <td style={{ padding: '1rem 1.5rem', color: 'rgba(255, 255, 255, 0.5)' }}>
+      <td style={{ padding: '1rem 1.5rem', color: DASH.muted }}>
         {apiKey.last_used_at ? new Date(apiKey.last_used_at).toLocaleDateString() : '—'}
       </td>
       <td style={{ padding: '1rem 1.5rem', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{calls.toLocaleString()}</td>
@@ -155,7 +156,7 @@ function RevokeButton({ keyId }: { keyId: string }) {
         await admin.from('api_keys').update({ is_active: false }).eq('id', keyId);
       }}
     >
-      <button type="submit" style={{ background: 'none', border: 'none', color: 'var(--color-error)', fontSize: 'var(--text-xs)', fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
+      <button type="submit" style={{ background: 'none', border: 'none', color: PALETTE.semantic.error, fontSize: TEXT_SIZE.xs, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
         Revoke
       </button>
     </form>

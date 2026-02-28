@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getUsageSummary } from '@/lib/stripe/billing';
 import Link from 'next/link';
+import { PALETTE, DASH, FONT, RADIUS, TEXT_SIZE } from '@/lib/design-tokens';
 
 export default async function DashboardOverview() {
   const supabase = await createClient();
@@ -41,15 +42,15 @@ export default async function DashboardOverview() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
       <div>
         <h2 style={{
-          fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
-          fontSize: 'var(--text-2xl)',
+          fontFamily: FONT.heading,
+          fontSize: TEXT_SIZE['2xl'],
           fontWeight: 400,
-          color: 'var(--color-text-on-green)',
+          color: DASH.heading,
           letterSpacing: '-0.02em',
         }}>
           Welcome back
         </h2>
-        <p style={{ marginTop: '0.25rem', fontSize: 'var(--text-sm)', color: 'rgba(255, 255, 255, 0.5)' }}>
+        <p style={{ marginTop: '0.25rem', fontSize: TEXT_SIZE.sm, color: DASH.muted }}>
           {user?.email}
         </p>
       </div>
@@ -64,11 +65,11 @@ export default async function DashboardOverview() {
         <Link
           href="/dashboard/keys"
           style={{
-            background: 'var(--color-orange)',
-            color: 'var(--color-text-on-dark)',
-            borderRadius: 'var(--radius-md)',
-            padding: '0.5rem 1rem',
-            fontSize: 'var(--text-sm)',
+            background: PALETTE.orange.base,
+            color: PALETTE.text.onDark,
+            borderRadius: RADIUS.md,
+            padding: '0.5rem 1.25rem',
+            fontSize: TEXT_SIZE.sm,
             fontWeight: 500,
             textDecoration: 'none',
           }}
@@ -78,12 +79,12 @@ export default async function DashboardOverview() {
         <Link
           href="/dashboard/playground"
           style={{
-            background: 'var(--color-green-dark)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            color: 'var(--color-text-on-green)',
-            borderRadius: 'var(--radius-md)',
-            padding: '0.5rem 1rem',
-            fontSize: 'var(--text-sm)',
+            background: 'transparent',
+            border: `1px solid ${DASH.cardBorder}`,
+            color: PALETTE.green.deep,
+            borderRadius: RADIUS.md,
+            padding: '0.5rem 1.25rem',
+            fontSize: TEXT_SIZE.sm,
             fontWeight: 500,
             textDecoration: 'none',
           }}
@@ -93,22 +94,22 @@ export default async function DashboardOverview() {
       </div>
 
       <div style={{
-        background: 'var(--color-green-dark)',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
-        borderRadius: 'var(--radius-md)',
+        background: DASH.card,
+        border: `1px solid ${DASH.cardBorder}`,
+        borderRadius: RADIUS.lg,
         padding: '1.5rem',
       }}>
         <h3 style={{
-          fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
-          fontSize: 'var(--text-lg)',
+          fontFamily: FONT.heading,
+          fontSize: TEXT_SIZE.lg,
           fontWeight: 500,
-          color: 'var(--color-text-on-green)',
+          color: DASH.heading,
           marginBottom: '1rem',
         }}>
           Recent Activity
         </h3>
         {!recentLogs || recentLogs.length === 0 ? (
-          <p style={{ fontSize: 'var(--text-sm)', color: 'rgba(255, 255, 255, 0.4)' }}>No activity yet.</p>
+          <p style={{ fontSize: TEXT_SIZE.sm, color: DASH.faint }}>No activity yet.</p>
         ) : (
           <div>
             {recentLogs.map((log, i) => (
@@ -119,29 +120,26 @@ export default async function DashboardOverview() {
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '0.75rem 0',
-                  fontSize: 'var(--text-sm)',
-                  borderTop: i > 0 ? '1px solid rgba(255, 255, 255, 0.06)' : 'none',
+                  fontSize: TEXT_SIZE.sm,
+                  borderTop: i > 0 ? `1px solid ${DASH.divider}` : 'none',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <span style={{
                     width: '0.5rem',
                     height: '0.5rem',
-                    borderRadius: '9999px',
+                    borderRadius: RADIUS.full,
                     background: log.status === 'success'
-                      ? 'var(--color-success)'
+                      ? PALETTE.semantic.success
                       : log.status === 'rate_limited'
-                        ? 'var(--color-amber)'
-                        : 'var(--color-error)',
+                        ? PALETTE.amber.base
+                        : PALETTE.semantic.error,
                   }} />
-                  <span style={{
-                    fontFamily: 'var(--font-jetbrains, JetBrains Mono, monospace)',
-                    color: 'rgba(255, 255, 255, 0.85)',
-                  }}>
+                  <span style={{ fontFamily: FONT.mono, color: DASH.body }}>
                     {log.tool_name}
                   </span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'rgba(255, 255, 255, 0.4)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: DASH.muted }}>
                   <span>{log.latency_ms}ms</span>
                   <span>{new Date(log.created_at).toLocaleString()}</span>
                 </div>
@@ -157,14 +155,14 @@ export default async function DashboardOverview() {
 function StatCard({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
     <div style={{
-      background: 'var(--color-green-dark)',
-      border: '1px solid rgba(255, 255, 255, 0.08)',
-      borderRadius: 'var(--radius-md)',
+      background: DASH.card,
+      border: `1px solid ${DASH.cardBorder}`,
+      borderRadius: RADIUS.lg,
       padding: '1.5rem',
     }}>
-      <p style={{ fontSize: 'var(--text-sm)', color: 'rgba(255, 255, 255, 0.6)' }}>{label}</p>
-      <p style={{ marginTop: '0.5rem', fontSize: 'var(--text-3xl)', fontWeight: 700, color: 'var(--color-text-on-green)' }}>{value}</p>
-      <p style={{ marginTop: '0.25rem', fontSize: 'var(--text-sm)', color: 'rgba(255, 255, 255, 0.4)' }}>{sub}</p>
+      <p style={{ fontSize: TEXT_SIZE.sm, color: DASH.muted }}>{label}</p>
+      <p style={{ marginTop: '0.5rem', fontSize: TEXT_SIZE['3xl'], fontWeight: 700, color: PALETTE.green.deep }}>{value}</p>
+      <p style={{ marginTop: '0.25rem', fontSize: TEXT_SIZE.sm, color: DASH.faint }}>{sub}</p>
     </div>
   );
 }
