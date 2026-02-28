@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { href: '/dashboard/usage', label: 'Usage' },
   { href: '/dashboard/playground', label: 'Playground' },
   { href: '/dashboard/knowledge', label: 'Knowledge' },
+  { href: '/dashboard/preview', label: 'Preview' },
   { href: '/dashboard/billing', label: 'Billing' },
 ];
 

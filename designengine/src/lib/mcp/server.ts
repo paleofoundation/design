@@ -14,6 +14,9 @@ import { registerGenerateLayoutTool } from './tools/generate-layout';
 import { registerDesignDiffTool } from './tools/design-diff';
 import { registerGenerateResponsiveRulesTool } from './tools/generate-responsive-rules';
 import { registerQueryDesignKnowledgeTool } from './tools/query-design-knowledge';
+import { registerGenerateFaviconTool } from './tools/generate-favicon';
+import { registerGenerateSvgAssetsTool } from './tools/generate-svg-assets';
+import { registerScaffoldAssetsTool } from './tools/scaffold-assets';
 
 export function initializeDesignEngine(server: McpServer): void {
   registerIngestDesignTool(server);
@@ -31,4 +34,7 @@ export function initializeDesignEngine(server: McpServer): void {
   registerDesignDiffTool(server);
   registerGenerateResponsiveRulesTool(server);
   registerQueryDesignKnowledgeTool(server);
+  registerGenerateFaviconTool(server);
+  registerGenerateSvgAssetsTool(server);
+  registerScaffoldAssetsTool(server);
 }
