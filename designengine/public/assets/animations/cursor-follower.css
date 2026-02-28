@@ -1,0 +1,31 @@
+/* Cursor Follower — dzyn generated */
+.dzyn-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--color-orange, #FF6719);
+  pointer-events: none;
+  z-index: 9999;
+  will-change: transform;
+  transition-property: width, height, border-color, opacity;
+  transition-duration: var(--duration-slow, 400ms);
+  transition-timing-function: var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+  mix-blend-mode: difference;
+}
+
+.dzyn-cursor--hover {
+  width: 44px;
+  height: 44px;
+  border-color: var(--color-green-deep, #306E5E);
+}
+
+@media (pointer: coarse) {
+  .dzyn-cursor { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dzyn-cursor { display: none; }
+}

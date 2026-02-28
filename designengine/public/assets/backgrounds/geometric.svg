@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 800" width="1440" height="800">
+  <rect width="1440" height="800" fill="#FDFBF7"/>
+  <rect x="742" y="354" width="140" height="160" rx="32" fill="#306E5E" opacity="0.05" transform="rotate(-14, 812, 434)"/>
+  <circle cx="1320" cy="336" r="93" fill="#306E5E" opacity="0.06"/>
+  <rect x="1268" y="424" width="99" height="64" rx="27" fill="#CAC5F9" opacity="0.07" transform="rotate(-19, 1318, 456)"/>
+  <circle cx="199" cy="498" r="130" fill="#F2B245" opacity="0.07"/>
+  <circle cx="830" cy="192" r="59" fill="#F2B245" opacity="0.10"/>
+  <circle cx="1011" cy="66" r="150" fill="#FF6719" opacity="0.08"/>
+  <polygon points="1226,406 1099,479 1099,332 1226,406" fill="#306E5E" opacity="0.07"/>
+  <rect x="904" y="27" width="183" height="158" rx="13" fill="#FF6719" opacity="0.06" transform="rotate(-14, 996, 106)"/>
+  <polygon points="577,3 474,62 474,-56" fill="#CAC5F9" opacity="0.06"/>
+  <rect x="447" y="538" width="80" height="83" rx="22" fill="#4A8E7A" opacity="0.06" transform="rotate(-6, 487, 579)"/>
+</svg>

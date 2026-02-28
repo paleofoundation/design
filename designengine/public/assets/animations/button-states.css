@@ -1,0 +1,80 @@
+/* Button Micro-Interactions — dzyn generated */
+
+.dzyn-btn {
+  position: relative;
+  overflow: hidden;
+  transition-property: transform, box-shadow;
+  transition-duration: var(--duration-base, 200ms);
+  transition-timing-function: var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.dzyn-btn:hover {
+  transform: translateY(-1px);
+}
+
+.dzyn-btn:active {
+  transform: translateY(0);
+}
+
+/* Glow hover — warm-tinted shadows */
+.dzyn-btn--glow:hover {
+  box-shadow:
+    0 4px 15px rgba(48,110,94,0.2),
+    0 1px 3px rgba(48,110,94,0.08);
+}
+
+/* Shine sweep on hover */
+.dzyn-btn--shine::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 40%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.15),
+    transparent
+  );
+  transform: skewX(-20deg);
+  transition-property: left;
+  transition-duration: var(--duration-reveal, 600ms);
+  transition-timing-function: var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+  pointer-events: none;
+}
+
+.dzyn-btn--shine:hover::after {
+  left: 120%;
+}
+
+/* Pulse for primary CTA */
+.dzyn-btn--pulse {
+  animation: dzyn-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes dzyn-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,103,25,0.25); }
+  50% { box-shadow: 0 0 0 8px rgba(255,103,25,0); }
+}
+
+/* Scale on hover */
+.dzyn-btn--scale:hover {
+  transform: scale(1.03);
+}
+
+.dzyn-btn--scale:active {
+  transform: scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dzyn-btn,
+  .dzyn-btn--glow,
+  .dzyn-btn--shine::after,
+  .dzyn-btn--pulse,
+  .dzyn-btn--scale {
+    animation: none;
+    transition: none;
+  }
+  .dzyn-btn--shine::after { display: none; }
+}

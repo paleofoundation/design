@@ -1,0 +1,21 @@
+{
+  "preset": "line-art",
+  "palette": [
+    "#306E5E",
+    "#4A8E7A",
+    "#FDFBF7"
+  ],
+  "stroke": "2px",
+  "fill": "none",
+  "mood": "minimal, technical, refined",
+  "promptSuffix": "clean line drawing using only #306E5E and #4A8E7A on white background, consistent 2px stroke, SVG-friendly, no fills, technical illustration style",
+  "cssFilter": "none",
+  "svgAttributes": {
+    "stroke-width": "2",
+    "stroke-linecap": "round",
+    "stroke-linejoin": "round",
+    "fill": "none",
+    "stroke": "#306E5E"
+  },
+  "usage": "Best for tech, SaaS, professional services. Pair with generous whitespace."
+}

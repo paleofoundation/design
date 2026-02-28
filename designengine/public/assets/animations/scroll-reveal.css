@@ -1,0 +1,60 @@
+/* Scroll Reveal Animations — dzyn generated */
+
+.dzyn-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition-property: opacity, transform;
+  transition-duration: var(--duration-reveal, 600ms);
+  transition-timing-function: var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.dzyn-reveal--left {
+  opacity: 0;
+  transform: translateX(-32px);
+  transition-property: opacity, transform;
+  transition-duration: var(--duration-reveal, 600ms);
+  transition-timing-function: var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.dzyn-reveal--right {
+  opacity: 0;
+  transform: translateX(32px);
+  transition-property: opacity, transform;
+  transition-duration: var(--duration-reveal, 600ms);
+  transition-timing-function: var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.dzyn-reveal--scale {
+  opacity: 0;
+  transform: scale(0.92);
+  transition-property: opacity, transform;
+  transition-duration: var(--duration-reveal, 600ms);
+  transition-timing-function: var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.dzyn-reveal.is-visible,
+.dzyn-reveal--left.is-visible,
+.dzyn-reveal--right.is-visible,
+.dzyn-reveal--scale.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Stagger children */
+.dzyn-stagger > .dzyn-reveal:nth-child(1) { transition-delay: 0ms; }
+.dzyn-stagger > .dzyn-reveal:nth-child(2) { transition-delay: 80ms; }
+.dzyn-stagger > .dzyn-reveal:nth-child(3) { transition-delay: 160ms; }
+.dzyn-stagger > .dzyn-reveal:nth-child(4) { transition-delay: 240ms; }
+.dzyn-stagger > .dzyn-reveal:nth-child(5) { transition-delay: 320ms; }
+.dzyn-stagger > .dzyn-reveal:nth-child(6) { transition-delay: 400ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dzyn-reveal,
+  .dzyn-reveal--left,
+  .dzyn-reveal--right,
+  .dzyn-reveal--scale {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

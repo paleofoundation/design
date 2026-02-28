@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Source_Sans_3, JetBrains_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
-// TODO: re-enable cookie consent banner (indigo, cheeky copy)
-// import CookieBanner from "@/components/cookie-banner";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -26,6 +25,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.dzyne.app"),
   title: "dzyne — Design systems for AI-powered builds",
   description:
     "Stop your AI from building ugly apps. dzyne captures your design intent and enforces it across every AI coding session — fonts, colors, spacing, components, all on-brand.",
@@ -50,6 +50,20 @@ export const metadata: Metadata = {
     title: "dzyne — Design systems for AI-powered builds",
     description: "Stop your AI from building ugly apps.",
     siteName: "dzyne",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "dzyne — Design systems for AI-powered builds",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "dzyne — Design systems for AI-powered builds",
+    description: "Stop your AI from building ugly apps.",
+    images: ["/og-image.png"],
   },
 };
 
@@ -60,10 +74,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="stylesheet" href="/assets/animations/cursor-follower.css" />
+        <link rel="stylesheet" href="/assets/animations/button-states.css" />
+        <link rel="stylesheet" href="/assets/animations/scroll-reveal.css" />
+        <link rel="stylesheet" href="/assets/animations/loading-spinner.css" />
+        <link rel="stylesheet" href="/assets/animations/glow-pulse.css" />
+      </head>
       <body
         className={`${fraunces.variable} ${sourceSans.variable} ${jetbrainsMono.variable} antialiased`}
       >
         {children}
+        <Script src="/assets/animations/cursor-follower.js" strategy="lazyOnload" />
+        <Script src="/assets/animations/scroll-reveal.js" strategy="lazyOnload" />
       </body>
     </html>
   );

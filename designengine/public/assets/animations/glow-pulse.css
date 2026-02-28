@@ -1,0 +1,69 @@
+/* Glow Pulse — dzyn generated */
+
+.dzyn-glow {
+  position: relative;
+}
+
+.dzyn-glow::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    var(--color-green-deep, #306E5E),
+    var(--color-orange, #FF6719)
+  );
+  opacity: 0;
+  z-index: -1;
+  transition-property: opacity, filter;
+  transition-duration: var(--duration-slow, 400ms);
+  transition-timing-function: var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+  filter: blur(12px);
+}
+
+.dzyn-glow:hover::before {
+  opacity: 0.5;
+}
+
+/* Animated glow for primary CTAs */
+.dzyn-glow--animate::before {
+  animation: dzyn-glow-pulse 3s ease-in-out infinite;
+}
+
+@keyframes dzyn-glow-pulse {
+  0%, 100% { opacity: 0.15; filter: blur(12px); }
+  50% { opacity: 0.4; filter: blur(18px); }
+}
+
+/* Gradient border effect */
+.dzyn-glow-border {
+  position: relative;
+  background: var(--color-surface, #FDFBF7);
+}
+
+.dzyn-glow-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(
+    135deg,
+    var(--color-green-deep, #306E5E),
+    var(--color-orange, #FF6719),
+    var(--color-amber, #F2B245)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dzyn-glow--animate::before {
+    animation: none;
+    opacity: 0.2;
+  }
+}

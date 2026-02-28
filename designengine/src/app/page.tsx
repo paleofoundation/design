@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 const TOOL_GROUPS = [
   {
@@ -33,18 +34,46 @@ const TOOL_GROUPS = [
       { name: 'suggest-improvements', desc: 'Accessibility, hierarchy, contrast, whitespace — scored with fixes' },
     ],
   },
+  {
+    category: 'Experience',
+    description: 'Make it feel custom-built',
+    tools: [
+      { name: 'generate-favicon', desc: 'Complete favicon package — SVG, PNGs, Apple Touch, webmanifest — from your brand colors' },
+      { name: 'generate-svg-assets', desc: 'Patterns, dividers, hero backgrounds — programmatic SVGs matched to your palette' },
+      { name: 'generate-art-style', desc: 'Art style manifest with DALL-E prompts, CSS filters, and SVG attributes for your brand' },
+      { name: 'generate-micro-interactions', desc: 'Cursor effects, button states, scroll reveals, loading spinners, glow pulses' },
+      { name: 'generate-illustrations', desc: 'AI illustrations via DALL-E 3, guided by your art style and color tokens' },
+      { name: 'scaffold-assets', desc: 'One call generates everything: favicons, patterns, dividers, heroes, animations, art style' },
+    ],
+  },
 ];
 
 export default function Home() {
   return (
     <div>
-      {/* ========== HERO (full-bleed green, Substack-style) ========== */}
+      {/* ========== HERO (full-bleed green + wave-layers background) ========== */}
       <section style={{
         background: 'var(--color-green-deep)',
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
+        position: 'relative',
+        overflow: 'hidden',
       }}>
+        {/* Programmatic hero background — dzyn-generated SVG */}
+        <Image
+          src="/assets/backgrounds/wave-layers.svg"
+          alt=""
+          fill
+          style={{
+            objectFit: 'cover',
+            opacity: 0.12,
+            mixBlendMode: 'soft-light',
+            pointerEvents: 'none',
+          }}
+          priority
+        />
+
         {/* Nav on green */}
         <nav style={{
           maxWidth: '72rem',
@@ -54,6 +83,8 @@ export default function Home() {
           alignItems: 'center',
           justifyContent: 'space-between',
           width: '100%',
+          position: 'relative',
+          zIndex: 1,
         }}>
           <span style={{
             fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
@@ -71,6 +102,7 @@ export default function Home() {
             <Link href="/login" style={{ fontSize: 'var(--text-sm)', color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>Sign in</Link>
             <Link
               href="/onboarding"
+              className="dzyn-btn dzyn-btn--shine"
               style={{
                 fontSize: 'var(--text-sm)',
                 fontWeight: 500,
@@ -95,9 +127,11 @@ export default function Home() {
           flex: 1,
           display: 'flex',
           alignItems: 'center',
+          position: 'relative',
+          zIndex: 1,
         }}>
           <div style={{ maxWidth: '42rem' }}>
-            <h1 style={{
+            <h1 className="dzyn-reveal" style={{
               fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
               fontSize: 'clamp(3rem, 6vw, 4.5rem)',
               fontWeight: 400,
@@ -108,7 +142,7 @@ export default function Home() {
             }}>
               Your AI builds code. We make sure it doesn&rsquo;t look like AI built it.
             </h1>
-            <p style={{
+            <p className="dzyn-reveal" style={{
               fontSize: 'var(--text-lg)',
               lineHeight: 1.7,
               color: 'rgba(255,255,255,0.7)',
@@ -117,9 +151,10 @@ export default function Home() {
             }}>
               dzyne captures your design intent and enforces it across every AI coding session. Colors, typography, spacing, components — all on-brand, every time.
             </p>
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div className="dzyn-reveal" style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
               <Link
                 href="/onboarding"
+                className="dzyn-btn dzyn-btn--glow dzyn-btn--pulse dzyn-glow dzyn-glow--animate"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -137,6 +172,7 @@ export default function Home() {
               </Link>
               <Link
                 href="#how-it-works"
+                className="dzyn-btn"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -156,13 +192,18 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Wave divider: hero → problem */}
+      <div style={{ lineHeight: 0, marginTop: '-1px' }}>
+        <Image src="/assets/dividers/wave.svg" alt="" width={1440} height={120} style={{ width: '100%', height: 'auto', display: 'block' }} />
+      </div>
+
       {/* ========== PROBLEM ========== */}
       <section style={{
         background: 'var(--color-surface)',
         padding: '8rem 2.5rem',
       }}>
         <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
-          <h2 style={{
+          <h2 className="dzyn-reveal" style={{
             fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
             fontSize: 'clamp(2rem, 4vw, 3rem)',
             fontWeight: 400,
@@ -174,7 +215,7 @@ export default function Home() {
           }}>
             The problem with AI-generated design
           </h2>
-          <div style={{
+          <div className="dzyn-stagger" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 22rem), 1fr))',
             gap: '2rem',
@@ -204,13 +245,28 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Curve divider: problem → how-it-works */}
+      <div style={{ lineHeight: 0, marginTop: '-1px' }}>
+        <Image src="/assets/dividers/curve.svg" alt="" width={1440} height={120} style={{ width: '100%', height: 'auto', display: 'block' }} />
+      </div>
+
       {/* ========== HOW IT WORKS ========== */}
       <section id="how-it-works" style={{
         background: 'var(--color-surface-warm)',
         padding: '8rem 2.5rem',
+        position: 'relative',
       }}>
-        <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
-          <h2 style={{
+        {/* Subtle dots pattern background */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: 'url(/assets/patterns/dots.svg)',
+          backgroundSize: '200px 200px',
+          opacity: 0.3,
+          pointerEvents: 'none',
+        }} />
+        <div style={{ maxWidth: '72rem', margin: '0 auto', position: 'relative' }}>
+          <h2 className="dzyn-reveal" style={{
             fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
             fontSize: 'clamp(2rem, 4vw, 3rem)',
             fontWeight: 400,
@@ -222,7 +278,7 @@ export default function Home() {
           }}>
             Three steps to design that lasts
           </h2>
-          <p style={{
+          <p className="dzyn-reveal" style={{
             fontSize: 'var(--text-lg)',
             color: 'var(--color-text-body)',
             textAlign: 'center',
@@ -232,7 +288,7 @@ export default function Home() {
           }}>
             Set it up once. Every AI session after that stays on-brand.
           </p>
-          <div style={{
+          <div className="dzyn-stagger" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 18rem), 1fr))',
             gap: '2rem',
@@ -256,13 +312,18 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Angle divider: how-it-works → tools */}
+      <div style={{ lineHeight: 0, marginTop: '-1px' }}>
+        <Image src="/assets/dividers/angle.svg" alt="" width={1440} height={120} style={{ width: '100%', height: 'auto', display: 'block' }} />
+      </div>
+
       {/* ========== TOOLS ========== */}
       <section id="tools" style={{
         background: 'var(--color-surface)',
         padding: '8rem 2.5rem',
       }}>
         <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
-          <h2 style={{
+          <h2 className="dzyn-reveal" style={{
             fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
             fontSize: 'clamp(2rem, 4vw, 3rem)',
             fontWeight: 400,
@@ -272,9 +333,9 @@ export default function Home() {
             letterSpacing: '-0.02em',
             lineHeight: 1.2,
           }}>
-            14 tools. One design system.
+            20 tools. One design system.
           </h2>
-          <p style={{
+          <p className="dzyn-reveal" style={{
             fontSize: 'var(--text-lg)',
             color: 'var(--color-text-body)',
             textAlign: 'center',
@@ -285,7 +346,7 @@ export default function Home() {
             Every tool reads your design profile. Every output matches your brand.
           </p>
           {TOOL_GROUPS.map((group) => (
-            <div key={group.category} style={{ marginBottom: '4rem' }}>
+            <div key={group.category} className="dzyn-reveal" style={{ marginBottom: '4rem' }}>
               <div style={{ marginBottom: '1.5rem' }}>
                 <h3 style={{
                   fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
@@ -300,7 +361,7 @@ export default function Home() {
                   {group.description}
                 </p>
               </div>
-              <div style={{
+              <div className="dzyn-stagger" style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 20rem), 1fr))',
                 gap: '1rem',
@@ -308,11 +369,13 @@ export default function Home() {
                 {group.tools.map((tool) => (
                   <div
                     key={tool.name}
+                    className="dzyn-reveal"
                     style={{
                       background: 'var(--color-white)',
                       border: '1px solid var(--color-border)',
                       borderRadius: 'var(--radius-md)',
                       padding: '1.5rem',
+                      transition: 'box-shadow var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out)',
                     }}
                   >
                     <code style={{
@@ -341,13 +404,27 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Zigzag divider: tools → setup */}
+      <div style={{ lineHeight: 0, marginTop: '-1px' }}>
+        <Image src="/assets/dividers/zigzag.svg" alt="" width={1440} height={120} style={{ width: '100%', height: 'auto', display: 'block' }} />
+      </div>
+
       {/* ========== SETUP ========== */}
       <section id="setup" style={{
         background: 'var(--color-surface-warm)',
         padding: '8rem 2.5rem',
+        position: 'relative',
       }}>
-        <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
-          <h2 style={{
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: 'url(/assets/patterns/grid.svg)',
+          backgroundSize: '300px 300px',
+          opacity: 0.15,
+          pointerEvents: 'none',
+        }} />
+        <div style={{ maxWidth: '72rem', margin: '0 auto', position: 'relative' }}>
+          <h2 className="dzyn-reveal" style={{
             fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
             fontSize: 'clamp(2rem, 4vw, 3rem)',
             fontWeight: 400,
@@ -359,7 +436,7 @@ export default function Home() {
           }}>
             Connect in 30 seconds
           </h2>
-          <p style={{
+          <p className="dzyn-reveal" style={{
             fontSize: 'var(--text-lg)',
             color: 'var(--color-text-body)',
             textAlign: 'center',
@@ -369,7 +446,7 @@ export default function Home() {
           }}>
             Add one config file. Your AI agent loads your design system automatically.
           </p>
-          <div style={{
+          <div className="dzyn-stagger" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 20rem), 1fr))',
             gap: '2rem',
@@ -417,44 +494,60 @@ export default function Home() {
         background: 'var(--color-green-deep)',
         padding: '8rem 2.5rem',
         textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden',
       }}>
-        <h2 style={{
-          fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
-          fontSize: 'clamp(2rem, 4vw, 3rem)',
-          fontWeight: 400,
-          color: '#fff',
-          marginBottom: '1.5rem',
-          letterSpacing: '-0.02em',
-          lineHeight: 1.2,
-        }}>
-          Build something that looks like you made it.
-        </h2>
-        <p style={{
-          fontSize: 'var(--text-lg)',
-          color: 'rgba(255,255,255,0.65)',
-          maxWidth: '30rem',
-          margin: '0 auto 3rem',
-          lineHeight: 1.7,
-        }}>
-          Not like every other AI-generated app on the internet.
-        </p>
-        <Link
-          href="/onboarding"
+        <Image
+          src="/assets/backgrounds/geometric.svg"
+          alt=""
+          fill
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            background: 'var(--color-orange)',
-            color: '#fff',
-            fontWeight: 500,
-            fontSize: 'var(--text-base)',
-            padding: '0.875rem 2.5rem',
-            borderRadius: 'var(--radius-md)',
-            textDecoration: 'none',
+            objectFit: 'cover',
+            opacity: 0.08,
+            mixBlendMode: 'soft-light',
+            pointerEvents: 'none',
           }}
-        >
-          Design your system
-        </Link>
+        />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <h2 className="dzyn-reveal" style={{
+            fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+            fontSize: 'clamp(2rem, 4vw, 3rem)',
+            fontWeight: 400,
+            color: '#fff',
+            marginBottom: '1.5rem',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.2,
+          }}>
+            Build something that looks like you made it.
+          </h2>
+          <p className="dzyn-reveal" style={{
+            fontSize: 'var(--text-lg)',
+            color: 'rgba(255,255,255,0.65)',
+            maxWidth: '30rem',
+            margin: '0 auto 3rem',
+            lineHeight: 1.7,
+          }}>
+            Not like every other AI-generated app on the internet.
+          </p>
+          <Link
+            href="/onboarding"
+            className="dzyn-reveal dzyn-btn dzyn-btn--glow dzyn-btn--shine dzyn-glow dzyn-glow--animate"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: 'var(--color-orange)',
+              color: '#fff',
+              fontWeight: 500,
+              fontSize: 'var(--text-base)',
+              padding: '0.875rem 2.5rem',
+              borderRadius: 'var(--radius-md)',
+              textDecoration: 'none',
+            }}
+          >
+            Design your system
+          </Link>
+        </div>
       </section>
 
       {/* ========== FOOTER ========== */}
@@ -497,7 +590,7 @@ function ComparisonCard({ label, bad, items }: {
   items: { prop: string; val: string }[];
 }) {
   return (
-    <div style={{
+    <div className={`dzyn-reveal${bad ? '' : ' dzyn-glow-border'}`} style={{
       background: bad ? 'var(--color-green-darkest)' : 'var(--color-green-deep)',
       borderRadius: 'var(--radius-md)',
       padding: '2rem',
@@ -542,7 +635,7 @@ function StepCard({ number, title, description }: {
   description: string;
 }) {
   return (
-    <div style={{
+    <div className="dzyn-reveal dzyn-btn" style={{
       background: 'var(--color-white)',
       border: '1px solid var(--color-border)',
       borderRadius: 'var(--radius-md)',
@@ -585,7 +678,7 @@ function SetupCard({ title, filename, code }: {
   code: string;
 }) {
   return (
-    <div style={{
+    <div className="dzyn-reveal dzyn-btn" style={{
       background: 'var(--color-green-darkest)',
       borderRadius: 'var(--radius-md)',
       overflow: 'hidden',
