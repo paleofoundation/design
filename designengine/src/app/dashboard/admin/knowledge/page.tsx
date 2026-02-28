@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, type FormEvent } from 'react';
 import { PALETTE, DASH, FONT, RADIUS, TEXT_SIZE } from '@/lib/design-tokens';
+import { createClient } from '@/lib/supabase/client';
 
 interface KnowledgeSource {
   sourceName: string;
@@ -54,19 +55,42 @@ export default function AdminKnowledgePage() {
     setUploadError(null);
 
     const sizeMB = file.size / (1024 * 1024);
-    if (sizeMB > 4) {
-      setUploadError(`File is ${sizeMB.toFixed(1)}MB. Maximum is 4MB. For larger files, split into smaller parts.`);
+    if (sizeMB > 50) {
+      setUploadError(`File is ${sizeMB.toFixed(1)}MB. Maximum is 50MB.`);
       setUploading(false);
       return;
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('sourceName', file.name);
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'txt';
+    const storagePath = `uploads/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+
     try {
+      setUploadStatus('Uploading file to storage...');
+
+      const supabase = createClient();
+      const { error: storageError } = await supabase.storage
+        .from('knowledge-uploads')
+        .upload(storagePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (storageError) {
+        setUploadError(`Storage upload failed: ${storageError.message}`);
+        setUploadStatus(null);
+        return;
+      }
+
+      setUploadStatus('Processing and embedding — this may take a minute for large files...');
+
       const res = await fetch('/api/admin/knowledge/upload', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          storagePath,
+          sourceName: file.name,
+          fileExtension: ext,
+        }),
       });
 
       if (!res.ok) {
@@ -79,6 +103,7 @@ export default function AdminKnowledgePage() {
           errorMsg = `Server error (${res.status}): ${text.substring(0, 120)}`;
         }
         setUploadError(errorMsg);
+        setUploadStatus(null);
         return;
       }
 
@@ -90,9 +115,11 @@ export default function AdminKnowledgePage() {
         loadSources();
       } else {
         setUploadError(data.error || 'Upload failed');
+        setUploadStatus(null);
       }
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Upload failed');
+      setUploadStatus(null);
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -277,7 +304,7 @@ export default function AdminKnowledgePage() {
                   Drop a textbook or style guide here
                 </p>
                 <p style={{ fontSize: TEXT_SIZE.xs, color: DASH.faint }}>
-                  Accepts .pdf, .txt, .md — content feeds ALL user tool calls
+                  Accepts .pdf, .txt, .md up to 50MB — content feeds ALL user tool calls
                 </p>
               </>
             )}

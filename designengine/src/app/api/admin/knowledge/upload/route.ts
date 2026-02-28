@@ -6,11 +6,11 @@ import { generateEmbedding } from '@/lib/openai/embeddings';
 
 export const maxDuration = 120;
 
-const ALLOWED_TYPES: Record<string, 'pdf' | 'txt' | 'md' | 'epub'> = {
-  'application/pdf': 'pdf',
-  'text/plain': 'txt',
-  'text/markdown': 'md',
-  'application/epub+zip': 'epub',
+const EXT_TO_TYPE: Record<string, 'pdf' | 'txt' | 'md' | 'epub'> = {
+  pdf: 'pdf',
+  txt: 'txt',
+  md: 'md',
+  epub: 'epub',
 };
 
 export async function POST(req: NextRequest) {
@@ -19,41 +19,43 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Forbidden: admin access required' }, { status: 403 });
   }
 
-  const formData = await req.formData();
-  const file = formData.get('file') as File | null;
-  const sourceName = (formData.get('sourceName') as string) || file?.name || 'Untitled';
+  const body = await req.json();
+  const { storagePath, sourceName, fileExtension } = body as {
+    storagePath: string;
+    sourceName: string;
+    fileExtension: string;
+  };
 
-  if (!file) {
-    return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+  if (!storagePath || !sourceName) {
+    return NextResponse.json({ error: 'storagePath and sourceName are required' }, { status: 400 });
   }
 
-  const mimeType = file.type;
-  const ext = file.name.split('.').pop()?.toLowerCase();
-  let fileType = ALLOWED_TYPES[mimeType];
-
-  if (!fileType && ext) {
-    if (ext === 'pdf') fileType = 'pdf';
-    else if (ext === 'md') fileType = 'md';
-    else if (ext === 'txt') fileType = 'txt';
-    else if (ext === 'epub') fileType = 'epub';
-  }
-
+  const fileType = EXT_TO_TYPE[fileExtension?.toLowerCase()] || EXT_TO_TYPE[storagePath.split('.').pop()?.toLowerCase() || ''];
   if (!fileType) {
-    return NextResponse.json(
-      { error: `Unsupported file type: ${mimeType || ext}. Accepted: .pdf, .txt, .md` },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: `Unsupported file type: ${fileExtension}. Accepted: pdf, txt, md` }, { status: 400 });
   }
 
   try {
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const { data: fileData, error: downloadError } = await supabaseAdmin
+      .storage
+      .from('knowledge-uploads')
+      .download(storagePath);
+
+    if (downloadError || !fileData) {
+      return NextResponse.json(
+        { error: `Failed to download file from storage: ${downloadError?.message || 'File not found'}` },
+        { status: 500 }
+      );
+    }
+
+    const buffer = Buffer.from(await fileData.arrayBuffer());
     const chunks = await parseAndChunk(buffer, fileType);
 
     if (chunks.length === 0) {
+      await supabaseAdmin.storage.from('knowledge-uploads').remove([storagePath]);
       return NextResponse.json({ error: 'No content could be extracted from the file' }, { status: 400 });
     }
 
-    // Remove any existing global source with the same name
     await supabaseAdmin
       .from('knowledge_chunks')
       .delete()
@@ -97,6 +99,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Clean up the storage file after successful processing
+    await supabaseAdmin.storage.from('knowledge-uploads').remove([storagePath]);
+
     return NextResponse.json({
       success: true,
       sourceName,
@@ -106,6 +111,8 @@ export async function POST(req: NextRequest) {
       isGlobal: true,
     });
   } catch (err) {
+    // Clean up on error too
+    await supabaseAdmin.storage.from('knowledge-uploads').remove([storagePath]).catch(() => {});
     const message = err instanceof Error ? err.message : 'Processing failed';
     return NextResponse.json({ error: message }, { status: 500 });
   }
