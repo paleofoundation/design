@@ -1,26 +1,213 @@
 @import "tailwindcss";
 
+/* ============================================
+   DZYNE.APP DESIGN TOKEN SYSTEM
+   Substack-inspired, craft-forward
+   ============================================ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* --- Palette: Primary --- */
+  --color-green-deep: #306E5E;
+  --color-green-dark: #245545;
+  --color-green-darker: #1A3D32;
+  --color-green-darkest: #0F2620;
+  --color-green-light: #4A8E7A;
+  --color-green-muted: rgba(48, 110, 94, 0.12);
+
+  /* --- Palette: Accents --- */
+  --color-orange: #FF6719;
+  --color-orange-hover: #E85A12;
+  --color-orange-light: #FF8547;
+  --color-orange-muted: rgba(255, 103, 25, 0.12);
+  --color-amber: #F2B245;
+  --color-amber-light: #F5C76A;
+  --color-amber-muted: rgba(242, 178, 69, 0.12);
+  --color-lavender: #CAC5F9;
+  --color-lavender-light: #DDD9FC;
+  --color-lavender-muted: rgba(202, 197, 249, 0.15);
+
+  /* --- Palette: Surfaces --- */
+  --color-surface: #FDFBF7;
+  --color-surface-warm: #F5F0E8;
+  --color-surface-hover: #EDE7DC;
+  --color-white: #FFFFFF;
+
+  /* --- Palette: Text --- */
+  --color-text-primary: #1A1A1A;
+  --color-text-body: #4A4A4A;
+  --color-text-muted: #7A7A7A;
+  --color-text-on-dark: #F5F0E8;
+  --color-text-on-green: #FDFBF7;
+
+  /* --- Palette: Borders --- */
+  --color-border: rgba(48, 110, 94, 0.15);
+  --color-border-strong: rgba(48, 110, 94, 0.3);
+  --color-border-subtle: rgba(48, 110, 94, 0.08);
+
+  /* --- Palette: States --- */
+  --color-error: #DC3545;
+  --color-success: #28A745;
+  --color-warning: #F2B245;
+
+  /* --- Typography: Scale (perfect-fourth, 1.333) --- */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.333rem;
+  --text-2xl: 1.777rem;
+  --text-3xl: 2.369rem;
+  --text-4xl: 3.157rem;
+  --text-5xl: 4.209rem;
+  --text-6xl: 5.61rem;
+
+  /* --- Typography: Line heights --- */
+  --leading-tight: 1.15;
+  --leading-snug: 1.3;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.7;
+
+  /* --- Typography: Letter spacing --- */
+  --tracking-tight: -0.03em;
+  --tracking-snug: -0.015em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.02em;
+  --tracking-wider: 0.05em;
+
+  /* --- Typography: Weights --- */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  /* --- Spacing: 8px grid --- */
+  --space-0: 0;
+  --space-0-5: 0.25rem;
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-6: 3rem;
+  --space-8: 4rem;
+  --space-12: 6rem;
+  --space-16: 8rem;
+  --space-24: 12rem;
+
+  /* --- Border radius --- */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+
+  /* --- Shadows (warm-tinted) --- */
+  --shadow-xs: 0 1px 2px rgba(48, 110, 94, 0.05);
+  --shadow-sm: 0 2px 8px rgba(48, 110, 94, 0.06);
+  --shadow-md: 0 4px 16px rgba(48, 110, 94, 0.08);
+  --shadow-lg: 0 8px 32px rgba(48, 110, 94, 0.1);
+  --shadow-xl: 0 16px 48px rgba(48, 110, 94, 0.12);
+
+  /* --- Motion --- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 400ms;
+  --duration-reveal: 600ms;
+
+  /* --- Base --- */
+  --background: var(--color-surface);
+  --foreground: var(--color-text-primary);
+}
+
+/* Dark theme (dashboard) */
+[data-theme="dark"] {
+  --color-surface: var(--color-green-darkest);
+  --color-surface-warm: var(--color-green-darker);
+  --color-surface-hover: var(--color-green-dark);
+  --color-white: var(--color-green-darker);
+
+  --color-text-primary: #F5F0E8;
+  --color-text-body: #C4BFB5;
+  --color-text-muted: #8A8580;
+
+  --color-border: rgba(245, 240, 232, 0.12);
+  --color-border-strong: rgba(245, 240, 232, 0.24);
+  --color-border-subtle: rgba(245, 240, 232, 0.06);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.35);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.4);
+
+  --background: var(--color-green-darkest);
+  --foreground: #F5F0E8;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-source-sans);
+  --font-serif: var(--font-fraunces);
+  --font-mono: var(--font-jetbrains);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* ============================================
+   BASE STYLES
+   ============================================ */
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-source-sans, 'Source Sans 3', system-ui, sans-serif);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-fraunces, 'Fraunces', Georgia, serif);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text-primary);
+}
+
+h1 { font-size: var(--text-5xl); }
+h2 { font-size: var(--text-4xl); }
+h3 { font-size: var(--text-3xl); }
+h4 { font-size: var(--text-2xl); }
+h5 { font-size: var(--text-xl); }
+h6 { font-size: var(--text-lg); }
+
+code, pre, kbd, samp {
+  font-family: var(--font-jetbrains, 'JetBrains Mono', 'Fira Code', monospace);
+}
+
+a {
+  color: var(--color-green-deep);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+a:hover {
+  color: var(--color-green-dark);
+}
+
+::selection {
+  background: var(--color-green-muted);
+  color: var(--color-green-darkest);
+}
+
+/* ============================================
+   UTILITY: FOCUS RING
+   ============================================ */
+
+*:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }

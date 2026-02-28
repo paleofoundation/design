@@ -1,6 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { openai } from '@/lib/openai/client';
+import { loadDesignProfile, profileToContextPrompt } from './shared/load-profile';
 
 const SCALE_RATIOS: Record<string, number> = {
   'minor-third': 1.2,
@@ -44,10 +45,14 @@ export async function pairTypography(input: {
   context: string;
   bodyFontPreference?: string;
   scaleRatio?: string;
+  projectName?: string;
 }) {
-  const { headingFont, mood, context, bodyFontPreference, scaleRatio = 'major-third' } = input;
+  const { headingFont, mood, context, bodyFontPreference, scaleRatio = 'major-third', projectName } = input;
   const ratio = SCALE_RATIOS[scaleRatio] || 1.25;
   const scale = buildTypeScale(1, ratio);
+
+  const profile = await loadDesignProfile(projectName);
+  const profileContext = profile ? profileToContextPrompt(profile) : '';
 
   const prompt = `You are a world-class typographer. Suggest 3 optimal font pairings:
 
@@ -55,6 +60,8 @@ Heading font: "${headingFont}"
 Mood: "${mood}"
 Context: "${context}"
 ${bodyFontPreference ? `Body preference: ${bodyFontPreference}` : ''}
+
+${profileContext ? `${profileContext}\n\nIMPORTANT: Your pairings MUST be consistent with the design system above. Use fonts that work with the existing color palette and visual style.` : ''}
 
 Return ONLY valid JSON:
 {
@@ -79,11 +86,11 @@ Rules: All fonts on Google Fonts. First = best match. Each uses different body f
   const raw = JSON.parse(response.choices[0].message.content || '{"pairings":[]}');
   if (!raw.pairings?.length) throw new Error('No typography pairings returned');
 
-  const pairings = (raw.pairings as Array<Record<string, any>>).map((p) => ({
-    heading: { fontFamily: p.heading.fontFamily, weight: p.heading.weight, letterSpacing: p.heading.letterSpacing || '-0.02em' },
-    body: { fontFamily: p.body.fontFamily, weight: p.body.weight, letterSpacing: p.body.letterSpacing || '0em' },
+  const pairings = (raw.pairings as Array<Record<string, Record<string, unknown>>>).map((p) => ({
+    heading: { fontFamily: p.heading.fontFamily as string, weight: p.heading.weight as number, letterSpacing: (p.heading.letterSpacing as string) || '-0.02em' },
+    body: { fontFamily: p.body.fontFamily as string, weight: p.body.weight as number, letterSpacing: (p.body.letterSpacing as string) || '0em' },
     mood,
-    reasoning: p.reasoning || '',
+    reasoning: (p as Record<string, unknown>).reasoning as string || '',
   }));
 
   const primary = pairings[0];
@@ -135,10 +142,7 @@ export function TypographySample() {
         paired with ${primary.body.fontFamily}
       </h2>
       <p style={{ fontSize: "var(--text-base)", lineHeight: "var(--text-base-line-height)", maxWidth: "65ch", marginTop: "1.5rem" }}>
-        The quick brown fox jumps over the lazy dog. This paragraph demonstrates the body font at the base size with comfortable line height for extended reading.
-      </p>
-      <p style={{ fontSize: "var(--text-sm)", color: "#9ca3af", marginTop: "0.75rem" }}>
-        Caption text using the small size — ${mood} aesthetic for ${context}.
+        The quick brown fox jumps over the lazy dog.
       </p>
     </div>
   );
@@ -147,28 +151,26 @@ export function TypographySample() {
   return {
     pairings,
     googleFontsImport: `@import url('${googleFontsUrl}');`,
-    codeArtifacts: {
-      cssScale,
-      tailwindConfig,
-      sampleComponent,
-    },
+    designProfileUsed: profile?.project_name || null,
+    codeArtifacts: { cssScale, tailwindConfig, sampleComponent },
   };
 }
 
 export function registerPairTypographyTool(server: McpServer): void {
   server.tool(
     'pair-typography',
-    'Generate harmonious heading + body typography pairings with code artifacts: complete CSS type scale, Tailwind fontSize config, and a sample React component.',
+    'Generate harmonious heading + body typography pairings. When a project name is provided, constrains pairings to complement the stored design system.',
     {
       headingFont: z.string().describe('The heading font to pair against (e.g. "Playfair Display")'),
       mood: z.string().describe('Desired mood (e.g. "elegant editorial", "technical modern")'),
       context: z.string().describe('Website type (e.g. "luxury fashion brand", "developer docs")'),
       bodyFontPreference: z.enum(['serif', 'sans-serif', 'match-heading']).optional().describe('Preferred body font style'),
       scaleRatio: z.enum(['minor-third', 'major-third', 'perfect-fourth', 'golden-ratio']).optional().default('major-third').describe('Modular type scale ratio'),
+      projectName: z.string().optional().describe('Project name to load design profile for consistency'),
     },
-    async ({ headingFont, mood, context, bodyFontPreference, scaleRatio }) => {
+    async ({ headingFont, mood, context, bodyFontPreference, scaleRatio, projectName }) => {
       try {
-        const result = await pairTypography({ headingFont, mood, context, bodyFontPreference, scaleRatio });
+        const result = await pairTypography({ headingFont, mood, context, bodyFontPreference, scaleRatio, projectName });
         return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown typography pairing error';

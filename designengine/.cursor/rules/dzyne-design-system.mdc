@@ -1,0 +1,86 @@
+---
+description: Design system enforcement for AI coding sessions using dzyne
+globs: ["**/*.tsx", "**/*.ts", "**/*.css", "**/*.jsx"]
+alwaysApply: true
+---
+
+# dzyne Design System Rules
+
+This project uses dzyne (dzyne.app) for persistent design memory. Before writing any UI code, you MUST load the design profile.
+
+## At Session Start
+
+Call the `get-design-profile` MCP tool to load the stored design system:
+- If a project name is known, pass it: `get-design-profile({ projectName: "my-project" })`
+- If not, call without arguments to get the most recent profile
+
+The response contains: `tokens`, `components`, `tailwindConfig`, `cssVariables`
+
+Use these for ALL styling decisions. Never hardcode colors, fonts, or spacing.
+
+## Design Rules — Never Break These
+
+### Colors
+- NEVER use generic Tailwind colors (bg-blue-500, text-gray-600, etc.) unless they match the design profile
+- Use CSS variables: `var(--color-primary)`, `var(--color-background)`, etc.
+- The 60/30/10 rule: 60% background/surface, 30% primary/secondary, 10% accent
+- All text must meet WCAG AA contrast (4.5:1 for body, 3:1 for large text)
+
+### Typography
+- Headings use the `heading` font family from the profile (typically a serif)
+- Body text uses the `body` font family (typically a humanist sans-serif)
+- Code uses monospace from the profile
+- Use the modular type scale — don't invent arbitrary sizes
+- Heading weights: 700-800. Body: 400. UI labels: 500.
+- Tight line-height for headings (1.1-1.2). Relaxed for body (1.6-1.7).
+
+### Spacing
+- All spacing derives from 8px multiples: 4, 8, 16, 24, 32, 48, 64, 96, 128
+- Sections need breathing room — minimum 96px padding on desktop, 48px mobile
+- Card padding: 32px desktop, 24px mobile
+- Related items should be closer together (proximity principle)
+- Unrelated items need clear separation
+
+### Border Radius
+- Use the values from the design profile
+- Be consistent — don't mix rounded-lg and rounded-xl on the same page
+- Inner elements should have slightly smaller radius than outer containers
+
+### Shadows
+- Use warm-tinted shadows from the profile, not generic gray
+- Shadow intensity should indicate elevation hierarchy: subtle for cards, stronger for modals
+- Shadows should use the primary color at low opacity, not black
+
+### Components
+- Check the profile's `components` field for pre-defined patterns (button, card, input, heading)
+- Use these patterns exactly — same classes, same CSS
+- For new components, match the existing patterns
+
+## Available MCP Tools
+
+When building UI, use these tools in order of relevance:
+
+1. `get-design-profile` — Load the design system (do this FIRST)
+2. `generate-component-library` — Generate a full set of styled components
+3. `generate-page` — Generate a complete page using the design system
+4. `generate-layout` — Generate layout shells (sidebar, topnav, etc.)
+5. `generate-theme-variants` — Generate dark mode and other theme variants
+6. `check-design-consistency` — Verify code matches the design system
+7. `generate-responsive-rules` — Get breakpoint behavior for all elements
+8. `suggest-improvements` — Get accessibility and design improvement suggestions
+9. `design-diff` — Compare two designs for drift
+
+## Anti-Patterns — What AI Typically Gets Wrong
+
+- Using bg-gray-950 with indigo-600 accents (the "AI developer tool" aesthetic)
+- Using Inter/Geist for everything
+- rounded-xl on everything (12-16px is too much for most designs)
+- Dark mode by default without asking
+- No visual hierarchy — everything the same size and weight
+- No breathing room — elements crammed together
+- Gray shadows instead of warm-tinted ones
+- Missing focus states and hover transitions
+
+## When In Doubt
+
+Ask the user. Design decisions should be intentional, not defaulted.

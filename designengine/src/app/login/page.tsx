@@ -18,83 +18,148 @@ export default function LoginPage() {
     setError('');
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
 
-    if (error) {
-      setError(error.message);
+    if (authError) {
+      setError(authError.message);
       setLoading(false);
-      return;
+    } else {
+      router.push('/dashboard');
     }
-
-    router.push('/dashboard');
-    router.refresh();
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-white">
-            DE
+    <div style={{
+      minHeight: '100vh',
+      background: 'var(--color-surface)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 'var(--space-4)',
+    }}>
+      <Link href="/" style={{
+        fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+        fontSize: 'var(--text-2xl)',
+        fontWeight: 700,
+        color: 'var(--color-green-deep)',
+        textDecoration: 'none',
+        marginBottom: 'var(--space-8)',
+      }}>
+        dzyne
+      </Link>
+
+      <div style={{
+        width: '100%',
+        maxWidth: '24rem',
+        background: 'var(--color-white)',
+        border: '1px solid var(--color-border)',
+        borderRadius: 'var(--radius-md)',
+        padding: 'var(--space-6)',
+        boxShadow: 'var(--shadow-md)',
+      }}>
+        <h1 style={{
+          fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+          fontSize: 'var(--text-xl)',
+          fontWeight: 700,
+          color: 'var(--color-text-primary)',
+          marginBottom: 'var(--space-0-5)',
+        }}>
+          Sign in
+        </h1>
+        <p style={{
+          fontSize: 'var(--text-sm)',
+          color: 'var(--color-text-muted)',
+          marginBottom: 'var(--space-4)',
+        }}>
+          Welcome back to dzyne.
+        </p>
+
+        {error && (
+          <div style={{
+            background: 'rgba(220,53,69,0.08)',
+            border: '1px solid rgba(220,53,69,0.2)',
+            borderRadius: 'var(--radius-sm)',
+            padding: 'var(--space-1) var(--space-2)',
+            marginBottom: 'var(--space-3)',
+            fontSize: 'var(--text-sm)',
+            color: 'var(--color-error)',
+          }}>
+            {error}
           </div>
-          <span className="text-xl font-semibold text-white">DesignEngine</span>
-        </div>
+        )}
 
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-white mb-1">Sign in</h2>
-          <p className="text-sm text-gray-400 mb-6">
-            Enter your credentials to access the dashboard.
-          </p>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: 'var(--text-sm)', fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: '0.25rem' }}>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              style={{
+                width: '100%',
+                background: 'var(--color-surface)',
+                border: '1.5px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)',
+                padding: '0.625rem var(--space-2)',
+                fontSize: 'var(--text-base)',
+                color: 'var(--color-text-primary)',
+                outline: 'none',
+                fontFamily: 'inherit',
+              }}
+            />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: 'var(--text-sm)', fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: '0.25rem' }}>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              style={{
+                width: '100%',
+                background: 'var(--color-surface)',
+                border: '1.5px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)',
+                padding: '0.625rem var(--space-2)',
+                fontSize: 'var(--text-base)',
+                color: 'var(--color-text-primary)',
+                outline: 'none',
+                fontFamily: 'inherit',
+              }}
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              background: 'var(--color-orange)',
+              color: '#fff',
+              fontWeight: 600,
+              fontSize: 'var(--text-base)',
+              padding: '0.75rem',
+              borderRadius: 'var(--radius-md)',
+              border: 'none',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.7 : 1,
+              fontFamily: 'inherit',
+              marginTop: 'var(--space-1)',
+            }}
+          >
+            {loading ? 'Signing in...' : 'Sign in'}
+          </button>
+        </form>
 
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mb-4 text-sm text-red-400">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                placeholder="you@example.com"
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                placeholder="••••••••"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition"
-            >
-              {loading ? 'Signing in…' : 'Sign in'}
-            </button>
-          </form>
-
-          <p className="mt-4 text-center text-sm text-gray-400">
-            No account?{' '}
-            <Link href="/signup" className="text-indigo-400 hover:text-indigo-300 transition">
-              Sign up
-            </Link>
-          </p>
-        </div>
+        <p style={{
+          fontSize: 'var(--text-sm)',
+          color: 'var(--color-text-muted)',
+          textAlign: 'center',
+          marginTop: 'var(--space-4)',
+        }}>
+          Don&rsquo;t have an account?{' '}
+          <Link href="/signup" style={{ color: 'var(--color-green-deep)', fontWeight: 500 }}>Sign up</Link>
+        </p>
       </div>
     </div>
   );

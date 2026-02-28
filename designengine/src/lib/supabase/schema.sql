@@ -213,10 +213,35 @@ CREATE TRIGGER trigger_design_patterns_updated
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- =============================================
+-- TABLE: design_profiles (persistent design memory)
+-- =============================================
+CREATE TABLE design_profiles (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  project_name TEXT NOT NULL,
+  source_url TEXT,
+  tokens JSONB NOT NULL,
+  components JSONB,
+  raw_css TEXT,
+  tailwind_config JSONB,
+  css_variables TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_design_profiles_user ON design_profiles(user_id);
+CREATE INDEX idx_design_profiles_project ON design_profiles(user_id, project_name);
+
+CREATE TRIGGER trigger_design_profiles_updated
+  BEFORE UPDATE ON design_profiles
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- =============================================
 -- ROW LEVEL SECURITY
 -- =============================================
 ALTER TABLE api_keys ENABLE ROW LEVEL SECURITY;
 ALTER TABLE usage_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE design_profiles ENABLE ROW LEVEL SECURITY;
 
 -- Users can manage their own API keys
 CREATE POLICY "Users can manage own API keys"
@@ -240,4 +265,13 @@ CREATE POLICY "Service role full access api_keys"
 
 CREATE POLICY "Service role full access usage_logs"
   ON usage_logs FOR ALL
+  USING (auth.role() = 'service_role');
+
+-- Users can manage their own design profiles
+CREATE POLICY "Users can manage own design profiles"
+  ON design_profiles FOR ALL
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Service role full access design_profiles"
+  ON design_profiles FOR ALL
   USING (auth.role() = 'service_role');

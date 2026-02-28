@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { generateEmbedding } from '@/lib/openai/embeddings';
 import { openai } from '@/lib/openai/client';
+import { loadDesignProfile, profileToContextPrompt } from './shared/load-profile';
 
 export interface SearchPatternsInput {
   query: string;
@@ -44,7 +45,8 @@ export async function searchDesignPatterns(input: SearchPatternsInput) {
 
 async function generateComponentFromPattern(
   pattern: { name: string; description: string; category: string; tokens: object },
-  query: string
+  query: string,
+  profileContext: string,
 ): Promise<{ componentCode: string; variants: string[] }> {
   const prompt = `You are an expert React developer. Given this design pattern, generate implementation-ready code.
 
@@ -53,6 +55,8 @@ Description: "${pattern.description}"
 Category: "${pattern.category}"
 Design tokens: ${JSON.stringify(pattern.tokens)}
 User query: "${query}"
+
+${profileContext ? `${profileContext}\n\nIMPORTANT: The generated component MUST use the design system tokens above for all colors, fonts, spacing, and border-radius. Do NOT use arbitrary Tailwind values.` : ''}
 
 Return ONLY valid JSON:
 {
@@ -84,7 +88,7 @@ The componentCode must be a COMPLETE, working React component. The variants must
 export function registerSearchPatternsTool(server: McpServer): void {
   server.tool(
     'search-patterns',
-    'Semantic search across design patterns. Returns matching patterns with code artifacts: a React/Tailwind component implementing the top result, plus 2-3 variants.',
+    'Semantic search across design patterns. When a project name is provided, constrains generated components to use the stored design system tokens.',
     {
       query: z.string().describe('Natural language search query (e.g. "dark fintech landing page with gradient mesh")'),
       category: z.enum([
@@ -94,8 +98,9 @@ export function registerSearchPatternsTool(server: McpServer): void {
       tags: z.array(z.string()).optional().describe('Filter by tags'),
       limit: z.number().min(1).max(50).optional().default(10).describe('Max results (1-50)'),
       threshold: z.number().min(0).max(1).optional().default(0.5).describe('Min similarity (0-1)'),
+      projectName: z.string().optional().describe('Project name to load design profile for consistency'),
     },
-    async ({ query, category, tags, limit, threshold }) => {
+    async ({ query, category, tags, limit, threshold, projectName }) => {
       try {
         const result = await searchDesignPatterns({ query, category, tags, limit, threshold });
 
@@ -111,14 +116,18 @@ export function registerSearchPatternsTool(server: McpServer): void {
           };
         }
 
+        const profile = await loadDesignProfile(projectName);
+        const profileContext = profile ? profileToContextPrompt(profile) : '';
+
         const topPattern = result.patterns[0];
-        const codeArtifacts = await generateComponentFromPattern(topPattern, query);
+        const codeArtifacts = await generateComponentFromPattern(topPattern, query, profileContext);
 
         return {
           content: [{
             type: 'text' as const,
             text: JSON.stringify({
               ...result,
+              designProfileUsed: profile?.project_name || null,
               codeArtifacts: {
                 basedOn: topPattern.name,
                 componentCode: codeArtifacts.componentCode,

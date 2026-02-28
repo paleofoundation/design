@@ -1,21 +1,37 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Source_Sans_3, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const sourceSans = Source_Sans_3({
+  variable: "--font-source-sans",
   subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "DesignEngine — AI Design Tools MCP Server",
+  title: "dzyne — Design systems for AI-powered builds",
   description:
-    "An MCP server that exposes AI-powered design tools for ingesting, searching, and generating design tokens, typography, and production-ready code.",
+    "Stop your AI from building ugly apps. dzyne captures your design intent and enforces it across every AI coding session — fonts, colors, spacing, components, all on-brand.",
+  openGraph: {
+    title: "dzyne — Design systems for AI-powered builds",
+    description: "Stop your AI from building ugly apps.",
+    siteName: "dzyne",
+  },
 };
 
 export default function RootLayout({
@@ -26,7 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${fraunces.variable} ${sourceSans.variable} ${jetbrainsMono.variable} antialiased`}
       >
         {children}
       </body>

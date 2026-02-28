@@ -4,6 +4,14 @@ import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
+const NAV_LINKS = [
+  { href: '/dashboard', label: 'Overview' },
+  { href: '/dashboard/keys', label: 'API Keys' },
+  { href: '/dashboard/usage', label: 'Usage' },
+  { href: '/dashboard/playground', label: 'Playground' },
+  { href: '/dashboard/billing', label: 'Billing' },
+];
+
 export default async function DashboardLayout({
   children,
 }: {
@@ -19,36 +27,81 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <nav className="border-b border-gray-800 px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-sm">
-              DE
+    <div data-theme="dark" style={{
+      minHeight: '100vh',
+      background: 'var(--color-green-darkest)',
+      color: 'var(--color-text-on-green)',
+    }}>
+      <nav style={{
+        borderBottom: '1px solid rgba(245, 240, 232, 0.08)',
+        padding: '0 var(--space-4)',
+      }}>
+        <div style={{
+          maxWidth: '72rem',
+          margin: '0 auto',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          height: '3.5rem',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)' }}>
+            <div style={{
+              width: '2rem',
+              height: '2rem',
+              background: 'var(--color-orange)',
+              borderRadius: 'var(--radius-md)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+              fontWeight: 700,
+              fontSize: 'var(--text-xs)',
+              color: '#fff',
+            }}>
+              dz
             </div>
-            <span className="font-semibold text-lg">DesignEngine</span>
+            <span style={{
+              fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+              fontWeight: 600,
+              fontSize: 'var(--text-lg)',
+              color: 'var(--color-text-on-green)',
+            }}>
+              dzyne
+            </span>
           </div>
-          <div className="flex items-center gap-6 text-sm text-gray-400">
-            <Link href="/dashboard" className="hover:text-white transition">
-              Overview
-            </Link>
-            <Link href="/dashboard/keys" className="hover:text-white transition">
-              API Keys
-            </Link>
-            <Link href="/dashboard/usage" className="hover:text-white transition">
-              Usage
-            </Link>
-            <Link href="/dashboard/playground" className="hover:text-white transition">
-              Playground
-            </Link>
-            <Link href="/dashboard/billing" className="hover:text-white transition">
-              Billing
-            </Link>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                style={{
+                  fontSize: 'var(--text-sm)',
+                  color: 'rgba(245, 240, 232, 0.6)',
+                  textDecoration: 'none',
+                  transition: 'color var(--duration-fast) var(--ease-out)',
+                }}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
-          <div className="text-sm text-gray-400">{user.email}</div>
+
+          <span style={{
+            fontSize: 'var(--text-sm)',
+            color: 'rgba(245, 240, 232, 0.5)',
+          }}>
+            {user.email}
+          </span>
         </div>
       </nav>
-      <main className="max-w-6xl mx-auto px-6 py-8">{children}</main>
+      <main style={{
+        maxWidth: '72rem',
+        margin: '0 auto',
+        padding: 'var(--space-6) var(--space-4)',
+      }}>
+        {children}
+      </main>
     </div>
   );
 }

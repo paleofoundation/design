@@ -4,6 +4,15 @@ import { registerSearchPatternsTool } from './tools/search-patterns';
 import { registerGenerateFontTool } from './tools/generate-font';
 import { registerPairTypographyTool } from './tools/pair-typography';
 import { registerConvertDesignTool } from './tools/convert-design';
+import { registerGetDesignProfileTool } from './tools/get-design-profile';
+import { registerCheckDesignConsistencyTool } from './tools/check-design-consistency';
+import { registerGenerateComponentLibraryTool } from './tools/generate-component-library';
+import { registerGeneratePageTool } from './tools/generate-page';
+import { registerSuggestImprovementsTool } from './tools/suggest-improvements';
+import { registerGenerateThemeVariantsTool } from './tools/generate-theme-variants';
+import { registerGenerateLayoutTool } from './tools/generate-layout';
+import { registerDesignDiffTool } from './tools/design-diff';
+import { registerGenerateResponsiveRulesTool } from './tools/generate-responsive-rules';
 
 export function initializeDesignEngine(server: McpServer): void {
   registerIngestDesignTool(server);
@@ -11,4 +20,13 @@ export function initializeDesignEngine(server: McpServer): void {
   registerGenerateFontTool(server);
   registerPairTypographyTool(server);
   registerConvertDesignTool(server);
+  registerGetDesignProfileTool(server);
+  registerCheckDesignConsistencyTool(server);
+  registerGenerateComponentLibraryTool(server);
+  registerGeneratePageTool(server);
+  registerSuggestImprovementsTool(server);
+  registerGenerateThemeVariantsTool(server);
+  registerGenerateLayoutTool(server);
+  registerDesignDiffTool(server);
+  registerGenerateResponsiveRulesTool(server);
 }

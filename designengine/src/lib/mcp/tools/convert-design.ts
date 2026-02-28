@@ -1,6 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { openai } from '@/lib/openai/client';
+import { loadDesignProfile, profileToContextPrompt } from './shared/load-profile';
 import type { ChatCompletionContentPart } from 'openai/resources/chat/completions';
 
 export interface ConvertDesignInput {
@@ -10,6 +11,7 @@ export interface ConvertDesignInput {
   responsive?: boolean;
   includeAnimations?: boolean;
   accessibilityLevel?: 'basic' | 'wcag-aa' | 'wcag-aaa';
+  projectName?: string;
 }
 
 const ACCESSIBILITY_INSTRUCTIONS: Record<string, string> = {
@@ -25,9 +27,13 @@ export async function convertDesignToCode(input: ConvertDesignInput) {
     responsive = true,
     includeAnimations = false,
     accessibilityLevel = 'wcag-aa',
+    projectName,
   } = input;
 
   if (!imageUrl && !base64Image) throw new Error('Either imageUrl or base64Image must be provided');
+
+  const profile = await loadDesignProfile(projectName);
+  const profileContext = profile ? profileToContextPrompt(profile) : '';
 
   const imageContent: ChatCompletionContentPart = {
     type: 'image_url',
@@ -42,6 +48,8 @@ export async function convertDesignToCode(input: ConvertDesignInput) {
 Generate BOTH formats:
 1. A React functional component with TypeScript using Tailwind CSS classes
 2. A standalone HTML page with embedded CSS (no external dependencies)
+
+${profileContext ? `${profileContext}\n\nCRITICAL: You MUST use the design system tokens above for ALL styling. Use the exact colors, fonts, spacing, border-radius, and shadows from the design profile. Use CSS variables (var(--color-primary), etc.) or the equivalent Tailwind classes. Do NOT use arbitrary Tailwind values that deviate from the design system.` : ''}
 
 REQUIREMENTS:
 ${responsive ? '- MUST be fully responsive (mobile-first)' : '- Fixed-width is acceptable'}
@@ -95,6 +103,7 @@ The reactComponent must be a COMPLETE, working component. The htmlCssPage must b
       extractedTokens: result.codeArtifacts?.extractedTokens || {},
       cssVariables: result.codeArtifacts?.cssVariables || '',
     },
+    designProfileUsed: profile?.project_name || null,
     metadata: {
       outputFormat,
       responsive,
@@ -108,7 +117,7 @@ The reactComponent must be a COMPLETE, working component. The htmlCssPage must b
 export function registerConvertDesignTool(server: McpServer): void {
   server.tool(
     'convert-design',
-    'Convert a design screenshot into production code. Returns both React+Tailwind AND HTML+CSS versions, plus extracted design tokens as CSS variables.',
+    'Convert a design screenshot into production code. When a project name is provided, uses the stored design system tokens for all styling.',
     {
       imageUrl: z.string().optional().describe('URL of the design screenshot'),
       base64Image: z.string().optional().describe('Base64-encoded image'),
@@ -116,8 +125,9 @@ export function registerConvertDesignTool(server: McpServer): void {
       responsive: z.boolean().optional().default(true).describe('Mobile-first responsive'),
       includeAnimations: z.boolean().optional().default(false).describe('Include CSS animations'),
       accessibilityLevel: z.enum(['basic', 'wcag-aa', 'wcag-aaa']).optional().default('wcag-aa').describe('Accessibility level'),
+      projectName: z.string().optional().describe('Project name to load design profile for consistency'),
     },
-    async ({ imageUrl, base64Image, outputFormat, responsive, includeAnimations, accessibilityLevel }) => {
+    async ({ imageUrl, base64Image, outputFormat, responsive, includeAnimations, accessibilityLevel, projectName }) => {
       try {
         if (!imageUrl && !base64Image) {
           return {
@@ -125,7 +135,7 @@ export function registerConvertDesignTool(server: McpServer): void {
             isError: true,
           };
         }
-        const result = await convertDesignToCode({ imageUrl, base64Image, outputFormat, responsive, includeAnimations, accessibilityLevel });
+        const result = await convertDesignToCode({ imageUrl, base64Image, outputFormat, responsive, includeAnimations, accessibilityLevel, projectName });
         return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown conversion error';
