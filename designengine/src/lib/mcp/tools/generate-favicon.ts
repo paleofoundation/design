@@ -2,6 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { type FaviconShape, buildIntegrationCode } from '@/lib/svg/favicon';
 import { generateFaviconPackage } from '@/lib/svg/favicon-package';
+import { validateContent } from '@/lib/assets/brand-safety';
 import { loadDesignProfile } from './shared/load-profile';
 
 export function registerGenerateFaviconTool(server: McpServer): void {
@@ -72,12 +73,15 @@ export function registerGenerateFaviconTool(server: McpServer): void {
         }
 
         const integrationCode = buildIntegrationCode();
+        const svgCheck = validateContent(pkg.svg, 'svg');
 
         return {
           content: [{
             type: 'text' as const,
             text: JSON.stringify({
               success: true,
+              brandSafe: svgCheck.safe,
+              brandViolations: svgCheck.violations.length > 0 ? svgCheck.violations : undefined,
               brandName,
               shape,
               primaryColor: resolvedPrimary,

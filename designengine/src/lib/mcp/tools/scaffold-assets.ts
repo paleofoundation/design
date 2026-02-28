@@ -13,6 +13,7 @@ import {
   recommendPreset,
 } from '@/lib/assets/art-style';
 import { buildManifest, type AssetEntry } from '@/lib/assets/manifest';
+import { validateAssetPackage } from '@/lib/assets/brand-safety';
 import { loadDesignProfile } from './shared/load-profile';
 
 export function registerScaffoldAssetsTool(server: McpServer): void {
@@ -258,11 +259,19 @@ export function registerScaffoldAssetsTool(server: McpServer): void {
 
         const integrationCode = buildIntegrationCode();
 
+        const brandCheck = validateAssetPackage(files);
+
         return {
           content: [{
             type: 'text' as const,
             text: JSON.stringify({
               success: true,
+              brandSafe: brandCheck.safe,
+              brandViolations: brandCheck.totalViolations > 0 ? {
+                errors: brandCheck.errors,
+                warnings: brandCheck.warnings,
+                details: brandCheck.fileResults,
+              } : undefined,
               brandName,
               colorsUsed: colors,
               faviconShape,

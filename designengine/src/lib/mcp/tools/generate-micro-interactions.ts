@@ -1,6 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import type { PaletteColors } from '@/lib/svg/utils';
+import { validateAssetPackage } from '@/lib/assets/brand-safety';
 import {
   generateAllAnimations,
   generateCursorFollower,
@@ -102,11 +103,15 @@ export function registerGenerateMicroInteractionsTool(server: McpServer): void {
           }
         }
 
+        const brandCheck = validateAssetPackage(files);
+
         return {
           content: [{
             type: 'text' as const,
             text: JSON.stringify({
               success: true,
+              brandSafe: brandCheck.safe,
+              brandViolations: brandCheck.totalViolations > 0 ? brandCheck : undefined,
               colorsUsed: colors,
               generated: results.map(r => ({ name: r.name, description: r.description })),
               totalFiles: Object.keys(files).length,

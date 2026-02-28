@@ -72,7 +72,7 @@ const PRESETS: Record<ArtStylePreset, PresetConfig> = {
     fill: 'wash',
     promptSuffix: (c) =>
       `soft watercolor illustration with organic edges, palette-derived washes in ${c.primary} and ${c.secondary}, white background, gentle blending, no hard lines`,
-    cssFilter: 'saturate(0.85) contrast(0.95)',
+    cssFilter: 'none',
     svgAttributes: (p) => ({
       'stroke-width': '0',
       fill: p.primary,

@@ -1,6 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import type { PaletteColors } from '@/lib/svg/utils';
+import { validateAssetPackage } from '@/lib/assets/brand-safety';
 import { generatePattern, generateAllPatterns, type PatternType } from '@/lib/svg/patterns';
 import { generateDivider, generateAllDividers, type DividerType } from '@/lib/svg/dividers';
 import { generateHero, generateAllHeroes, type HeroType } from '@/lib/svg/hero-backgrounds';
@@ -104,11 +105,19 @@ export function registerGenerateSvgAssetsTool(server: McpServer): void {
           }
         }
 
+        const brandCheck = validateAssetPackage(
+          Object.fromEntries(
+            Object.entries(files).map(([k, v]) => [k, { content: v.content, type: v.type }])
+          ),
+        );
+
         return {
           content: [{
             type: 'text' as const,
             text: JSON.stringify({
               success: true,
+              brandSafe: brandCheck.safe,
+              brandViolations: brandCheck.totalViolations > 0 ? brandCheck : undefined,
               colorsUsed: colors,
               totalAssets: Object.keys(files).length,
               files,

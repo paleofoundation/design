@@ -35,7 +35,6 @@ export function generateCursorFollower(colors: PaletteColors): AnimationResult {
   transition-property: width, height, border-color, opacity;
   transition-duration: var(--duration-slow, 400ms);
   transition-timing-function: var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
-  mix-blend-mode: difference;
 }
 
 .dzyn-cursor--hover {
