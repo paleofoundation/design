@@ -299,6 +299,7 @@ CREATE TABLE knowledge_chunks (
   chunk_index INTEGER NOT NULL,
   token_count INTEGER,
   embedding VECTOR(1536),
+  is_global BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -313,7 +314,7 @@ CREATE INDEX idx_knowledge_chunks_embedding
   USING hnsw (embedding vector_cosine_ops)
   WITH (m = 16, ef_construction = 64);
 
--- Vector similarity search for knowledge chunks
+-- Vector similarity search for knowledge chunks (includes global + user chunks)
 CREATE OR REPLACE FUNCTION match_knowledge_chunks(
   p_user_id UUID,
   query_embedding VECTOR(1536),
@@ -339,12 +340,15 @@ BEGIN
     1 - (kc.embedding <=> query_embedding) AS similarity
   FROM knowledge_chunks kc
   WHERE
-    kc.user_id = p_user_id
+    (kc.is_global = TRUE OR kc.user_id = p_user_id)
     AND 1 - (kc.embedding <=> query_embedding) > match_threshold
   ORDER BY kc.embedding <=> query_embedding
   LIMIT match_count;
 END;
 $$;
+
+CREATE INDEX idx_knowledge_chunks_global
+  ON knowledge_chunks(is_global) WHERE is_global = TRUE;
 
 ALTER TABLE knowledge_chunks ENABLE ROW LEVEL SECURITY;
 
@@ -355,3 +359,7 @@ CREATE POLICY "Users can manage own knowledge chunks"
 CREATE POLICY "Service role full access knowledge_chunks"
   ON knowledge_chunks FOR ALL
   USING (auth.role() = 'service_role');
+
+CREATE POLICY "Authenticated users can read global knowledge"
+  ON knowledge_chunks FOR SELECT
+  USING (is_global = TRUE AND auth.role() = 'authenticated');

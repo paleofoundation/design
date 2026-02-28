@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { PALETTE, DASH, FONT, RADIUS, TEXT_SIZE } from '@/lib/design-tokens';
+import { isAdminEmail } from '@/lib/auth/admin';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,6 +28,8 @@ export default async function DashboardLayout({
   if (!user) {
     redirect('/login');
   }
+
+  const showAdmin = isAdminEmail(user.email ?? undefined);
 
   return (
     <div style={{ minHeight: '100vh', background: DASH.bg }}>
@@ -83,6 +86,19 @@ export default async function DashboardLayout({
                 {link.label}
               </Link>
             ))}
+            {showAdmin && (
+              <Link
+                href="/dashboard/admin/knowledge"
+                style={{
+                  fontSize: TEXT_SIZE.sm,
+                  color: PALETTE.orange.base,
+                  textDecoration: 'none',
+                  fontWeight: 600,
+                }}
+              >
+                Admin
+              </Link>
+            )}
           </div>
 
           <span style={{

@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { listGlobalSources, deleteKnowledgeSource } from '@/lib/knowledge/retrieval';
+import { getAdminUser } from '@/lib/auth/admin';
+import { listGlobalSources, deleteGlobalSource } from '@/lib/knowledge/retrieval';
 
 export async function GET() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const admin = await getAdminUser();
+  if (!admin) {
+    return NextResponse.json({ error: 'Forbidden: admin access required' }, { status: 403 });
   }
 
   const sources = await listGlobalSources();
@@ -14,10 +13,9 @@ export async function GET() {
 }
 
 export async function DELETE(req: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const admin = await getAdminUser();
+  if (!admin) {
+    return NextResponse.json({ error: 'Forbidden: admin access required' }, { status: 403 });
   }
 
   const { sourceName } = await req.json();
@@ -26,7 +24,7 @@ export async function DELETE(req: NextRequest) {
   }
 
   try {
-    const deleted = await deleteKnowledgeSource(user.id, sourceName);
+    const deleted = await deleteGlobalSource(sourceName);
     return NextResponse.json({ deleted, sourceName });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Delete failed';
