@@ -1,5 +1,3 @@
-import { PDFParse } from 'pdf-parse';
-
 export interface TextChunk {
   text: string;
   index: number;
@@ -100,10 +98,28 @@ function chunkText(text: string): TextChunk[] {
 }
 
 export async function parsePdf(buffer: Buffer): Promise<string> {
-  const parser = new PDFParse({ data: new Uint8Array(buffer) });
-  const result = await parser.getText();
-  await parser.destroy();
-  return result.text;
+  try {
+    const { PDFParse } = await import('pdf-parse');
+    const parser = new PDFParse({ data: new Uint8Array(buffer) });
+    const result = await parser.getText();
+    await parser.destroy();
+    return result.text;
+  } catch {
+    // Fallback: extract visible ASCII text from PDF binary
+    const raw = buffer.toString('latin1');
+    const textBlocks: string[] = [];
+    const btRegex = /BT\s([\s\S]*?)ET/g;
+    let match;
+    while ((match = btRegex.exec(raw)) !== null) {
+      const block = match[1];
+      const tjMatches = block.match(/\(([^)]*)\)/g);
+      if (tjMatches) {
+        textBlocks.push(tjMatches.map((s) => s.slice(1, -1)).join(' '));
+      }
+    }
+    if (textBlocks.length > 0) return textBlocks.join('\n');
+    throw new Error('PDF parsing failed. Try uploading as .txt instead.');
+  }
 }
 
 export function parseMarkdown(text: string): string {
