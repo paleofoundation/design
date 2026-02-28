@@ -92,7 +92,10 @@ export default function PlaygroundPage() {
     try {
       const res = await fetch('/api/mcp/mcp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
+        },
         body: JSON.stringify({
           jsonrpc: '2.0',
           id: 1,
@@ -104,8 +107,27 @@ export default function PlaygroundPage() {
         }),
       });
 
-      const json = await res.json();
-      setResult(JSON.stringify(json, null, 2));
+      const contentType = res.headers.get('content-type') ?? '';
+
+      if (contentType.includes('text/event-stream')) {
+        const text = await res.text();
+        const lines = text.split('\n');
+        let jsonResult = '';
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            jsonResult = line.slice(6);
+          }
+        }
+        if (jsonResult) {
+          const parsed = JSON.parse(jsonResult);
+          setResult(JSON.stringify(parsed, null, 2));
+        } else {
+          setResult(text);
+        }
+      } else {
+        const json = await res.json();
+        setResult(JSON.stringify(json, null, 2));
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Request failed');
     } finally {
