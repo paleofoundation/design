@@ -62,36 +62,49 @@ export default function AdminKnowledgePage() {
     }
 
     const ext = file.name.split('.').pop()?.toLowerCase() || 'txt';
-    const storagePath = `uploads/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+    const useStorage = sizeMB > 3.5;
 
     try {
-      setUploadStatus('Uploading file to storage...');
+      let res: Response;
 
-      const supabase = createClient();
-      const { error: storageError } = await supabase.storage
-        .from('knowledge-uploads')
-        .upload(storagePath, file, {
-          cacheControl: '3600',
-          upsert: false,
+      if (useStorage) {
+        setUploadStatus('Uploading file to storage...');
+
+        const supabase = createClient();
+        const storagePath = `uploads/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+        const { error: storageError } = await supabase.storage
+          .from('knowledge-uploads')
+          .upload(storagePath, file, { cacheControl: '3600', upsert: false });
+
+        if (storageError) {
+          setUploadError(`Storage upload failed: ${storageError.message}`);
+          setUploadStatus(null);
+          return;
+        }
+
+        setUploadStatus('Processing and embedding — this may take a minute for large files...');
+
+        res = await fetch('/api/admin/knowledge/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            storagePath,
+            sourceName: file.name,
+            fileExtension: ext,
+          }),
         });
+      } else {
+        setUploadStatus('Uploading and processing...');
 
-      if (storageError) {
-        setUploadError(`Storage upload failed: ${storageError.message}`);
-        setUploadStatus(null);
-        return;
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('sourceName', file.name);
+
+        res = await fetch('/api/admin/knowledge/upload', {
+          method: 'POST',
+          body: formData,
+        });
       }
-
-      setUploadStatus('Processing and embedding — this may take a minute for large files...');
-
-      const res = await fetch('/api/admin/knowledge/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          storagePath,
-          sourceName: file.name,
-          fileExtension: ext,
-        }),
-      });
 
       if (!res.ok) {
         const text = await res.text();
@@ -100,7 +113,7 @@ export default function AdminKnowledgePage() {
           const json = JSON.parse(text);
           errorMsg = json.error || `Server error (${res.status})`;
         } catch {
-          errorMsg = `Server error (${res.status}): ${text.substring(0, 120)}`;
+          errorMsg = `Server error (${res.status}): ${text.substring(0, 200)}`;
         }
         setUploadError(errorMsg);
         setUploadStatus(null);
