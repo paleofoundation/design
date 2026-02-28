@@ -110,23 +110,50 @@ export default function PlaygroundPage() {
       const contentType = res.headers.get('content-type') ?? '';
 
       if (contentType.includes('text/event-stream')) {
-        const text = await res.text();
-        const lines = text.split('\n');
-        let jsonResult = '';
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            jsonResult = line.slice(6);
+        const reader = res.body?.getReader();
+        if (!reader) throw new Error('No response body');
+
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let lastData = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+
+          const lines = buffer.split('\n');
+          buffer = lines.pop() ?? '';
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              lastData = line.slice(6);
+            }
           }
         }
-        if (jsonResult) {
-          const parsed = JSON.parse(jsonResult);
-          setResult(JSON.stringify(parsed, null, 2));
+
+        if (buffer.startsWith('data: ')) {
+          lastData = buffer.slice(6);
+        }
+
+        if (lastData) {
+          try {
+            const parsed = JSON.parse(lastData);
+            setResult(JSON.stringify(parsed, null, 2));
+          } catch {
+            setResult(lastData);
+          }
         } else {
-          setResult(text);
+          setResult('(Empty response from server)');
         }
       } else {
-        const json = await res.json();
-        setResult(JSON.stringify(json, null, 2));
+        const text = await res.text();
+        try {
+          const json = JSON.parse(text);
+          setResult(JSON.stringify(json, null, 2));
+        } catch {
+          setResult(text || '(Empty response)');
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Request failed');
