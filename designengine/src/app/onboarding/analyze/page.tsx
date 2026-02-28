@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation';
 import { useOnboardingStore, type ColorRole } from '../store';
 import { StepIndicator, ToggleCard } from '../components';
 
-const ROLES: { id: ColorRole; label: string; hint: string }[] = [
-  { id: 'primary', label: 'Primary', hint: 'Main brand / action color' },
-  { id: 'secondary', label: 'Secondary', hint: 'Supporting brand color' },
-  { id: 'accent', label: 'Accent', hint: 'Highlight or CTA color' },
-  { id: 'background', label: 'Background', hint: 'Page background' },
-  { id: 'text', label: 'Text', hint: 'Body text color' },
+const ROLES: { id: ColorRole; label: string }[] = [
+  { id: 'primary', label: 'Primary' },
+  { id: 'secondary', label: 'Secondary' },
+  { id: 'accent', label: 'Accent' },
+  { id: 'background', label: 'Background' },
+  { id: 'text', label: 'Text' },
 ];
 
 export default function OnboardingAnalyze() {
@@ -30,6 +30,7 @@ export default function OnboardingAnalyze() {
 
   const [eyedropperActive, setEyedropperActive] = useState(false);
   const [hoveredColor, setHoveredColor] = useState<string | null>(null);
+  const [adjustingColors, setAdjustingColors] = useState(false);
   const [assigningRole, setAssigningRole] = useState<ColorRole | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -58,6 +59,7 @@ export default function OnboardingAnalyze() {
   const hasFonts = typography?.fontFamilies?.heading || typography?.fontFamilies?.primary;
   const hasMood = personality?.tone || personality?.energy;
   const hasSpacing = spacing?.borderRadius && spacing.borderRadius !== '0';
+  const hasColors = ROLES.some((r) => colorRoleAssignments[r.id]);
 
   const headingFont = typography?.fontFamilies?.heading || typography?.fontFamilies?.primary || '';
   const bodyFont = typography?.fontFamilies?.primary || typography?.fontFamilies?.heading || '';
@@ -85,9 +87,15 @@ export default function OnboardingAnalyze() {
     const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`.toUpperCase();
 
     addDetectedColor(hex);
+
+    if (assigningRole) {
+      assignColorRole(assigningRole, hex);
+      setAssigningRole(null);
+    }
+
     setEyedropperActive(false);
     setHoveredColor(null);
-  }, [eyedropperActive, addDetectedColor]);
+  }, [eyedropperActive, addDetectedColor, assigningRole, assignColorRole]);
 
   const handleScreenshotMove = useCallback((e: React.MouseEvent<HTMLImageElement>) => {
     if (!eyedropperActive) return;
@@ -149,12 +157,12 @@ export default function OnboardingAnalyze() {
         marginBottom: 'var(--space-6)',
         lineHeight: 'var(--leading-normal)',
       }}>
-        We analyzed <strong style={{ color: 'var(--color-green-deep)' }}>{domain}</strong> and extracted its design DNA. Assign colors to roles, toggle what you love, and refine from there.
+        We analyzed <strong style={{ color: 'var(--color-green-deep)' }}>{domain}</strong> and extracted its design DNA. Toggle on what you love &mdash; we&rsquo;ll use it to seed your design system.
       </p>
 
-      {/* Screenshot with eyedropper */}
+      {/* Screenshot */}
       {screenshot && (
-        <div style={{ marginBottom: 'var(--space-4)' }}>
+        <div style={{ marginBottom: 'var(--space-6)' }}>
           <div style={{
             borderRadius: 'var(--radius-lg)',
             overflow: 'hidden',
@@ -200,226 +208,248 @@ export default function OnboardingAnalyze() {
               }}
             />
           </div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-2)',
-            marginTop: 'var(--space-2)',
-          }}>
-            <button
-              type="button"
-              onClick={() => setEyedropperActive(!eyedropperActive)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.375rem',
-                background: eyedropperActive ? 'var(--color-green-deep)' : 'var(--color-white)',
-                color: eyedropperActive ? 'white' : 'var(--color-text-body)',
-                border: eyedropperActive ? '1.5px solid var(--color-green-deep)' : '1.5px solid var(--color-border)',
-                borderRadius: 'var(--radius-md)',
-                padding: '0.5rem 0.75rem',
-                fontSize: 'var(--text-xs)',
-                fontWeight: 500,
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                transition: 'all var(--duration-fast) var(--ease-out)',
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m2 22 1-1h3l9-9" /><path d="M3 21v-3l9-9" />
-                <path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3L15 6" />
-              </svg>
-              {eyedropperActive ? 'Click the screenshot' : 'Pick color from screenshot'}
-            </button>
-            {eyedropperActive && hoveredColor && (
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.375rem',
-                padding: '0.375rem 0.625rem',
-                background: 'var(--color-white)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-md)',
-              }}>
+          {eyedropperActive && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+              marginTop: 'var(--space-2)',
+            }}>
+              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-green-deep)', fontWeight: 500 }}>
+                {assigningRole
+                  ? <>Click the screenshot to pick a color for <strong style={{ textTransform: 'capitalize' }}>{assigningRole}</strong></>
+                  : 'Click anywhere on the screenshot to pick a color'
+                }
+              </span>
+              {hoveredColor && (
                 <div style={{
-                  width: '1.25rem',
-                  height: '1.25rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  padding: '0.25rem 0.5rem',
+                  background: 'var(--color-white)',
+                  border: '1px solid var(--color-border)',
                   borderRadius: 'var(--radius-sm)',
-                  background: hoveredColor,
-                  border: '1px solid rgba(0,0,0,0.1)',
-                }} />
-                <code style={{
-                  fontSize: 'var(--text-xs)',
-                  fontFamily: 'var(--font-jetbrains, JetBrains Mono, monospace)',
-                  color: 'var(--color-text-primary)',
                 }}>
-                  {hoveredColor}
-                </code>
-              </div>
-            )}
-          </div>
+                  <div style={{
+                    width: '1rem',
+                    height: '1rem',
+                    borderRadius: '2px',
+                    background: hoveredColor,
+                    border: '1px solid rgba(0,0,0,0.1)',
+                  }} />
+                  <code style={{ fontSize: '0.625rem', fontFamily: 'var(--font-jetbrains, JetBrains Mono, monospace)', color: 'var(--color-text-primary)' }}>
+                    {hoveredColor}
+                  </code>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => { setEyedropperActive(false); setAssigningRole(null); setHoveredColor(null); }}
+                style={{
+                  marginLeft: 'auto',
+                  fontSize: 'var(--text-xs)',
+                  color: 'var(--color-text-muted)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  textDecoration: 'underline',
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Detected Colors + Role Assignment */}
-      {detectedColors.length > 0 && (
-        <div style={{
-          background: 'var(--color-white)',
-          border: adoptions.colors ? '2px solid var(--color-green-deep)' : '1.5px solid var(--color-border)',
-          borderRadius: 'var(--radius-md)',
-          padding: 'var(--space-3)',
-          marginBottom: 'var(--space-4)',
-          boxShadow: adoptions.colors ? 'var(--shadow-md)' : 'none',
-          transition: 'border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out)',
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 'var(--space-3)',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)' }}>
-              <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--color-text-primary)' }}>
-                Colors
-              </span>
-              <span style={{
-                fontSize: '0.625rem',
-                fontWeight: 600,
-                color: 'var(--color-green-deep)',
-                background: 'var(--color-green-muted)',
-                padding: '0.1rem 0.5rem',
-                borderRadius: 'var(--radius-full)',
-                letterSpacing: 'var(--tracking-wider)',
-                textTransform: 'uppercase',
-              }}>
-                {detectedColors.length} found
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => toggleAdoption('colors')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-            >
-              <div style={{
-                width: '2.5rem',
-                height: '1.375rem',
-                borderRadius: 'var(--radius-full)',
-                background: adoptions.colors ? 'var(--color-green-deep)' : 'var(--color-border)',
-                transition: 'background var(--duration-fast) var(--ease-out)',
-                position: 'relative',
-              }}>
-                <div style={{
-                  width: '1.125rem',
-                  height: '1.125rem',
-                  borderRadius: 'var(--radius-full)',
-                  background: 'white',
-                  position: 'absolute',
-                  top: '0.125rem',
-                  left: adoptions.colors ? '1.25rem' : '0.125rem',
-                  transition: 'left var(--duration-fast) var(--ease-out)',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
-                }} />
-              </div>
-            </button>
-          </div>
-
-          {/* All detected color swatches */}
-          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginBottom: 'var(--space-2)' }}>
-            {assigningRole
-              ? <>Click a swatch to assign it as <strong style={{ color: 'var(--color-green-deep)', textTransform: 'capitalize' }}>{assigningRole}</strong></>
-              : 'Click a role below, then click a swatch to assign it.'
-            }
-          </p>
-          <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap', marginBottom: 'var(--space-3)' }}>
-            {detectedColors.map((c) => (
-              <button
-                key={c.hex}
-                type="button"
-                title={`${c.name}: ${c.usage}`}
-                onClick={() => handleSwatchClick(c.hex)}
-                style={{
-                  width: '2.5rem',
-                  height: '2.5rem',
-                  borderRadius: 'var(--radius-sm)',
-                  background: c.hex,
-                  border: assigningRole ? '2px solid var(--color-green-deep)' : '1px solid rgba(0,0,0,0.1)',
-                  cursor: assigningRole ? 'pointer' : 'default',
-                  transition: 'transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out)',
-                  transform: assigningRole ? 'scale(1)' : 'scale(1)',
-                  boxShadow: assigningRole ? '0 0 0 1px var(--color-green-deep)' : 'none',
-                  padding: 0,
-                  flexShrink: 0,
-                }}
-                onMouseEnter={(e) => { if (assigningRole) e.currentTarget.style.transform = 'scale(1.15)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
-              />
-            ))}
-          </div>
-
-          {/* Role assignments */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+      {/* Colors card — pre-filled, with adjust option */}
+      {hasColors && (
+        <ToggleCard
+          active={adoptions.colors}
+          onToggle={() => toggleAdoption('colors')}
+          label="Colors"
+          badge={`${detectedColors.length} detected`}
+        >
+          {/* Pre-filled role swatches */}
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: 'var(--space-2)' }}>
             {ROLES.map((role) => {
-              const assigned = colorRoleAssignments[role.id];
-              const isActive = assigningRole === role.id;
+              const hex = colorRoleAssignments[role.id];
+              if (!hex) return null;
               return (
-                <button
-                  key={role.id}
-                  type="button"
-                  onClick={() => setAssigningRole(isActive ? null : role.id)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--space-1)',
-                    padding: '0.5rem 0.75rem',
-                    background: isActive ? 'var(--color-green-muted)' : 'var(--color-surface)',
-                    border: isActive ? '1.5px solid var(--color-green-deep)' : '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-sm)',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                    transition: 'all var(--duration-fast) var(--ease-out)',
-                    textAlign: 'left',
-                    width: '100%',
-                  }}
-                >
+                <div key={role.id} style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                   <div style={{
-                    width: '1.5rem',
-                    height: '1.5rem',
+                    width: '1.75rem',
+                    height: '1.75rem',
                     borderRadius: 'var(--radius-sm)',
-                    background: assigned || 'repeating-conic-gradient(#ddd 0% 25%, transparent 0% 50%) 50%/8px 8px',
-                    border: '1px solid rgba(0,0,0,0.1)',
+                    background: hex,
+                    border: '1px solid rgba(0,0,0,0.08)',
                     flexShrink: 0,
                   }} />
-                  <span style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--color-text-primary)', minWidth: '4.5rem' }}>
-                    {role.label}
-                  </span>
-                  <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', flex: 1 }}>
-                    {role.hint}
-                  </span>
-                  {assigned && (
-                    <code style={{
+                  <div>
+                    <p style={{ fontSize: 'var(--text-xs)', fontWeight: 500, color: 'var(--color-text-primary)', lineHeight: 1 }}>
+                      {role.label}
+                    </p>
+                    <p style={{
                       fontSize: '0.625rem',
                       fontFamily: 'var(--font-jetbrains, JetBrains Mono, monospace)',
                       color: 'var(--color-text-muted)',
+                      lineHeight: 1.2,
                     }}>
-                      {assigned}
-                    </code>
-                  )}
-                  {isActive && (
-                    <span style={{
-                      fontSize: '0.625rem',
-                      fontWeight: 600,
-                      color: 'var(--color-green-deep)',
-                      letterSpacing: 'var(--tracking-wider)',
-                      textTransform: 'uppercase',
-                    }}>
-                      selecting...
-                    </span>
-                  )}
-                </button>
+                      {hex}
+                    </p>
+                  </div>
+                </div>
               );
             })}
           </div>
-        </div>
+
+          {/* Adjust toggle */}
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setAdjustingColors(!adjustingColors); }}
+            style={{
+              fontSize: 'var(--text-xs)',
+              color: adjustingColors ? 'var(--color-green-deep)' : 'var(--color-text-muted)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              padding: 0,
+              textDecoration: 'underline',
+              textUnderlineOffset: '2px',
+            }}
+          >
+            {adjustingColors ? 'Done adjusting' : 'Something wrong? Adjust colors'}
+          </button>
+
+          {/* Expandable adjustment panel */}
+          {adjustingColors && (
+            <div style={{
+              marginTop: 'var(--space-2)',
+              padding: 'var(--space-2)',
+              background: 'var(--color-surface)',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--color-border)',
+            }}>
+              {/* Full detected palette */}
+              {detectedColors.length > 0 && (
+                <div style={{ marginBottom: 'var(--space-2)' }}>
+                  <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginBottom: '0.375rem' }}>
+                    All detected colors {assigningRole && <>&mdash; click one to assign as <strong style={{ color: 'var(--color-green-deep)', textTransform: 'capitalize' }}>{assigningRole}</strong></>}
+                  </p>
+                  <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
+                    {detectedColors.map((c) => (
+                      <button
+                        key={c.hex}
+                        type="button"
+                        title={`${c.name}: ${c.usage}`}
+                        onClick={(e) => { e.stopPropagation(); handleSwatchClick(c.hex); }}
+                        style={{
+                          width: '2rem',
+                          height: '2rem',
+                          borderRadius: 'var(--radius-sm)',
+                          background: c.hex,
+                          border: assigningRole ? '2px solid var(--color-green-deep)' : '1px solid rgba(0,0,0,0.1)',
+                          cursor: assigningRole ? 'pointer' : 'default',
+                          padding: 0,
+                          flexShrink: 0,
+                          transition: 'transform var(--duration-fast) var(--ease-out)',
+                        }}
+                        onMouseEnter={(e) => { if (assigningRole) e.currentTarget.style.transform = 'scale(1.15)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Role reassignment rows */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                {ROLES.map((role) => {
+                  const assigned = colorRoleAssignments[role.id];
+                  const isActive = assigningRole === role.id;
+                  return (
+                    <button
+                      key={role.id}
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setAssigningRole(isActive ? null : role.id); }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.375rem 0.5rem',
+                        background: isActive ? 'var(--color-green-muted)' : 'transparent',
+                        border: isActive ? '1px solid var(--color-green-deep)' : '1px solid transparent',
+                        borderRadius: 'var(--radius-sm)',
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                        textAlign: 'left',
+                        width: '100%',
+                        transition: 'all var(--duration-fast) var(--ease-out)',
+                      }}
+                    >
+                      <div style={{
+                        width: '1.25rem',
+                        height: '1.25rem',
+                        borderRadius: '3px',
+                        background: assigned || 'repeating-conic-gradient(#ddd 0% 25%, transparent 0% 50%) 50%/6px 6px',
+                        border: '1px solid rgba(0,0,0,0.1)',
+                        flexShrink: 0,
+                      }} />
+                      <span style={{ fontSize: 'var(--text-xs)', fontWeight: 500, color: 'var(--color-text-primary)', minWidth: '4rem' }}>
+                        {role.label}
+                      </span>
+                      {assigned && (
+                        <code style={{ fontSize: '0.625rem', fontFamily: 'var(--font-jetbrains, JetBrains Mono, monospace)', color: 'var(--color-text-muted)' }}>
+                          {assigned}
+                        </code>
+                      )}
+                      <span style={{
+                        marginLeft: 'auto',
+                        fontSize: '0.625rem',
+                        color: isActive ? 'var(--color-green-deep)' : 'var(--color-text-muted)',
+                        fontWeight: isActive ? 600 : 400,
+                      }}>
+                        {isActive ? 'pick a swatch above' : 'tap to change'}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Eyedropper */}
+              <div style={{ marginTop: 'var(--space-2)', paddingTop: 'var(--space-2)', borderTop: '1px solid var(--color-border)' }}>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setEyedropperActive(!eyedropperActive); }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.375rem',
+                    background: eyedropperActive ? 'var(--color-green-deep)' : 'transparent',
+                    color: eyedropperActive ? 'white' : 'var(--color-text-muted)',
+                    border: 'none',
+                    borderRadius: 'var(--radius-sm)',
+                    padding: '0.375rem 0.5rem',
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    transition: 'all var(--duration-fast) var(--ease-out)',
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m2 22 1-1h3l9-9" /><path d="M3 21v-3l9-9" />
+                    <path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3L15 6" />
+                  </svg>
+                  {eyedropperActive ? 'Click the screenshot above' : 'Missing a color? Pick from screenshot'}
+                </button>
+              </div>
+            </div>
+          )}
+        </ToggleCard>
       )}
 
       {/* Other toggle cards */}
@@ -428,6 +458,7 @@ export default function OnboardingAnalyze() {
         flexDirection: 'column',
         gap: 'var(--space-3)',
         marginBottom: 'var(--space-6)',
+        marginTop: hasColors ? 'var(--space-3)' : 0,
       }}>
         {hasFonts && (
           <ToggleCard
@@ -580,10 +611,7 @@ export default function OnboardingAnalyze() {
         </p>
       </div>
 
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-      }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <button
           onClick={() => router.push('/onboarding')}
           style={{
@@ -606,14 +634,15 @@ export default function OnboardingAnalyze() {
               const separator = existing ? ' | ' : '';
               setField('brandDescription', existing + separator + additionalContext.trim());
             }
-            const r = useOnboardingStore.getState().colorRoleAssignments;
+            const ra = useOnboardingStore.getState().colorRoleAssignments;
+            const cur = useOnboardingStore.getState().colors;
             useOnboardingStore.setState({
               colors: {
-                primary: r.primary || useOnboardingStore.getState().colors.primary,
-                secondary: r.secondary || useOnboardingStore.getState().colors.secondary,
-                accent: r.accent || useOnboardingStore.getState().colors.accent,
-                background: r.background || useOnboardingStore.getState().colors.background,
-                text: r.text || useOnboardingStore.getState().colors.text,
+                primary: ra.primary || cur.primary,
+                secondary: ra.secondary || cur.secondary,
+                accent: ra.accent || cur.accent,
+                background: ra.background || cur.background,
+                text: ra.text || cur.text,
               },
             });
             router.push('/onboarding/mood');
