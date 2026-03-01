@@ -69,7 +69,9 @@ export default function OnboardingInspiration() {
   const extractedSlots = Object.entries(extractions).filter(([, v]) => v.done);
   const hasAtLeastOne = filledSlots.length > 0;
   const allExtracted = filledSlots.length > 0 && filledSlots.every(([k]) => extractions[k as SlotKey].done);
+  const someExtracted = extractedSlots.length > 0;
   const anyLoading = Object.values(extractions).some((v) => v.loading);
+  const canProceed = someExtracted || !hasAtLeastOne;
 
   function updateUrl(key: SlotKey, value: string) {
     setField('inspirationUrls', { ...inspirationUrls, [key]: value });
@@ -431,7 +433,7 @@ export default function OnboardingInspiration() {
       )}
 
       {/* Navigation */}
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button
           onClick={() => router.push('/onboarding')}
           style={{
@@ -448,7 +450,25 @@ export default function OnboardingInspiration() {
           &larr; Back
         </button>
 
-        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center' }}>
+          {/* Skip option for users with no URLs */}
+          {!hasAtLeastOne && (
+            <button
+              onClick={() => router.push('/onboarding/design-language')}
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: 'var(--text-sm)',
+                color: 'var(--color-text-muted)',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                textDecoration: 'underline',
+                padding: '0.75rem 0.5rem',
+              }}
+            >
+              Skip &mdash; I&rsquo;ll pick from curated options
+            </button>
+          )}
           {hasAtLeastOne && !allExtracted && (
             <button
               onClick={extractAll}
@@ -471,7 +491,8 @@ export default function OnboardingInspiration() {
               {anyLoading ? <>Analyzing <LoadingDots /></> : 'Extract all'}
             </button>
           )}
-          {allExtracted && (
+          {/* Allow proceeding once at least one slot is extracted (not all required) */}
+          {canProceed && someExtracted && (
             <button
               onClick={handleNext}
               style={{
@@ -487,6 +508,11 @@ export default function OnboardingInspiration() {
               }}
             >
               Next: Design language &rarr;
+              {!allExtracted && someExtracted && (
+                <span style={{ fontSize: 'var(--text-xs)', opacity: 0.8, marginLeft: '0.5rem' }}>
+                  ({extractedSlots.length}/{filledSlots.length} extracted)
+                </span>
+              )}
             </button>
           )}
         </div>

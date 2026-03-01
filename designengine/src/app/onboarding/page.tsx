@@ -1,19 +1,69 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useOnboardingStore, type UserIntent } from './store';
 import { StepIndicator } from './components';
+import { track } from '@/lib/posthog';
+
+const INDUSTRIES = [
+  'SaaS / Tech', 'E-commerce / Retail', 'Agency / Studio', 'Finance / Fintech',
+  'Healthcare / Wellness', 'Education', 'Food & Beverage', 'Real Estate',
+  'Media / Publishing', 'Non-profit', 'Legal / Professional Services',
+  'Fashion / Beauty', 'Travel / Hospitality', 'Other',
+];
+
+const AUDIENCES = [
+  'Developers / Technical', 'Designers / Creatives', 'Business executives',
+  'General consumers', 'Young adults (18-30)', 'Parents / Families',
+  'Enterprise / B2B buyers', 'Students / Educators', 'Other',
+];
+
+const CONTENT_TYPES = [
+  'Marketing / Landing pages', 'Blog / Editorial', 'E-commerce / Product pages',
+  'SaaS Dashboard / App', 'Portfolio / Showcase', 'Documentation / Knowledge base',
+  'Community / Social', 'Multi-purpose (several of these)',
+];
+
+const EMOTIONAL_OPTIONS = [
+  'Trustworthy', 'Innovative', 'Warm', 'Sophisticated', 'Energetic',
+  'Calm', 'Playful', 'Authoritative', 'Approachable', 'Premium',
+  'Bold', 'Minimal', 'Human', 'Technical', 'Whimsical',
+];
 
 export default function OnboardingStep1() {
   const router = useRouter();
-  const { projectName, brandDescription, intent, setField } = useOnboardingStore();
+  const store = useOnboardingStore();
+  const {
+    projectName, brandDescription, intent, industry, audience,
+    contentType, emotionalKeywords, setField,
+  } = store;
   const [hovered, setHovered] = useState<UserIntent | ''>('');
 
   const canProceed = projectName.trim().length > 0 && intent !== '';
 
+  useEffect(() => {
+    track('onboarding_started', { step: 1 });
+  }, []);
+
+  function toggleKeyword(kw: string) {
+    const current = emotionalKeywords;
+    if (current.includes(kw)) {
+      setField('emotionalKeywords', current.filter((k) => k !== kw));
+    } else if (current.length < 5) {
+      setField('emotionalKeywords', [...current, kw]);
+    }
+  }
+
   function handleNext() {
     if (!canProceed) return;
+    track('onboarding_step_complete', {
+      step: 1,
+      intent,
+      industry,
+      audience,
+      emotionalKeywords,
+    });
     if (intent === 'refresh') {
       router.push('/onboarding/refresh');
     } else {
@@ -46,10 +96,11 @@ export default function OnboardingStep1() {
         marginBottom: 'var(--space-6)',
         lineHeight: 'var(--leading-normal)',
       }}>
-        We&rsquo;ll create a complete set of design tokens &mdash; colors, typography, spacing, and art direction &mdash; tailored to you.
+        A great designer starts by listening. Tell us about your project so every decision downstream &mdash; colors, type, spacing &mdash; is grounded in who you are and who you&rsquo;re building for.
       </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+        {/* Project name */}
         <InputField
           label="Project name"
           placeholder="e.g. My SaaS, Acme Corp, Portfolio"
@@ -58,6 +109,82 @@ export default function OnboardingStep1() {
           required
         />
 
+        {/* Industry */}
+        <SelectField
+          label="Industry"
+          placeholder="Select your industry"
+          options={INDUSTRIES}
+          value={industry}
+          onChange={(v) => setField('industry', v)}
+        />
+
+        {/* Audience */}
+        <SelectField
+          label="Who is this for?"
+          placeholder="Select your primary audience"
+          options={AUDIENCES}
+          value={audience}
+          onChange={(v) => setField('audience', v)}
+        />
+
+        {/* Content type */}
+        <SelectField
+          label="What kind of pages will you build?"
+          placeholder="Select content type"
+          options={CONTENT_TYPES}
+          value={contentType}
+          onChange={(v) => setField('contentType', v)}
+        />
+
+        {/* Emotional keywords */}
+        <div>
+          <label style={{
+            display: 'block',
+            fontSize: 'var(--text-sm)',
+            fontWeight: 500,
+            color: 'var(--color-text-primary)',
+            marginBottom: 'var(--space-1)',
+          }}>
+            Pick up to 5 words your brand should evoke
+          </label>
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '0.5rem',
+          }}>
+            {EMOTIONAL_OPTIONS.map((kw) => {
+              const active = emotionalKeywords.includes(kw);
+              return (
+                <button
+                  key={kw}
+                  type="button"
+                  onClick={() => toggleKeyword(kw)}
+                  style={{
+                    background: active ? 'var(--color-green-deep)' : 'var(--color-white)',
+                    color: active ? '#fff' : 'var(--color-text-body)',
+                    border: active ? '1.5px solid var(--color-green-deep)' : '1.5px solid var(--color-border)',
+                    borderRadius: 'var(--radius-full)',
+                    padding: '0.375rem 0.875rem',
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    transition: 'all var(--duration-fast) var(--ease-out)',
+                  }}
+                >
+                  {kw}
+                </button>
+              );
+            })}
+          </div>
+          {emotionalKeywords.length > 0 && (
+            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginTop: '0.375rem' }}>
+              {emotionalKeywords.length}/5 selected
+            </p>
+          )}
+        </div>
+
+        {/* Brand description (now supplemental, not primary) */}
         <div>
           <label style={{
             display: 'block',
@@ -66,13 +193,13 @@ export default function OnboardingStep1() {
             color: 'var(--color-text-primary)',
             marginBottom: 'var(--space-0-5)',
           }}>
-            Describe your brand in a few words
+            Anything else about your brand? <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', fontWeight: 400 }}>(optional)</span>
           </label>
           <textarea
             value={brandDescription}
             onChange={(e) => setField('brandDescription', e.target.value)}
-            placeholder="e.g. Modern and minimal for developers, warm and editorial for writers, bold and playful for a kids app..."
-            rows={3}
+            placeholder="e.g. We're a small olive oil company that values tradition but wants a modern web presence..."
+            rows={2}
             style={{
               width: '100%',
               background: 'var(--color-white)',
@@ -90,6 +217,15 @@ export default function OnboardingStep1() {
             onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--color-border)'; }}
           />
         </div>
+
+        {/* Competitors (optional) */}
+        <InputField
+          label="Any competitors or sites you want to stand apart from?"
+          placeholder="e.g. competitor.com, bigbrand.io"
+          value={store.competitors}
+          onChange={(v) => setField('competitors', v)}
+          sublabel="(optional)"
+        />
 
         {/* Intent selection */}
         <div>
@@ -258,12 +394,13 @@ function IntentCard({ selected, hovering, onSelect, onHover, title, description,
   );
 }
 
-function InputField({ label, placeholder, value, onChange, required }: {
+function InputField({ label, placeholder, value, onChange, required, sublabel }: {
   label: string;
   placeholder: string;
   value: string;
   onChange: (v: string) => void;
   required?: boolean;
+  sublabel?: string;
 }) {
   return (
     <div>
@@ -274,7 +411,9 @@ function InputField({ label, placeholder, value, onChange, required }: {
         color: 'var(--color-text-primary)',
         marginBottom: 'var(--space-0-5)',
       }}>
-        {label}{required && <span style={{ color: 'var(--color-orange)' }}> *</span>}
+        {label}
+        {required && <span style={{ color: 'var(--color-orange)' }}> *</span>}
+        {sublabel && <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', fontWeight: 400, marginLeft: '0.375rem' }}>{sublabel}</span>}
       </label>
       <input
         type="text"
@@ -296,6 +435,56 @@ function InputField({ label, placeholder, value, onChange, required }: {
         onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-green-deep)'; }}
         onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--color-border)'; }}
       />
+    </div>
+  );
+}
+
+function SelectField({ label, placeholder, options, value, onChange }: {
+  label: string;
+  placeholder: string;
+  options: string[];
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div>
+      <label style={{
+        display: 'block',
+        fontSize: 'var(--text-sm)',
+        fontWeight: 500,
+        color: 'var(--color-text-primary)',
+        marginBottom: 'var(--space-0-5)',
+      }}>
+        {label}
+      </label>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{
+          width: '100%',
+          background: 'var(--color-white)',
+          border: '1.5px solid var(--color-border)',
+          borderRadius: 'var(--radius-md)',
+          padding: '0.625rem var(--space-2)',
+          fontSize: 'var(--text-base)',
+          color: value ? 'var(--color-text-primary)' : 'var(--color-text-muted)',
+          outline: 'none',
+          transition: 'border-color var(--duration-fast) var(--ease-out)',
+          fontFamily: 'inherit',
+          appearance: 'none',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'right 0.75rem center',
+          paddingRight: '2.5rem',
+        }}
+        onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-green-deep)'; }}
+        onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--color-border)'; }}
+      >
+        <option value="">{placeholder}</option>
+        {options.map((opt) => (
+          <option key={opt} value={opt}>{opt}</option>
+        ))}
+      </select>
     </div>
   );
 }

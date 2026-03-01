@@ -111,6 +111,13 @@ export interface OnboardingState {
   projectName: string;
   brandDescription: string;
 
+  // Structured discovery (Step 1)
+  industry: string;
+  audience: string;
+  contentType: string;
+  competitors: string;
+  emotionalKeywords: string[];
+
   // Refresh path
   ownSiteUrl: string;
   keepAttributes: KeepAttributes;
@@ -127,6 +134,12 @@ export interface OnboardingState {
   mood: string; // alias kept for downstream compat
   layoutStyle: LayoutStyle;
 
+  // Design language overrides (user-configurable axes)
+  spacingDensityOverride: 'tight' | 'balanced' | 'generous' | null;
+  borderRadiusOverride: 'sharp' | 'medium' | 'rounded' | null;
+  shadowStyleOverride: 'none' | 'subtle' | 'soft' | 'sharp' | 'long' | null;
+  animationIntensityOverride: 'none' | 'subtle' | 'moderate' | 'bouncy' | null;
+
   artStyle: ArtStylePreset | '';
   colors: {
     primary: string;
@@ -139,6 +152,11 @@ export interface OnboardingState {
     heading: string;
     body: string;
   };
+  // Typography refinements
+  typeScaleRatio: number;
+  headingWeights: number[];
+  bodyWeights: number[];
+
   extractedTokens: Record<string, unknown> | null;
 
   extraction: ExtractionBranding | null;
@@ -209,6 +227,12 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
   projectName: '',
   brandDescription: '',
 
+  industry: '',
+  audience: '',
+  contentType: '',
+  competitors: '',
+  emotionalKeywords: [],
+
   ownSiteUrl: '',
   keepAttributes: { colors: true, typography: true, layout: true },
 
@@ -220,6 +244,11 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
   designLanguage: '',
   mood: '',
   layoutStyle: '',
+
+  spacingDensityOverride: null,
+  borderRadiusOverride: null,
+  shadowStyleOverride: null,
+  animationIntensityOverride: null,
 
   artStyle: '',
   colors: {
@@ -233,6 +262,10 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
     heading: 'Fraunces',
     body: 'Source Sans 3',
   },
+  typeScaleRatio: 1.25,
+  headingWeights: [600, 700],
+  bodyWeights: [400, 500, 600],
+
   extractedTokens: null,
 
   extraction: null,

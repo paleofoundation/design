@@ -214,3 +214,80 @@ a:hover {
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
+
+/* ============================================
+   BLOG PROSE
+   ============================================ */
+
+.blog-prose h2 {
+  font-family: var(--font-fraunces, Fraunces, Georgia, serif);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-2);
+  line-height: var(--leading-tight);
+}
+
+.blog-prose h3 {
+  font-family: var(--font-fraunces, Fraunces, Georgia, serif);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-1);
+}
+
+.blog-prose p {
+  margin-bottom: var(--space-3);
+}
+
+.blog-prose ul, .blog-prose ol {
+  padding-left: var(--space-4);
+  margin-bottom: var(--space-3);
+}
+
+.blog-prose li {
+  margin-bottom: var(--space-1);
+}
+
+.blog-prose strong {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.blog-prose code {
+  font-size: 0.875em;
+  background: var(--color-surface);
+  padding: 0.1em 0.4em;
+  border-radius: var(--radius-sm);
+  color: var(--color-orange);
+}
+
+.blog-prose pre {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  overflow-x: auto;
+  margin-bottom: var(--space-3);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.blog-prose pre code {
+  background: none;
+  padding: 0;
+  color: var(--color-text-primary);
+}
+
+.blog-prose a {
+  color: var(--color-orange);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.blog-prose a:hover {
+  color: var(--color-green-deep);
+}

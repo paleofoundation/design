@@ -3,7 +3,158 @@
 import { useRouter } from 'next/navigation';
 import { useOnboardingStore } from '../store';
 import { StepIndicator } from '../components';
-import { DESIGN_LANGUAGES, DESIGN_LANGUAGE_IDS, getShadowCSS, getSpacingScale, type DesignLanguagePreset } from '@/lib/design-language';
+import { DESIGN_LANGUAGES, DESIGN_LANGUAGE_IDS, getDesignLanguage, getShadowCSS, getSpacingScale, type DesignLanguagePreset } from '@/lib/design-language';
+
+const SPACING_OPTIONS: Array<{ id: 'tight' | 'balanced' | 'generous'; label: string; desc: string }> = [
+  { id: 'tight', label: 'Tight', desc: 'Dense, data-rich layouts' },
+  { id: 'balanced', label: 'Balanced', desc: 'Standard spacing' },
+  { id: 'generous', label: 'Generous', desc: 'Breathing room, editorial feel' },
+];
+
+const RADIUS_OPTIONS: Array<{ id: 'sharp' | 'medium' | 'rounded'; label: string; desc: string }> = [
+  { id: 'sharp', label: 'Sharp', desc: '2-4px corners' },
+  { id: 'medium', label: 'Medium', desc: '6-8px corners' },
+  { id: 'rounded', label: 'Rounded', desc: '12-16px corners' },
+];
+
+const SHADOW_OPTIONS: Array<{ id: 'none' | 'subtle' | 'soft' | 'sharp' | 'long'; label: string }> = [
+  { id: 'none', label: 'None' },
+  { id: 'subtle', label: 'Subtle' },
+  { id: 'soft', label: 'Soft' },
+  { id: 'sharp', label: 'Sharp' },
+  { id: 'long', label: 'Long' },
+];
+
+const ANIMATION_OPTIONS: Array<{ id: 'none' | 'subtle' | 'moderate' | 'bouncy'; label: string }> = [
+  { id: 'none', label: 'None' },
+  { id: 'subtle', label: 'Subtle' },
+  { id: 'moderate', label: 'Moderate' },
+  { id: 'bouncy', label: 'Bouncy' },
+];
+
+function DesignAxes() {
+  const store = useOnboardingStore();
+  const lang = getDesignLanguage(store.designLanguage);
+
+  const spacingVal = store.spacingDensityOverride || lang.spacingDensity;
+  const radiusVal = store.borderRadiusOverride || (
+    lang.borderRadius.md === '4px' || lang.borderRadius.md === '6px' ? 'sharp' as const
+    : lang.borderRadius.md === '8px' ? 'medium' as const
+    : 'rounded' as const
+  );
+  const shadowVal = store.shadowStyleOverride || lang.shadowStyle;
+  const animVal = store.animationIntensityOverride || lang.animationIntensity;
+
+  return (
+    <div style={{
+      marginTop: 'var(--space-6)',
+      background: 'var(--color-white)',
+      border: '1px solid var(--color-border)',
+      borderRadius: 'var(--radius-md)',
+      padding: 'var(--space-4)',
+    }}>
+      <p style={{
+        fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--color-text-primary)',
+        marginBottom: '0.25rem',
+      }}>
+        Fine-tune the feel
+      </p>
+      <p style={{
+        fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)',
+        marginBottom: 'var(--space-4)', lineHeight: 'var(--leading-normal)',
+      }}>
+        The &ldquo;{lang.label}&rdquo; preset sets defaults for each axis. Override any of them &mdash; your choices carry through to your entire design system.
+      </p>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 14rem), 1fr))', gap: 'var(--space-4)' }}>
+        <AxisPicker
+          label="Spacing Density"
+          options={SPACING_OPTIONS.map((o) => ({ id: o.id, label: o.label, desc: o.desc }))}
+          value={spacingVal}
+          defaultValue={lang.spacingDensity}
+          onChange={(v) => store.setField('spacingDensityOverride', v as typeof store.spacingDensityOverride)}
+        />
+        <AxisPicker
+          label="Corner Radius"
+          options={RADIUS_OPTIONS.map((o) => ({ id: o.id, label: o.label, desc: o.desc }))}
+          value={radiusVal}
+          defaultValue={radiusVal}
+          onChange={(v) => store.setField('borderRadiusOverride', v as typeof store.borderRadiusOverride)}
+        />
+        <AxisPicker
+          label="Shadow Style"
+          options={SHADOW_OPTIONS.map((o) => ({ id: o.id, label: o.label, desc: '' }))}
+          value={shadowVal}
+          defaultValue={lang.shadowStyle}
+          onChange={(v) => store.setField('shadowStyleOverride', v as typeof store.shadowStyleOverride)}
+        />
+        <AxisPicker
+          label="Animation"
+          options={ANIMATION_OPTIONS.map((o) => ({ id: o.id, label: o.label, desc: '' }))}
+          value={animVal}
+          defaultValue={lang.animationIntensity}
+          onChange={(v) => store.setField('animationIntensityOverride', v as typeof store.animationIntensityOverride)}
+        />
+      </div>
+    </div>
+  );
+}
+
+function AxisPicker({ label, options, value, defaultValue, onChange }: {
+  label: string;
+  options: Array<{ id: string; label: string; desc: string }>;
+  value: string;
+  defaultValue: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div>
+      <p style={{
+        fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--color-text-muted)',
+        letterSpacing: 'var(--tracking-wider)', textTransform: 'uppercase',
+        marginBottom: 'var(--space-1)',
+      }}>
+        {label}
+      </p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        {options.map((opt) => {
+          const active = value === opt.id;
+          const isDefault = opt.id === defaultValue;
+          return (
+            <button
+              key={opt.id}
+              type="button"
+              onClick={() => onChange(opt.id)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                background: active ? 'var(--color-green-muted)' : 'var(--color-surface)',
+                border: active ? '1.5px solid var(--color-green-deep)' : '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '6px 10px',
+                cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
+              }}
+            >
+              <span style={{
+                fontSize: 'var(--text-xs)', fontWeight: active ? 600 : 400,
+                color: active ? 'var(--color-green-deep)' : 'var(--color-text-primary)',
+              }}>
+                {opt.label}
+              </span>
+              {isDefault && (
+                <span style={{
+                  fontSize: '0.55rem', color: 'var(--color-text-muted)',
+                  fontWeight: 500,
+                }}>
+                  default
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export default function OnboardingDesignLanguage() {
   const router = useRouter();
@@ -143,6 +294,11 @@ export default function OnboardingDesignLanguage() {
           );
         })}
       </div>
+
+      {/* Configurable axes — shown after selecting a design language */}
+      {designLanguage && (
+        <DesignAxes />
+      )}
 
       <div style={{
         display: 'flex',

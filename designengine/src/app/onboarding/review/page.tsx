@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useOnboardingStore, type ArtStylePreset } from '../store';
 import { StepIndicator, ProvenanceBadge } from '../components';
@@ -8,6 +8,10 @@ import { ART_STYLE_META } from '@/lib/svg/art-style-previews';
 import { getDesignLanguage } from '@/lib/design-language';
 import { LivePreview } from '../components/live-preview';
 import type { AuditImprovement } from '@/app/api/onboarding/audit/route';
+import { validatePaletteContrast, analyzeHarmony } from '@/lib/color-utils';
+import { track } from '@/lib/posthog';
+import { buildCssExport, buildTailwindExport, buildStyleDictionaryExport } from '@/lib/export-formats';
+import { createClient } from '@/lib/supabase/client';
 
 const ALL_ART_STYLES: ArtStylePreset[] = [
   'line-art', 'flat-vector', 'watercolor', 'isometric', 'abstract-geometric', 'photo-overlay',
@@ -34,6 +38,13 @@ export default function OnboardingReview() {
   const [auditQuickWins, setAuditQuickWins] = useState<string[]>([]);
   const [auditError, setAuditError] = useState('');
   const [auditOpen, setAuditOpen] = useState(false);
+
+  const [isAuthed, setIsAuthed] = useState<boolean | null>(null);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data }) => setIsAuthed(!!data.user));
+  }, []);
 
   const hasExtraction = store.extractionStatus === 'done';
   const isRefresh = store.intent === 'refresh';
@@ -111,11 +122,29 @@ export default function OnboardingReview() {
         body: JSON.stringify({
           projectName: store.projectName,
           inspirationUrl: store.inspirationUrl,
+          inspirationUrls: store.inspirationUrls,
           brandDescription: store.brandDescription,
           mood: store.designLanguage || store.mood,
+          designLanguage: store.designLanguage,
           artStyle: store.artStyle,
           colors: store.colors,
           typography: store.typography,
+          typeScaleRatio: store.typeScaleRatio,
+          headingWeights: store.headingWeights,
+          bodyWeights: store.bodyWeights,
+          industry: store.industry,
+          audience: store.audience,
+          contentType: store.contentType,
+          competitors: store.competitors,
+          emotionalKeywords: store.emotionalKeywords,
+          additionalContext: store.additionalContext,
+          intent: store.intent,
+          siteContent: store.siteContent,
+          layoutStyle: store.layoutStyle || store.detectedLayout,
+          spacingDensityOverride: store.spacingDensityOverride,
+          borderRadiusOverride: store.borderRadiusOverride,
+          shadowStyleOverride: store.shadowStyleOverride,
+          animationIntensityOverride: store.animationIntensityOverride,
         }),
       });
 
@@ -124,8 +153,18 @@ export default function OnboardingReview() {
         throw new Error(data.error || 'Failed to save');
       }
 
+      track('design_profile_saved', {
+        project: store.projectName,
+        intent: store.intent,
+        designLanguage: store.designLanguage,
+        artStyle: store.artStyle,
+        industry: store.industry,
+      });
       setSaved(true);
     } catch (err) {
+      track('design_profile_save_error', {
+        error: err instanceof Error ? err.message : 'unknown',
+      });
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
       setSaving(false);
@@ -228,6 +267,8 @@ export default function OnboardingReview() {
             Test in Playground
           </button>
         </div>
+
+        <ShareButtons projectName={store.projectName} />
       </div>
     );
   }
@@ -849,6 +890,21 @@ export default function OnboardingReview() {
         </ReviewSection>
       </div>
 
+      {/* Design system health check */}
+      <DesignSystemHealthCheck colors={store.colors} />
+
+      {/* Export panel — freely available, no auth required */}
+      <ExportPanel
+        colors={store.colors}
+        typography={store.typography}
+        typeScaleRatio={store.typeScaleRatio}
+        headingWeights={store.headingWeights}
+        bodyWeights={store.bodyWeights}
+        borderRadius={store.borderRadiusOverride || 'medium'}
+        designLanguage={store.designLanguage}
+        projectName={store.projectName}
+      />
+
       {error && (
         <div style={{
           background: 'rgba(220,53,69,0.08)', border: '1px solid rgba(220,53,69,0.2)',
@@ -856,6 +912,60 @@ export default function OnboardingReview() {
           marginBottom: 'var(--space-4)', fontSize: 'var(--text-sm)', color: 'var(--color-error)',
         }}>
           {error}
+        </div>
+      )}
+
+      {showAuthPrompt && (
+        <div style={{
+          background: 'var(--color-white)',
+          border: '1.5px solid var(--color-orange)',
+          borderRadius: 'var(--radius-md)',
+          padding: 'var(--space-3)',
+          marginBottom: 'var(--space-4)',
+          textAlign: 'center',
+        }}>
+          <p style={{
+            fontSize: 'var(--text-sm)', fontWeight: 600,
+            color: 'var(--color-text-primary)', marginBottom: 'var(--space-1)',
+          }}>
+            Create a free account to save your design system
+          </p>
+          <p style={{
+            fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)',
+            marginBottom: 'var(--space-3)', maxWidth: '28rem', margin: '0 auto var(--space-3)',
+          }}>
+            Your exports above are free to copy right now. Saving to dzyne gives your AI coding tools persistent access via MCP.
+          </p>
+          <div style={{ display: 'flex', gap: 'var(--space-2)', justifyContent: 'center' }}>
+            <button
+              onClick={() => {
+                track('auth_prompt_signup_clicked');
+                router.push('/signup?redirect=/onboarding/review');
+              }}
+              style={{
+                background: 'var(--color-orange)', color: '#fff', fontWeight: 600,
+                fontSize: 'var(--text-sm)', padding: '0.5rem 1.5rem',
+                borderRadius: 'var(--radius-md)', border: 'none', cursor: 'pointer',
+                fontFamily: 'inherit',
+              }}
+            >
+              Sign up free
+            </button>
+            <button
+              onClick={() => {
+                track('auth_prompt_login_clicked');
+                router.push('/login?redirect=/onboarding/review');
+              }}
+              style={{
+                background: 'none', border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)', padding: '0.5rem 1.5rem',
+                fontSize: 'var(--text-sm)', color: 'var(--color-text-body)',
+                cursor: 'pointer', fontFamily: 'inherit',
+              }}
+            >
+              Log in
+            </button>
+          </div>
         </div>
       )}
 
@@ -868,8 +978,15 @@ export default function OnboardingReview() {
           &larr; Back
         </button>
         <button
-          onClick={handleSave}
-          disabled={saving}
+          onClick={() => {
+            if (isAuthed === false) {
+              setShowAuthPrompt(true);
+              track('save_auth_gated');
+              return;
+            }
+            handleSave();
+          }}
+          disabled={saving || isAuthed === null}
           style={{
             background: 'var(--color-orange)',
             color: '#fff', fontWeight: 600, fontSize: 'var(--text-base)',
@@ -878,7 +995,7 @@ export default function OnboardingReview() {
             opacity: saving ? 0.7 : 1, fontFamily: 'inherit',
           }}
         >
-          {saving ? 'Saving...' : 'Save design system'}
+          {saving ? 'Saving...' : isAuthed ? 'Save design system' : 'Save & connect to MCP'}
         </button>
       </div>
     </div>
@@ -916,6 +1033,92 @@ function ScoreBadge({ score, large }: { score: number; large?: boolean }) {
   );
 }
 
+function DesignSystemHealthCheck({ colors }: {
+  colors: { primary: string; secondary: string; accent: string; background: string; text: string };
+}) {
+  const contrastIssues = useMemo(() => validatePaletteContrast(colors), [colors]);
+  const harmony = useMemo(
+    () => analyzeHarmony([colors.primary, colors.secondary, colors.accent]),
+    [colors.primary, colors.secondary, colors.accent],
+  );
+
+  const checks = [
+    {
+      label: 'WCAG Contrast',
+      pass: contrastIssues.length === 0,
+      detail: contrastIssues.length === 0
+        ? 'All text/background pairs pass WCAG AA.'
+        : `${contrastIssues.length} pair${contrastIssues.length > 1 ? 's' : ''} fail${contrastIssues.length === 1 ? 's' : ''} minimum contrast ratio.`,
+    },
+    {
+      label: 'Color Harmony',
+      pass: harmony.score >= 75,
+      detail: `${harmony.type.replace('-', ' ')} (${harmony.score}/100) — ${harmony.notes}`,
+    },
+  ];
+
+  const allPass = checks.every((c) => c.pass);
+
+  return (
+    <div style={{
+      background: allPass ? 'rgba(40,167,69,0.04)' : 'rgba(255,193,7,0.04)',
+      border: `1px solid ${allPass ? 'rgba(40,167,69,0.15)' : 'rgba(255,193,7,0.2)'}`,
+      borderRadius: 'var(--radius-md)',
+      padding: 'var(--space-3)',
+      marginBottom: 'var(--space-4)',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)', marginBottom: 'var(--space-2)' }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke={allPass ? '#28A745' : '#FFC107'}
+          strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          {allPass
+            ? <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></>
+            : <><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></>
+          }
+        </svg>
+        <span style={{
+          fontSize: 'var(--text-sm)', fontWeight: 600,
+          color: allPass ? '#28A745' : '#856404',
+        }}>
+          Design System Health
+        </span>
+        <span style={{
+          marginLeft: 'auto',
+          fontSize: '0.625rem', fontWeight: 600,
+          color: allPass ? '#155724' : '#856404',
+          background: allPass ? '#D4EDDA' : '#FFF3CD',
+          padding: '0.1rem 0.5rem', borderRadius: 'var(--radius-full)',
+        }}>
+          {checks.filter((c) => c.pass).length}/{checks.length} pass
+        </span>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        {checks.map((check, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+              stroke={check.pass ? '#28A745' : '#FFC107'}
+              strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+              style={{ flexShrink: 0, marginTop: '2px' }}>
+              {check.pass
+                ? <polyline points="20 6 9 17 4 12" />
+                : <><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></>
+              }
+            </svg>
+            <div>
+              <span style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                {check.label}:
+              </span>{' '}
+              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-body)', lineHeight: 1.5 }}>
+                {check.detail}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ReviewSection({ title, children, provenance, showProvenance }: {
   title: string;
   children: React.ReactNode;
@@ -942,6 +1145,289 @@ function ReviewSection({ title, children, provenance, showProvenance }: {
         {showProvenance && <ProvenanceBadge source={provenance} />}
       </div>
       {children}
+    </div>
+  );
+}
+
+type ExportFormat = 'css' | 'tailwind' | 'tokens';
+
+function ExportPanel(props: {
+  colors: { primary: string; secondary: string; accent: string; background: string; text: string };
+  typography: { heading: string; body: string };
+  typeScaleRatio: number;
+  headingWeights: number[];
+  bodyWeights: number[];
+  borderRadius: string;
+  designLanguage: string;
+  projectName: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [format, setFormat] = useState<ExportFormat>('css');
+  const [copied, setCopied] = useState(false);
+
+  const code = useMemo(() => {
+    if (format === 'css') return buildCssExport(props);
+    if (format === 'tailwind') return buildTailwindExport(props);
+    return buildStyleDictionaryExport(props);
+  }, [format, props]);
+
+  async function copy() {
+    await navigator.clipboard.writeText(code);
+    track('export_copied', { format, project: props.projectName });
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  function download() {
+    const ext = format === 'css' ? 'css' : format === 'tailwind' ? 'ts' : 'json';
+    const name = `${props.projectName.toLowerCase().replace(/\s+/g, '-')}-design-tokens.${ext}`;
+    const blob = new Blob([code], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(url);
+    track('export_downloaded', { format, project: props.projectName });
+  }
+
+  const tabs: { id: ExportFormat; label: string }[] = [
+    { id: 'css', label: 'CSS Variables' },
+    { id: 'tailwind', label: 'Tailwind Config' },
+    { id: 'tokens', label: 'Design Tokens (JSON)' },
+  ];
+
+  return (
+    <div style={{
+      border: '1px solid var(--color-border)',
+      borderRadius: 'var(--radius-md)',
+      marginBottom: 'var(--space-4)',
+      overflow: 'hidden',
+    }}>
+      <button
+        onClick={() => { setOpen(!open); if (!open) track('export_panel_opened'); }}
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: 'var(--space-3)',
+          background: 'var(--color-white)',
+          border: 'none',
+          cursor: 'pointer',
+          fontFamily: 'inherit',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-green-deep)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          <span style={{ fontWeight: 600, fontSize: 'var(--text-sm)', color: 'var(--color-text-primary)' }}>
+            Export your design system
+          </span>
+          <span style={{
+            fontSize: '0.625rem',
+            fontWeight: 600,
+            padding: '0.1rem 0.5rem',
+            borderRadius: 'var(--radius-full)',
+            background: 'var(--color-green-muted)',
+            color: 'var(--color-green-deep)',
+          }}>
+            FREE
+          </span>
+        </div>
+        <svg
+          width="14" height="14" viewBox="0 0 24 24" fill="none"
+          stroke="var(--color-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+          style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.15s ease' }}
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+
+      {open && (
+        <div style={{ borderTop: '1px solid var(--color-border)' }}>
+          <div style={{
+            display: 'flex',
+            borderBottom: '1px solid var(--color-border)',
+            background: 'var(--color-surface)',
+          }}>
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setFormat(tab.id)}
+                style={{
+                  flex: 1,
+                  padding: '0.5rem 0.75rem',
+                  fontSize: 'var(--text-xs)',
+                  fontWeight: format === tab.id ? 600 : 400,
+                  color: format === tab.id ? 'var(--color-green-deep)' : 'var(--color-text-muted)',
+                  background: format === tab.id ? 'var(--color-white)' : 'transparent',
+                  border: 'none',
+                  borderBottom: format === tab.id ? '2px solid var(--color-green-deep)' : '2px solid transparent',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  transition: 'all 0.1s ease',
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ position: 'relative' }}>
+            <div style={{
+              display: 'flex',
+              gap: 'var(--space-1)',
+              position: 'absolute',
+              top: '0.5rem',
+              right: '0.5rem',
+              zIndex: 2,
+            }}>
+              <button
+                onClick={copy}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '4px 10px',
+                  fontSize: '0.625rem',
+                  fontWeight: 600,
+                  background: copied ? 'var(--color-green-deep)' : 'var(--color-white)',
+                  color: copied ? '#fff' : 'var(--color-text-body)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-sm)',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {copied ? 'Copied' : 'Copy'}
+              </button>
+              <button
+                onClick={download}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '4px 10px',
+                  fontSize: '0.625rem',
+                  fontWeight: 600,
+                  background: 'var(--color-white)',
+                  color: 'var(--color-text-body)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-sm)',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                Download
+              </button>
+            </div>
+            <pre style={{
+              padding: 'var(--space-3)',
+              paddingTop: 'var(--space-6)',
+              fontSize: '0.6875rem',
+              lineHeight: 1.6,
+              fontFamily: 'var(--font-jetbrains, monospace)',
+              color: 'var(--color-text-primary)',
+              background: 'var(--color-surface)',
+              margin: 0,
+              overflowX: 'auto',
+              maxHeight: '24rem',
+            }}>
+              {code}
+            </pre>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ShareButtons({ projectName }: { projectName: string }) {
+  const [copied, setCopied] = useState(false);
+  const tweetText = `Just built a design system for "${projectName}" with @dzyneapp — colors, type scale, tokens, and MCP integration in 5 minutes. My AI coding tools finally build on-brand.\n\nhttps://www.dzyne.app`;
+
+  async function copyTweet() {
+    await navigator.clipboard.writeText(tweetText);
+    track('share_tweet_copied', { project: projectName });
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  function openTwitter() {
+    track('share_twitter_clicked', { project: projectName });
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`,
+      '_blank',
+    );
+  }
+
+  return (
+    <div style={{
+      marginTop: 'var(--space-6)',
+      padding: 'var(--space-3)',
+      background: 'var(--color-surface)',
+      borderRadius: 'var(--radius-md)',
+      border: '1px solid var(--color-border)',
+      textAlign: 'center',
+    }}>
+      <p style={{
+        fontSize: 'var(--text-xs)',
+        fontWeight: 600,
+        color: 'var(--color-text-muted)',
+        letterSpacing: 'var(--tracking-wider)',
+        textTransform: 'uppercase',
+        marginBottom: 'var(--space-2)',
+      }}>
+        Share your build
+      </p>
+      <div style={{ display: 'flex', gap: 'var(--space-2)', justifyContent: 'center' }}>
+        <button
+          onClick={openTwitter}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            background: '#1DA1F2',
+            color: '#fff',
+            fontWeight: 600,
+            fontSize: 'var(--text-xs)',
+            padding: '0.4rem 1rem',
+            borderRadius: 'var(--radius-md)',
+            border: 'none',
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+          </svg>
+          Post on X
+        </button>
+        <button
+          onClick={copyTweet}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            background: 'var(--color-white)',
+            color: 'var(--color-text-body)',
+            fontWeight: 500,
+            fontSize: 'var(--text-xs)',
+            padding: '0.4rem 1rem',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--color-border)',
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}
+        >
+          {copied ? 'Copied!' : 'Copy tweet'}
+        </button>
+      </div>
     </div>
   );
 }

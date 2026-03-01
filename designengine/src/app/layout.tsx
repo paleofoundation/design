@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Fraunces, Source_Sans_3, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
+import { Suspense } from "react";
+import PostHogProvider from "@/components/PostHogProvider";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -48,22 +50,52 @@ export const metadata: Metadata = {
   manifest: "/assets/favicon/site.webmanifest",
   openGraph: {
     title: "dzyne — Design systems for AI-powered builds",
-    description: "Stop your AI from building ugly apps.",
+    description:
+      "Stop your AI from building ugly apps. dzyne captures your design intent and enforces it across every AI coding session.",
     siteName: "dzyne",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "dzyne — Design systems for AI-powered builds",
-      },
-    ],
+    type: "website",
+    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
     title: "dzyne — Design systems for AI-powered builds",
-    description: "Stop your AI from building ugly apps.",
-    images: ["/og-image.png"],
+    description:
+      "Stop your AI from building ugly apps. dzyne captures your design intent and enforces it across every AI coding session.",
+  },
+  keywords: [
+    "design system generator",
+    "AI design consistency",
+    "design tokens",
+    "MCP design tools",
+    "Cursor design system",
+    "AI web design",
+    "design system for developers",
+  ],
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'dzyne',
+  applicationCategory: 'DesignApplication',
+  operatingSystem: 'Web',
+  url: 'https://www.dzyne.app',
+  description:
+    'Design systems for AI-powered builds. Captures your design intent and enforces it across every AI coding session.',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+    description: 'Free during beta',
+  },
+  creator: {
+    '@type': 'Organization',
+    name: 'dzyne',
+    url: 'https://www.dzyne.app',
   },
 };
 
@@ -75,6 +107,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <link rel="stylesheet" href="/assets/animations/cursor-follower.css" />
         <link rel="stylesheet" href="/assets/animations/button-states.css" />
         <link rel="stylesheet" href="/assets/animations/scroll-reveal.css" />
@@ -84,6 +120,9 @@ export default function RootLayout({
       <body
         className={`${fraunces.variable} ${sourceSans.variable} ${jetbrainsMono.variable} antialiased`}
       >
+        <Suspense fallback={null}>
+          <PostHogProvider />
+        </Suspense>
         {children}
         <Script src="/assets/animations/cursor-follower.js" strategy="lazyOnload" />
         <Script src="/assets/animations/scroll-reveal.js" strategy="lazyOnload" />

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -5,6 +6,11 @@ import { PALETTE, DASH, FONT, RADIUS, TEXT_SIZE } from '@/lib/design-tokens';
 import { isAdminEmail } from '@/lib/auth/admin';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Dashboard — dzyne',
+  description: 'Manage your design profiles, API keys, usage, and run the tool playground.',
+};
 
 const NAV_LINKS = [
   { href: '/dashboard', label: 'Overview' },
