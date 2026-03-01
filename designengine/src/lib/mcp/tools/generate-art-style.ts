@@ -46,6 +46,9 @@ export function registerGenerateArtStyleTool(server: McpServer): void {
           surface: surfaceColor,
         };
 
+        let profileArtStyle: ArtStylePreset | undefined;
+        let profileMood: string | undefined;
+
         if (projectName) {
           const profile = await loadDesignProfile(projectName);
           if (profile?.tokens) {
@@ -61,10 +64,12 @@ export function registerGenerateArtStyleTool(server: McpServer): void {
                 surface: surfaceColor || (tc.surface as string) || colors.surface,
               };
             }
+            profileArtStyle = profile.tokens.artStyle as ArtStylePreset | undefined;
+            profileMood = profile.tokens.mood as string | undefined;
           }
         }
 
-        const resolvedPreset: ArtStylePreset = preset ?? recommendPreset(industry, mood);
+        const resolvedPreset: ArtStylePreset = preset ?? profileArtStyle ?? recommendPreset(industry, mood || profileMood);
         const manifest = generateArtStyle(resolvedPreset, colors);
 
         const allPresets = getAllPresets().map(p => ({

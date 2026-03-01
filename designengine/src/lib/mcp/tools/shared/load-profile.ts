@@ -64,6 +64,8 @@ Typography: ${JSON.stringify(tokens.typography || {})}
 Spacing: ${JSON.stringify(tokens.spacing || {})}
 Borders: ${JSON.stringify(tokens.borders || {})}
 Shadows: ${JSON.stringify(tokens.shadows || {})}
+${tokens.mood ? `Mood: ${tokens.mood}` : ''}
+${tokens.artStyle ? `Art Style: ${tokens.artStyle} — use this preset for all illustrations and visual assets` : ''}
 ${profile.components ? `Component Patterns: ${JSON.stringify(profile.components)}` : ''}
 ${profile.css_variables ? `CSS Variables:\n${profile.css_variables}` : ''}
 ${variableRef}

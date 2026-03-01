@@ -267,8 +267,8 @@ export default function OnboardingTypography() {
         <button onClick={() => router.push('/onboarding/colors')} style={{ background: 'none', border: '1.5px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '0.75rem 1.5rem', fontSize: 'var(--text-sm)', color: 'var(--color-text-body)', cursor: 'pointer', fontFamily: 'inherit' }}>
           &larr; Back
         </button>
-        <button onClick={() => router.push('/onboarding/review')} style={{ background: 'var(--color-orange)', color: '#fff', fontWeight: 600, fontSize: 'var(--text-base)', padding: '0.75rem 2rem', borderRadius: 'var(--radius-md)', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
-          Next: Review &rarr;
+        <button onClick={() => router.push('/onboarding/style')} style={{ background: 'var(--color-orange)', color: '#fff', fontWeight: 600, fontSize: 'var(--text-base)', padding: '0.75rem 2rem', borderRadius: 'var(--radius-md)', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+          Next: Image style &rarr;
         </button>
       </div>
     </div>

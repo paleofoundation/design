@@ -162,6 +162,9 @@ export function registerGenerateIllustrationsTool(server: McpServer): void {
           surface: surfaceColor,
         };
 
+        let profileArtStyle: ArtStylePreset | undefined;
+        let profileMood: string | undefined;
+
         if (projectName) {
           const profile = await loadDesignProfile(projectName);
           if (profile?.tokens) {
@@ -177,10 +180,12 @@ export function registerGenerateIllustrationsTool(server: McpServer): void {
                 surface: surfaceColor || (tc.surface as string) || colors.surface,
               };
             }
+            profileArtStyle = profile.tokens.artStyle as ArtStylePreset | undefined;
+            profileMood = profile.tokens.mood as string | undefined;
           }
         }
 
-        const resolvedPreset: ArtStylePreset = preset ?? recommendPreset(industry, mood);
+        const resolvedPreset: ArtStylePreset = preset ?? profileArtStyle ?? recommendPreset(industry, mood || profileMood);
         const artStyle = generateArtStyle(resolvedPreset, colors);
 
         const targetSubjects = subjects ?? ['hero', 'feature-icon', 'empty-state'];

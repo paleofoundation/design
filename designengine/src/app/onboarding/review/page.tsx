@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useOnboardingStore } from '../store';
 import { StepIndicator, ProvenanceBadge } from '../components';
+import { ART_STYLE_META } from '@/lib/svg/art-style-previews';
 
 export default function OnboardingReview() {
   const router = useRouter();
@@ -13,7 +14,7 @@ export default function OnboardingReview() {
   const [error, setError] = useState('');
 
   const hasExtraction = store.extractionStatus === 'done';
-  const stepNumber = hasExtraction ? 6 : 5;
+  const stepNumber = hasExtraction ? 7 : 6;
 
   function extractDomain(url: string): string {
     try {
@@ -35,6 +36,7 @@ export default function OnboardingReview() {
           inspirationUrl: store.inspirationUrl,
           brandDescription: store.brandDescription,
           mood: store.mood,
+          artStyle: store.artStyle,
           colors: store.colors,
           typography: store.typography,
         }),
@@ -268,6 +270,22 @@ export default function OnboardingReview() {
           )}
         </ReviewSection>
 
+        {/* Art Style */}
+        <ReviewSection title="Image Style" provenance="manual" showProvenance={false}>
+          {store.artStyle ? (
+            <div>
+              <p style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--color-green-deep)' }}>
+                {ART_STYLE_META[store.artStyle]?.label || store.artStyle}
+              </p>
+              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginTop: '0.25rem', lineHeight: 'var(--leading-normal)' }}>
+                {ART_STYLE_META[store.artStyle]?.mood}
+              </p>
+            </div>
+          ) : (
+            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)' }}>Not selected</p>
+          )}
+        </ReviewSection>
+
         {/* Project */}
         <ReviewSection title="Project" provenance="manual" showProvenance={false}>
           <p style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--color-text-primary)' }}>{store.projectName}</p>
@@ -305,7 +323,7 @@ export default function OnboardingReview() {
       )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <button onClick={() => router.push('/onboarding/typography')} style={{ background: 'none', border: '1.5px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '0.75rem 1.5rem', fontSize: 'var(--text-sm)', color: 'var(--color-text-body)', cursor: 'pointer', fontFamily: 'inherit' }}>
+        <button onClick={() => router.push('/onboarding/style')} style={{ background: 'none', border: '1.5px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '0.75rem 1.5rem', fontSize: 'var(--text-sm)', color: 'var(--color-text-body)', cursor: 'pointer', fontFamily: 'inherit' }}>
           &larr; Back
         </button>
         <button

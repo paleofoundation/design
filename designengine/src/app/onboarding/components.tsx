@@ -4,7 +4,7 @@ import { useOnboardingStore } from './store';
 
 export function StepIndicator({ current }: { current: number }) {
   const extractionStatus = useOnboardingStore((s) => s.extractionStatus);
-  const total = extractionStatus === 'done' ? 6 : 5;
+  const total = extractionStatus === 'done' ? 7 : 6;
 
   return (
     <div style={{ display: 'flex', gap: '0.5rem', marginBottom: 'var(--space-6)' }}>

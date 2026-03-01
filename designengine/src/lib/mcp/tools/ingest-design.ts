@@ -130,12 +130,13 @@ export function registerIngestDesignTool(server: McpServer): void {
     'ingest-design',
     'Scrape a URL, extract precise design tokens and component patterns using AI, save as a persistent design profile, and return implementation-ready code artifacts.',
     {
-      url: z.string().url().describe('The URL of the website to analyze'),
+      url: z.string().describe('The URL of the website to analyze (e.g. https://example.com or example.com)'),
       projectName: z.string().describe('Project name for this design profile (e.g. "my-saas-app")'),
       includeScreenshot: z.boolean().optional().default(true).describe('Capture a screenshot'),
     },
-    async ({ url, projectName, includeScreenshot }) => {
+    async ({ url: rawUrl, projectName, includeScreenshot }) => {
       try {
+        const url = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
         const ingestion = await ingestDesignFromUrl(url, {
           includeScreenshot,
           includeHtml: true,

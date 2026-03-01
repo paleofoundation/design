@@ -70,6 +70,9 @@ export function registerScaffoldAssetsTool(server: McpServer): void {
           surface: surfaceColor,
         };
 
+        let profileArtStyle: ArtStylePreset | undefined;
+        let profileMood: string | undefined;
+
         if (projectName) {
           const profile = await loadDesignProfile(projectName);
           if (profile?.tokens) {
@@ -85,6 +88,8 @@ export function registerScaffoldAssetsTool(server: McpServer): void {
                 surface: surfaceColor || (tc.surface as string) || colors.surface,
               };
             }
+            profileArtStyle = profile.tokens.artStyle as ArtStylePreset | undefined;
+            profileMood = profile.tokens.mood as string | undefined;
           }
         }
 
@@ -179,7 +184,7 @@ export function registerScaffoldAssetsTool(server: McpServer): void {
         }
 
         // --- Art Style (Layer 2) ---
-        const resolvedPreset: ArtStylePreset = artStylePreset ?? recommendPreset(industry, mood);
+        const resolvedPreset: ArtStylePreset = artStylePreset ?? profileArtStyle ?? recommendPreset(industry, mood || profileMood);
         const artStyle = includeArtStyle
           ? generateArtStyle(resolvedPreset, colors)
           : null;

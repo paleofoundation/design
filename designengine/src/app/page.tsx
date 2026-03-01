@@ -1,5 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import {
+  generateAllArtStylePreviews,
+  ART_STYLE_META,
+} from '@/lib/svg/art-style-previews';
 
 const TOOL_GROUPS = [
   {
@@ -118,19 +122,20 @@ export default function Home() {
           </div>
         </nav>
 
-        {/* Hero content — left-aligned like Substack */}
+        {/* Hero content — left text, right visual */}
         <div style={{
           maxWidth: '72rem',
           margin: '0 auto',
-          padding: '10rem 2.5rem 12rem',
+          padding: '8rem 2.5rem 10rem',
           width: '100%',
           flex: 1,
           display: 'flex',
           alignItems: 'center',
+          gap: '4rem',
           position: 'relative',
           zIndex: 1,
         }}>
-          <div style={{ maxWidth: '42rem' }}>
+          <div style={{ maxWidth: '38rem', flex: '1 1 auto' }}>
             <h1 className="dzyn-reveal" style={{
               fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
               fontSize: 'clamp(3rem, 6vw, 4.5rem)',
@@ -189,6 +194,67 @@ export default function Home() {
               </Link>
             </div>
           </div>
+
+          {/* Hero visual — floating asset card */}
+          <div style={{
+            flex: '0 0 auto',
+            width: '22rem',
+            display: 'none',
+          }}>
+            {/* Only visible on wider screens via CSS */}
+            <style>{`@media(min-width:1024px){[data-hero-visual]{display:block!important}}`}</style>
+            <div data-hero-visual="" style={{
+              display: 'none',
+              background: 'rgba(255,255,255,0.06)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '12px',
+              padding: '1.5rem',
+              transform: 'rotate(2deg)',
+            }}>
+              <p style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '1rem' }}>
+                Generated asset package
+              </p>
+              {/* Favicon preview */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                <Image src="/assets/favicon/favicon.svg" alt="Generated favicon" width={36} height={36} style={{ borderRadius: 6 }} />
+                <div>
+                  <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>favicon.svg</p>
+                  <p style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.4)' }}>+ 6 PNG sizes + webmanifest</p>
+                </div>
+              </div>
+              {/* Pattern thumbnails */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', marginBottom: '1rem' }}>
+                {['dots', 'waves', 'topographic'].map(p => (
+                  <div key={p} style={{
+                    aspectRatio: '1',
+                    borderRadius: 6,
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    overflow: 'hidden',
+                    backgroundImage: `url(/assets/patterns/${p}.svg)`,
+                    backgroundSize: '80px 80px',
+                    backgroundRepeat: 'repeat',
+                    backgroundColor: 'rgba(255,255,255,0.03)',
+                  }} />
+                ))}
+              </div>
+              {/* Divider preview */}
+              <div style={{
+                borderRadius: 6,
+                overflow: 'hidden',
+                border: '1px solid rgba(255,255,255,0.08)',
+                marginBottom: '1rem',
+              }}>
+                <div style={{ height: 20, background: 'rgba(255,255,255,0.03)' }} />
+                <Image src="/assets/dividers/wave.svg" alt="" width={400} height={60} style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.7 }} />
+              </div>
+              {/* File count */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)' }}>25+ files</span>
+                <span style={{ fontSize: '0.6rem', fontFamily: 'var(--font-jetbrains, monospace)', color: 'var(--color-amber)', background: 'rgba(242,178,69,0.15)', padding: '0.15rem 0.5rem', borderRadius: 4 }}>scaffold-assets</span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -245,9 +311,195 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Curve divider: problem → how-it-works */}
+      {/* Curve divider: problem → asset showcase */}
       <div style={{ lineHeight: 0, marginTop: '-1px' }}>
         <Image src="/assets/dividers/curve.svg" alt="" width={1440} height={120} style={{ width: '100%', height: 'auto', display: 'block' }} />
+      </div>
+
+      {/* ========== ASSET SHOWCASE — "See what we generate" ========== */}
+      <section style={{
+        background: 'var(--color-surface-warm)',
+        padding: '8rem 2.5rem',
+        position: 'relative',
+      }}>
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: 'url(/assets/patterns/waves.svg)',
+          backgroundSize: '240px 240px',
+          opacity: 0.15,
+          pointerEvents: 'none',
+        }} />
+        <div style={{ maxWidth: '72rem', margin: '0 auto', position: 'relative' }}>
+          <h2 className="dzyn-reveal" style={{
+            fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+            fontSize: 'clamp(2rem, 4vw, 3rem)',
+            fontWeight: 400,
+            color: 'var(--color-text-primary)',
+            textAlign: 'center',
+            marginBottom: '1rem',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.2,
+          }}>
+            One command. A complete asset package.
+          </h2>
+          <p className="dzyn-reveal" style={{
+            fontSize: 'var(--text-lg)',
+            color: 'var(--color-text-body)',
+            textAlign: 'center',
+            maxWidth: '36rem',
+            margin: '0 auto 4rem',
+            lineHeight: 1.7,
+          }}>
+            Favicons, patterns, dividers, hero backgrounds, animations, and an art style manifest — all generated from your design tokens.
+          </p>
+
+          <div className="dzyn-stagger" style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 20rem), 1fr))',
+            gap: '2rem',
+          }}>
+            {/* Favicon */}
+            <AssetShowcaseCard
+              label="Favicon Package"
+              tag="generate-favicon"
+              description="SVG + 6 PNG sizes + Apple Touch + webmanifest. Derived from your brand initial and primary color."
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', justifyContent: 'center', padding: '1.5rem 0' }}>
+                <Image src="/assets/favicon/favicon.svg" alt="Favicon" width={64} height={64} style={{ borderRadius: 8 }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                  {[48, 32, 16].map(size => (
+                    <div key={size} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <Image src="/assets/favicon/favicon.svg" alt="" width={size} height={size} style={{ borderRadius: size > 20 ? 4 : 2 }} />
+                      <span style={{ fontSize: '0.6rem', fontFamily: 'var(--font-jetbrains, monospace)', color: 'var(--color-text-muted)' }}>{size}px</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </AssetShowcaseCard>
+
+            {/* Background Patterns */}
+            <AssetShowcaseCard
+              label="Background Patterns"
+              tag="generate-svg-assets"
+              description="6 tileable SVG patterns — dots, waves, grid, topographic, cross-hatch, concentric. Tiny file sizes."
+            >
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', padding: '0.5rem 0' }}>
+                {['dots', 'waves', 'grid', 'topographic', 'cross-hatch', 'concentric'].map(p => (
+                  <div key={p} style={{
+                    aspectRatio: '1',
+                    borderRadius: 6,
+                    border: '1px solid var(--color-border)',
+                    backgroundImage: `url(/assets/patterns/${p}.svg)`,
+                    backgroundSize: '60px 60px',
+                    backgroundRepeat: 'repeat',
+                    backgroundColor: 'var(--color-white)',
+                  }} />
+                ))}
+              </div>
+            </AssetShowcaseCard>
+
+            {/* Hero Backgrounds */}
+            <AssetShowcaseCard
+              label="Hero Backgrounds"
+              tag="generate-svg-assets"
+              description="4 full-width programmatic hero SVGs. Gradient mesh, geometric, blob, wave layers. Zero stock imagery."
+            >
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem', padding: '0.5rem 0' }}>
+                {['gradient-mesh', 'geometric', 'blob', 'wave-layers'].map(h => (
+                  <div key={h} style={{
+                    aspectRatio: '16/9',
+                    borderRadius: 6,
+                    border: '1px solid var(--color-border)',
+                    overflow: 'hidden',
+                    position: 'relative',
+                  }}>
+                    <Image
+                      src={`/assets/backgrounds/${h}.svg`}
+                      alt={h}
+                      fill
+                      style={{ objectFit: 'cover' }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </AssetShowcaseCard>
+
+            {/* Micro-Interactions */}
+            <AssetShowcaseCard
+              label="Micro-Interactions"
+              tag="generate-micro-interactions"
+              description="Cursor follower, button hover effects, scroll reveals, loading spinners, glow pulses. All CSS/JS."
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '0.5rem 0', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                  {['Glow', 'Shine', 'Pulse', 'Scale'].map(fx => (
+                    <span key={fx} style={{
+                      fontSize: 'var(--text-xs)',
+                      fontWeight: 600,
+                      background: 'var(--color-green-deep)',
+                      color: '#fff',
+                      padding: '0.375rem 0.875rem',
+                      borderRadius: 'var(--radius-md)',
+                    }}>
+                      {fx}
+                    </span>
+                  ))}
+                </div>
+                <p style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', textAlign: 'center', lineHeight: 1.5 }}>
+                  5 animation modules &middot; respects prefers-reduced-motion &middot; CSS variables with fallbacks
+                </p>
+              </div>
+            </AssetShowcaseCard>
+
+            {/* Section Dividers */}
+            <AssetShowcaseCard
+              label="Section Dividers"
+              tag="generate-svg-assets"
+              description="5 SVG dividers — wave, curve, angle, zigzag, layered. Drop between sections for a polished feel."
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', padding: '0.5rem 0' }}>
+                {['wave', 'curve', 'angle', 'zigzag', 'layered'].map(d => (
+                  <div key={d} style={{ borderRadius: 4, overflow: 'hidden', border: '1px solid var(--color-border)', lineHeight: 0 }}>
+                    <Image src={`/assets/dividers/${d}.svg`} alt={d} width={400} height={40} style={{ width: '100%', height: 'auto', display: 'block' }} />
+                  </div>
+                ))}
+              </div>
+            </AssetShowcaseCard>
+
+            {/* Art Style Manifest */}
+            <AssetShowcaseCard
+              label="Art Style Manifest"
+              tag="generate-art-style"
+              description="Structured JSON: palette, stroke, fill, mood, DALL-E prompt suffix, CSS filters, SVG attributes. Feeds into illustration generation."
+            >
+              <div style={{
+                background: 'var(--color-green-darkest)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '0.75rem',
+                fontSize: '0.6rem',
+                fontFamily: 'var(--font-jetbrains, monospace)',
+                color: 'rgba(255,255,255,0.7)',
+                lineHeight: 1.6,
+                overflow: 'hidden',
+                margin: '0.5rem 0',
+              }}>
+                <pre style={{ margin: 0 }}>{`{
+  "preset": "flat-vector",
+  "mood": "bold, playful, modern",
+  "palette": ["#306E5E","#4A8E7A","#FF6719"],
+  "promptSuffix": "flat vector...",
+  "svgAttributes": { ... }
+}`}</pre>
+              </div>
+            </AssetShowcaseCard>
+          </div>
+        </div>
+      </section>
+
+      {/* Wave divider: asset showcase → how-it-works */}
+      <div style={{ lineHeight: 0, marginTop: '-1px' }}>
+        <Image src="/assets/dividers/wave.svg" alt="" width={1440} height={120} style={{ width: '100%', height: 'auto', display: 'block' }} />
       </div>
 
       {/* ========== HOW IT WORKS ========== */}
@@ -312,9 +564,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Angle divider: how-it-works → tools */}
+      {/* Angle divider: how-it-works → art styles */}
       <div style={{ lineHeight: 0, marginTop: '-1px' }}>
         <Image src="/assets/dividers/angle.svg" alt="" width={1440} height={120} style={{ width: '100%', height: 'auto', display: 'block' }} />
+      </div>
+
+      {/* ========== ART STYLE GALLERY ========== */}
+      <ArtStyleGallery />
+
+      {/* Layered divider: art styles → tools */}
+      <div style={{ lineHeight: 0, marginTop: '-1px' }}>
+        <Image src="/assets/dividers/layered.svg" alt="" width={1440} height={120} style={{ width: '100%', height: 'auto', display: 'block' }} />
       </div>
 
       {/* ========== TOOLS ========== */}
@@ -583,6 +843,154 @@ export default function Home() {
 }
 
 /* ========== SUB-COMPONENTS ========== */
+
+function ArtStyleGallery() {
+  const previews = generateAllArtStylePreviews({
+    primary: '#306E5E',
+    secondary: '#4A8E7A',
+    accent: '#FF6719',
+    background: '#FDFBF7',
+  });
+
+  return (
+    <section style={{
+      background: 'var(--color-surface)',
+      padding: '8rem 2.5rem',
+    }}>
+      <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
+        <h2 className="dzyn-reveal" style={{
+          fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+          fontSize: 'clamp(2rem, 4vw, 3rem)',
+          fontWeight: 400,
+          color: 'var(--color-text-primary)',
+          textAlign: 'center',
+          marginBottom: '1rem',
+          letterSpacing: '-0.02em',
+          lineHeight: 1.2,
+        }}>
+          Six image styles. Your colors.
+        </h2>
+        <p className="dzyn-reveal" style={{
+          fontSize: 'var(--text-lg)',
+          color: 'var(--color-text-body)',
+          textAlign: 'center',
+          maxWidth: '36rem',
+          margin: '0 auto 5rem',
+          lineHeight: 1.7,
+        }}>
+          Choose an art direction during onboarding. Every AI-generated illustration, icon, and hero image follows it — using your exact palette.
+        </p>
+        <div className="dzyn-stagger" style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 16rem), 1fr))',
+          gap: '1.5rem',
+        }}>
+          {previews.map(({ preset, svg }) => {
+            const meta = ART_STYLE_META[preset];
+            return (
+              <div
+                key={preset}
+                className="dzyn-reveal"
+                style={{
+                  background: 'var(--color-white)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-md)',
+                  overflow: 'hidden',
+                  transition: 'box-shadow var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out)',
+                }}
+              >
+                <div
+                  style={{
+                    width: '100%',
+                    aspectRatio: '280 / 180',
+                    overflow: 'hidden',
+                    borderBottom: '1px solid var(--color-border)',
+                  }}
+                  dangerouslySetInnerHTML={{ __html: svg }}
+                />
+                <div style={{ padding: '1rem 1.25rem' }}>
+                  <p style={{
+                    fontSize: 'var(--text-sm)',
+                    fontWeight: 600,
+                    color: 'var(--color-text-primary)',
+                    marginBottom: '0.25rem',
+                  }}>
+                    {meta.label}
+                  </p>
+                  <p style={{
+                    fontSize: 'var(--text-xs)',
+                    color: 'var(--color-text-muted)',
+                    lineHeight: 1.5,
+                  }}>
+                    {meta.mood}
+                  </p>
+                  <p style={{
+                    fontSize: '0.65rem',
+                    color: 'var(--color-text-muted)',
+                    opacity: 0.7,
+                    marginTop: '0.25rem',
+                    lineHeight: 1.4,
+                  }}>
+                    {meta.bestFor}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function AssetShowcaseCard({ label, tag, description, children }: {
+  label: string;
+  tag: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="dzyn-reveal" style={{
+      background: 'var(--color-white)',
+      border: '1px solid var(--color-border)',
+      borderRadius: 'var(--radius-md)',
+      padding: '1.5rem',
+      display: 'flex',
+      flexDirection: 'column',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+        <p style={{
+          fontSize: 'var(--text-sm)',
+          fontWeight: 600,
+          color: 'var(--color-text-primary)',
+        }}>
+          {label}
+        </p>
+        <code style={{
+          fontSize: '0.6rem',
+          fontFamily: 'var(--font-jetbrains, monospace)',
+          color: 'var(--color-orange)',
+          background: 'var(--color-orange-muted)',
+          padding: '0.1rem 0.4rem',
+          borderRadius: 'var(--radius-sm)',
+        }}>
+          {tag}
+        </code>
+      </div>
+      <p style={{
+        fontSize: 'var(--text-xs)',
+        color: 'var(--color-text-muted)',
+        lineHeight: 1.6,
+        marginBottom: '0.75rem',
+      }}>
+        {description}
+      </p>
+      <div style={{ flex: 1 }}>
+        {children}
+      </div>
+    </div>
+  );
+}
 
 function ComparisonCard({ label, bad, items }: {
   label: string;

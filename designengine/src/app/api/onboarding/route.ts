@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { projectName, inspirationUrl, brandDescription, mood, colors, typography } = body;
+    const { projectName, inspirationUrl, brandDescription, mood, artStyle, colors, typography } = body;
 
     if (!projectName || !colors || !typography) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -55,6 +55,8 @@ export async function POST(req: NextRequest) {
         xl: `0 16px 48px ${adjustOpacity(colors.primary, 0.12)}`,
       },
       effects: { blur: '8px', opacity: {} },
+      mood: mood || undefined,
+      artStyle: artStyle || undefined,
     };
 
     const cssVariables = buildCssVariables(colors, typography);

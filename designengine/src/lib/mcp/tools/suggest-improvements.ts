@@ -14,13 +14,14 @@ export function registerSuggestImprovementsTool(server: McpServer): void {
     'suggest-improvements',
     'Analyze a URL or component code and suggest specific design improvements with scores, fixes, and corrected code. Covers accessibility, visual hierarchy, whitespace, contrast, and responsiveness.',
     {
-      url: z.string().url().optional().describe('URL to analyze'),
+      url: z.string().optional().describe('URL to analyze (e.g. https://example.com or example.com)'),
       componentCode: z.string().optional().describe('Component code to analyze'),
       projectName: z.string().optional().describe('Project name to load design profile for context'),
       focusAreas: z.array(z.enum(FOCUS_AREAS)).optional().default(['all']).describe('Areas to focus the analysis on'),
     },
-    async ({ url, componentCode, projectName, focusAreas }) => {
+    async ({ url: rawUrl, componentCode, projectName, focusAreas }) => {
       try {
+        const url = rawUrl && !rawUrl.startsWith('http') ? `https://${rawUrl}` : rawUrl;
         if (!url && !componentCode) {
           return {
             content: [{

@@ -10,10 +10,11 @@ export function registerGenerateResponsiveRulesTool(server: McpServer): void {
     'Generate a comprehensive responsive ruleset for a project: breakpoints, per-element behavior at each screen size, typography scaling, spacing scaling, and Tailwind screen config.',
     {
       projectName: z.string().describe('Project name — loads the design profile'),
-      url: z.string().url().optional().describe('Optional URL to analyze for existing responsive behavior'),
+      url: z.string().optional().describe('Optional URL to analyze for existing responsive behavior (e.g. https://example.com or example.com)'),
     },
-    async ({ projectName, url }) => {
+    async ({ projectName, url: rawUrl }) => {
       try {
+        const url = rawUrl && !rawUrl.startsWith('http') ? `https://${rawUrl}` : rawUrl;
         const profile = await loadDesignProfile(projectName);
         if (!profile) {
           return {

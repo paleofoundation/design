@@ -64,11 +64,20 @@ export interface Adoptions {
   spacing: boolean;
 }
 
+export type ArtStylePreset =
+  | 'line-art'
+  | 'flat-vector'
+  | 'watercolor'
+  | 'isometric'
+  | 'abstract-geometric'
+  | 'photo-overlay';
+
 export interface OnboardingState {
   projectName: string;
   inspirationUrl: string;
   brandDescription: string;
   mood: string;
+  artStyle: ArtStylePreset | '';
   colors: {
     primary: string;
     secondary: string;
@@ -143,6 +152,7 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
   inspirationUrl: '',
   brandDescription: '',
   mood: '',
+  artStyle: '',
   colors: {
     primary: '#306E5E',
     secondary: '#FF6719',
