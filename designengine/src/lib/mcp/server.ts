@@ -20,6 +20,7 @@ import { registerGenerateArtStyleTool } from './tools/generate-art-style';
 import { registerGenerateMicroInteractionsTool } from './tools/generate-micro-interactions';
 import { registerGenerateIllustrationsTool } from './tools/generate-illustrations';
 import { registerScaffoldAssetsTool } from './tools/scaffold-assets';
+import { registerRedesignPageTool } from './tools/redesign-page';
 
 export function initializeDesignEngine(server: McpServer): void {
   registerIngestDesignTool(server);
@@ -43,4 +44,5 @@ export function initializeDesignEngine(server: McpServer): void {
   registerGenerateMicroInteractionsTool(server);
   registerGenerateIllustrationsTool(server);
   registerScaffoldAssetsTool(server);
+  registerRedesignPageTool(server);
 }

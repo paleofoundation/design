@@ -117,6 +117,59 @@ function toBrandingResponse(
   };
 }
 
+export interface FullPageCrawlResult {
+  success: boolean;
+  url: string;
+  rawHtml: string | null;
+  html: string | null;
+  images: string[];
+  screenshot: string | null;
+  branding: FirecrawlBrandingResponse | null;
+  error?: string;
+}
+
+export async function crawlFullPage(url: string): Promise<FullPageCrawlResult> {
+  try {
+    const result = await firecrawl.scrape(url, {
+      formats: ['rawHtml', 'html', 'screenshot', 'branding'] as never[],
+      timeout: 60000,
+      screenshot: { fullPage: true },
+    } as Record<string, unknown>);
+
+    const res = result as Record<string, unknown>;
+    const imageUrls: string[] = [];
+    const cleanHtml = (res.html as string) || '';
+    const imgRegex = /<img[^>]+src=["']([^"']+)["']/gi;
+    let match;
+    while ((match = imgRegex.exec(cleanHtml)) !== null) {
+      if (match[1] && !match[1].startsWith('data:')) imageUrls.push(match[1]);
+    }
+
+    return {
+      success: true,
+      url,
+      rawHtml: (res.rawHtml as string) || null,
+      html: cleanHtml || null,
+      images: imageUrls,
+      screenshot: (res.screenshot as string) || null,
+      branding: res.branding
+        ? toBrandingResponse(res.branding as BrandingProfile)
+        : null,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      url,
+      rawHtml: null,
+      html: null,
+      images: [],
+      screenshot: null,
+      branding: null,
+      error: error instanceof Error ? error.message : 'Crawl failed',
+    };
+  }
+}
+
 export async function ingestDesignFromUrl(
   url: string,
   options?: {

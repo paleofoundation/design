@@ -11,7 +11,8 @@ type ToolName =
   | 'generate-layout' | 'design-diff' | 'generate-responsive-rules'
   | 'query-design-knowledge'
   | 'generate-favicon' | 'generate-svg-assets' | 'generate-art-style'
-  | 'generate-micro-interactions' | 'generate-illustrations' | 'scaffold-assets';
+  | 'generate-micro-interactions' | 'generate-illustrations' | 'scaffold-assets'
+  | 'redesign-page';
 
 const TOOLS: { value: ToolName; label: string }[] = [
   { value: 'ingest-design', label: 'Ingest Design' },
@@ -35,6 +36,7 @@ const TOOLS: { value: ToolName; label: string }[] = [
   { value: 'generate-micro-interactions', label: 'Generate Micro-Interactions' },
   { value: 'generate-illustrations', label: 'Generate Illustrations' },
   { value: 'scaffold-assets', label: 'Scaffold Assets (Full Package)' },
+  { value: 'redesign-page', label: 'Redesign Page (CSS-Only)' },
 ];
 
 const TOOL_NAME_MAP: Record<ToolName, string> = {
@@ -52,6 +54,7 @@ const TOOL_NAME_MAP: Record<ToolName, string> = {
   'generate-micro-interactions': 'generate-micro-interactions',
   'generate-illustrations': 'generate-illustrations',
   'scaffold-assets': 'scaffold-assets',
+  'redesign-page': 'redesign-page',
 };
 
 interface ProfileOption { id: string; project_name: string; source_url: string; updated_at: string; }
@@ -115,6 +118,8 @@ export default function PlaygroundPage() {
   const [includePatterns, setIncludePatterns] = useState(true);
   const [includeDividers, setIncludeDividers] = useState(true);
   const [includeHeroes, setIncludeHeroes] = useState(true);
+  const [preserveColors, setPreserveColors] = useState(true);
+  const [redesignFocus, setRedesignFocus] = useState<string[]>(['typography', 'spacing', 'hierarchy', 'contrast', 'whitespace']);
 
   useEffect(() => {
     fetch('/api/dashboard/profiles').then((r) => r.json()).then((d) => { if (d.profiles) setProfiles(d.profiles); }).catch(() => {});
@@ -151,6 +156,7 @@ export default function PlaygroundPage() {
       case 'generate-micro-interactions': return { projectName: proj, interactions: interactions.length ? interactions : undefined };
       case 'generate-illustrations': { const p: Record<string, unknown> = { brandName: brandName || 'Brand', projectName: proj, subjects: illustrationSubjects.length ? illustrationSubjects : undefined, generateImages }; if (artPreset) p.preset = artPreset; if (industry) p.industry = industry; if (mood) p.mood = mood; return p; }
       case 'scaffold-assets': return { brandName: brandName || 'Brand', projectName: proj, artStylePreset: artPreset || undefined, industry: industry || undefined, mood: mood || undefined, includeAnimations, includePatterns, includeDividers, includeHeroes };
+      case 'redesign-page': return { url, projectName: proj, preserveColors, focusAreas: redesignFocus.length ? redesignFocus : undefined };
     }
   }
 
@@ -221,6 +227,7 @@ export default function PlaygroundPage() {
             {tool === 'generate-micro-interactions' && (<MultiCheckField label="Interactions" options={['cursor-follower', 'button-states', 'scroll-reveal', 'loading-spinner', 'glow-pulse']} selected={interactions} onChange={setInteractions} />)}
             {tool === 'generate-illustrations' && (<><Field label="Brand Name" value={brandName} onChange={setBrandName} placeholder="e.g. dzyne" /><SelectField label="Art Style (optional)" value={artPreset} onChange={setArtPreset} options={['', 'line-art', 'flat-vector', 'watercolor', 'isometric', 'abstract-geometric', 'photo-overlay']} /><Field label="Industry (optional)" value={industry} onChange={setIndustry} placeholder="e.g. fintech, wellness" /><Field label="Mood (optional)" value={mood} onChange={setMood} placeholder="e.g. playful, minimal" /><MultiCheckField label="Subjects" options={['hero', 'section-divider', 'feature-icon', 'empty-state', 'onboarding', 'error-page', 'background-pattern']} selected={illustrationSubjects} onChange={setIllustrationSubjects} /><CheckboxField label="Generate images with DALL-E 3 (uses API credits)" checked={generateImages} onChange={setGenerateImages} /></>)}
             {tool === 'scaffold-assets' && (<><Field label="Brand Name" value={brandName} onChange={setBrandName} placeholder="e.g. dzyne" /><SelectField label="Art Style (optional)" value={artPreset} onChange={setArtPreset} options={['', 'line-art', 'flat-vector', 'watercolor', 'isometric', 'abstract-geometric', 'photo-overlay']} /><Field label="Industry (optional)" value={industry} onChange={setIndustry} placeholder="e.g. fintech, wellness" /><Field label="Mood (optional)" value={mood} onChange={setMood} placeholder="e.g. playful, minimal" /><CheckboxField label="Include micro-interactions" checked={includeAnimations} onChange={setIncludeAnimations} /><CheckboxField label="Include background patterns" checked={includePatterns} onChange={setIncludePatterns} /><CheckboxField label="Include section dividers" checked={includeDividers} onChange={setIncludeDividers} /><CheckboxField label="Include hero backgrounds" checked={includeHeroes} onChange={setIncludeHeroes} /></>)}
+            {tool === 'redesign-page' && (<><Field label="URL" value={url} onChange={setUrl} placeholder="https://example.com" /><CheckboxField label="Preserve brand colors (only fix contrast)" checked={preserveColors} onChange={setPreserveColors} /><MultiCheckField label="Focus Areas" options={['typography', 'spacing', 'hierarchy', 'contrast', 'whitespace']} selected={redesignFocus} onChange={setRedesignFocus} /></>)}
           </div>
 
           <button type="submit" disabled={loading} style={{
