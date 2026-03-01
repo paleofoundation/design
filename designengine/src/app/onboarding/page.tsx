@@ -38,7 +38,7 @@ export default function OnboardingStep1() {
       const data = await res.json();
 
       if (data.success && data.branding) {
-        applyExtraction(data.branding, data.screenshot, data.aiColors);
+        applyExtraction(data.branding, data.screenshot, data.aiColors, data.aiFonts, data.aiMood);
         router.push('/onboarding/analyze');
       } else {
         useOnboardingStore.setState({ extractionStatus: 'skipped' });

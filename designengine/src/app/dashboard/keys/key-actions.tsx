@@ -10,8 +10,11 @@ export function KeyActions({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  const [error, setError] = useState('');
+
   async function handleCreate() {
     setLoading(true);
+    setError('');
     try {
       const res = await fetch('/api/keys', {
         method: 'POST',
@@ -19,7 +22,13 @@ export function KeyActions({ userId }: { userId: string }) {
         body: JSON.stringify({ userId, name: keyName || 'Default' }),
       });
       const data = await res.json();
-      if (data.key) setNewKey(data.key);
+      if (data.key) {
+        setNewKey(data.key);
+      } else {
+        setError(data.error || 'Failed to create key. Please try again.');
+      }
+    } catch {
+      setError('Network error. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -112,9 +121,21 @@ export function KeyActions({ userId }: { userId: string }) {
                     fontFamily: 'inherit',
                   }}
                 />
+                {error && (
+                  <p style={{
+                    fontSize: TEXT_SIZE.xs,
+                    color: PALETTE.semantic.error,
+                    background: PALETTE.semantic.errorMuted,
+                    padding: '0.5rem 0.75rem',
+                    borderRadius: RADIUS.sm,
+                    marginBottom: '0.75rem',
+                  }}>
+                    {error}
+                  </p>
+                )}
                 <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
                   <button
-                    onClick={() => { setShowModal(false); setKeyName(''); }}
+                    onClick={() => { setShowModal(false); setKeyName(''); setError(''); }}
                     style={{ padding: '0.5rem 1rem', fontSize: TEXT_SIZE.sm, color: DASH.muted, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
                   >
                     Cancel

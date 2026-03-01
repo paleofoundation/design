@@ -100,6 +100,11 @@ export interface OnboardingState {
       colors: Array<{ hex: string; name: string; usage: string }>;
       suggestedRoles: Record<string, string>;
     } | null,
+    aiFonts?: {
+      fonts: Array<{ family: string; source: string }>;
+      suggestedRoles: { heading: string; body: string; code?: string };
+    } | null,
+    aiMood?: string | null,
   ) => void;
   assignColorRole: (role: ColorRole, hex: string) => void;
   addDetectedColor: (hex: string) => void;
@@ -109,8 +114,8 @@ function mapPersonalityToMood(personality?: { tone?: string; energy?: string }):
   if (!personality) return '';
   const combined = `${personality.tone || ''} ${personality.energy || ''}`.toLowerCase();
 
-  if (/corporate|professional|trustworth|enterprise|formal/.test(combined)) return 'corporate';
-  if (/playful|fun|friendly|energetic|cheerful|whimsical/.test(combined)) return 'playful';
+  if (/corporate|enterprise|formal|institutional/.test(combined)) return 'corporate';
+  if (/playful|fun|friendly|energetic|cheerful|whimsical|approachable/.test(combined)) return 'playful';
   if (/editorial|sophisticated|considered|literary|thoughtful/.test(combined)) return 'editorial';
   if (/minimal|clean|simple|essential|sparse/.test(combined)) return 'minimal';
   if (/bold|expressive|dynamic|vibrant|intense|loud/.test(combined)) return 'bold';
@@ -163,8 +168,9 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
 
   setField: (key, value) => set({ [key]: value }),
 
-  applyExtraction: (branding, screenshot, aiColors) => {
-    const detectedMood = mapPersonalityToMood(branding.personality);
+  applyExtraction: (branding, screenshot, aiColors, aiFonts, aiMood) => {
+    const fallbackMood = mapPersonalityToMood(branding.personality);
+    const detectedMood = aiMood || fallbackMood;
 
     set((state) => {
       const updates: Partial<OnboardingState> = {
@@ -216,10 +222,21 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
         };
       }
 
-      if (state.adoptions.typography && branding.typography?.fontFamilies) {
-        const heading = branding.typography.fontFamilies.heading || branding.typography.fontFamilies.primary;
-        const body = branding.typography.fontFamilies.primary || branding.typography.fontFamilies.heading;
-        if (heading) updates.typography = { heading, body: body || heading };
+      // Typography: prefer aiFonts (parsed from actual HTML/CSS) over Firecrawl heuristics
+      if (state.adoptions.typography) {
+        const aiHeading = aiFonts?.suggestedRoles?.heading;
+        const aiBody = aiFonts?.suggestedRoles?.body;
+
+        if (aiHeading || aiBody) {
+          updates.typography = {
+            heading: aiHeading || aiBody || state.typography.heading,
+            body: aiBody || aiHeading || state.typography.body,
+          };
+        } else if (branding.typography?.fontFamilies) {
+          const heading = branding.typography.fontFamilies.heading || branding.typography.fontFamilies.primary;
+          const body = branding.typography.fontFamilies.primary || branding.typography.fontFamilies.heading;
+          if (heading) updates.typography = { heading, body: body || heading };
+        }
       }
 
       if (state.adoptions.mood && detectedMood) {
