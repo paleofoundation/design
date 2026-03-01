@@ -36,6 +36,7 @@
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.98.0",
     "dotenv": "^17.3.1",
+    "epub": "^2.1.1",
     "mcp-handler": "^1.0.7",
     "next": "16.1.6",
     "node-html-parser": "^7.0.2",

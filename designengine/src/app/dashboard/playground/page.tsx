@@ -9,7 +9,9 @@ type ToolName =
   | 'convert-design-to-code' | 'generate-component-library'
   | 'generate-page' | 'suggest-improvements' | 'generate-theme-variants'
   | 'generate-layout' | 'design-diff' | 'generate-responsive-rules'
-  | 'query-design-knowledge';
+  | 'query-design-knowledge'
+  | 'generate-favicon' | 'generate-svg-assets' | 'generate-art-style'
+  | 'generate-micro-interactions' | 'generate-illustrations' | 'scaffold-assets';
 
 const TOOLS: { value: ToolName; label: string }[] = [
   { value: 'ingest-design', label: 'Ingest Design' },
@@ -27,6 +29,12 @@ const TOOLS: { value: ToolName; label: string }[] = [
   { value: 'pair-typography', label: 'Pair Typography' },
   { value: 'convert-design-to-code', label: 'Convert Design to Code' },
   { value: 'query-design-knowledge', label: 'Query Design Knowledge' },
+  { value: 'generate-favicon', label: 'Generate Favicon' },
+  { value: 'generate-svg-assets', label: 'Generate SVG Assets' },
+  { value: 'generate-art-style', label: 'Generate Art Style' },
+  { value: 'generate-micro-interactions', label: 'Generate Micro-Interactions' },
+  { value: 'generate-illustrations', label: 'Generate Illustrations' },
+  { value: 'scaffold-assets', label: 'Scaffold Assets (Full Package)' },
 ];
 
 const TOOL_NAME_MAP: Record<ToolName, string> = {
@@ -38,6 +46,12 @@ const TOOL_NAME_MAP: Record<ToolName, string> = {
   'generate-theme-variants': 'generate-theme-variants', 'generate-layout': 'generate-layout',
   'design-diff': 'design-diff', 'generate-responsive-rules': 'generate-responsive-rules',
   'query-design-knowledge': 'query-design-knowledge',
+  'generate-favicon': 'generate-favicon',
+  'generate-svg-assets': 'generate-svg-assets',
+  'generate-art-style': 'generate-art-style',
+  'generate-micro-interactions': 'generate-micro-interactions',
+  'generate-illustrations': 'generate-illustrations',
+  'scaffold-assets': 'scaffold-assets',
 };
 
 interface ProfileOption { id: string; project_name: string; source_url: string; updated_at: string; }
@@ -89,6 +103,18 @@ export default function PlaygroundPage() {
   const [diffTarget, setDiffTarget] = useState('');
   const [knowledgeQuery, setKnowledgeQuery] = useState('');
   const [responsiveUrl, setResponsiveUrl] = useState('');
+  const [brandName, setBrandName] = useState('');
+  const [faviconShape, setFaviconShape] = useState('rounded-rect');
+  const [assetTypes, setAssetTypes] = useState<string[]>(['patterns', 'dividers', 'heroes']);
+  const [artPreset, setArtPreset] = useState('');
+  const [industry, setIndustry] = useState('');
+  const [interactions, setInteractions] = useState<string[]>(['cursor-follower', 'button-states', 'scroll-reveal', 'loading-spinner', 'glow-pulse']);
+  const [illustrationSubjects, setIllustrationSubjects] = useState<string[]>(['hero', 'feature-icon', 'empty-state']);
+  const [generateImages, setGenerateImages] = useState(false);
+  const [includeAnimations, setIncludeAnimations] = useState(true);
+  const [includePatterns, setIncludePatterns] = useState(true);
+  const [includeDividers, setIncludeDividers] = useState(true);
+  const [includeHeroes, setIncludeHeroes] = useState(true);
 
   useEffect(() => {
     fetch('/api/dashboard/profiles').then((r) => r.json()).then((d) => { if (d.profiles) setProfiles(d.profiles); }).catch(() => {});
@@ -119,6 +145,12 @@ export default function PlaygroundPage() {
       case 'design-diff': return { source: diffSource, target: diffTarget, projectName: proj };
       case 'generate-responsive-rules': return { projectName: proj || projectName || 'default', url: responsiveUrl || undefined };
       case 'query-design-knowledge': return { query: knowledgeQuery, projectName: proj };
+      case 'generate-favicon': return { brandName: brandName || 'Brand', projectName: proj, shape: faviconShape };
+      case 'generate-svg-assets': return { projectName: proj, assetTypes: assetTypes.length ? assetTypes : undefined };
+      case 'generate-art-style': { const p: Record<string, unknown> = { projectName: proj }; if (artPreset) p.preset = artPreset; if (industry) p.industry = industry; if (mood) p.mood = mood; return p; }
+      case 'generate-micro-interactions': return { projectName: proj, interactions: interactions.length ? interactions : undefined };
+      case 'generate-illustrations': { const p: Record<string, unknown> = { brandName: brandName || 'Brand', projectName: proj, subjects: illustrationSubjects.length ? illustrationSubjects : undefined, generateImages }; if (artPreset) p.preset = artPreset; if (industry) p.industry = industry; if (mood) p.mood = mood; return p; }
+      case 'scaffold-assets': return { brandName: brandName || 'Brand', projectName: proj, artStylePreset: artPreset || undefined, industry: industry || undefined, mood: mood || undefined, includeAnimations, includePatterns, includeDividers, includeHeroes };
     }
   }
 
@@ -183,6 +215,12 @@ export default function PlaygroundPage() {
             {tool === 'pair-typography' && (<><Field label="Heading Font (optional)" value={headingFont} onChange={setHeadingFont} placeholder="e.g. Inter, Playfair Display" /><Field label="Mood" value={mood} onChange={setMood} placeholder="e.g. professional, playful, elegant" /><Field label="Context" value={context} onChange={setContext} placeholder="e.g. SaaS landing page, editorial blog" /></>)}
             {tool === 'query-design-knowledge' && (<Field label="Design Question" value={knowledgeQuery} onChange={setKnowledgeQuery} placeholder="e.g. what makes good color contrast for accessibility?" />)}
             {tool === 'convert-design-to-code' && (<><Field label="Image URL" value={imageUrl} onChange={(v) => { setImageUrl(v); setImageBase64(''); }} placeholder="https://example.com/screenshot.png" /><div><label style={labelStyle}>Or upload an image</label><input type="file" accept="image/*" onChange={handleFileUpload} style={{ width: '100%', fontSize: TEXT_SIZE.sm, color: DASH.muted }} />{imageBase64 && <p style={{ marginTop: '0.25rem', fontSize: TEXT_SIZE.xs, color: PALETTE.semantic.success }}>Image loaded (base64)</p>}</div><SelectField label="Output Format" value={outputFormat} onChange={setOutputFormat} options={['html_css', 'html_tailwind', 'react_tailwind']} /></>)}
+            {tool === 'generate-favicon' && (<><Field label="Brand Name" value={brandName} onChange={setBrandName} placeholder="e.g. dzyne" /><SelectField label="Shape" value={faviconShape} onChange={setFaviconShape} options={['rounded-rect', 'circle', 'hexagon', 'squircle']} /></>)}
+            {tool === 'generate-svg-assets' && (<MultiCheckField label="Asset Types" options={['patterns', 'dividers', 'heroes']} selected={assetTypes} onChange={setAssetTypes} />)}
+            {tool === 'generate-art-style' && (<><SelectField label="Preset (optional)" value={artPreset} onChange={setArtPreset} options={['', 'line-art', 'flat-vector', 'watercolor', 'isometric', 'abstract-geometric', 'photo-overlay']} /><Field label="Industry (optional)" value={industry} onChange={setIndustry} placeholder="e.g. fintech, wellness, saas" /><Field label="Mood (optional)" value={mood} onChange={setMood} placeholder="e.g. playful, premium, technical" /></>)}
+            {tool === 'generate-micro-interactions' && (<MultiCheckField label="Interactions" options={['cursor-follower', 'button-states', 'scroll-reveal', 'loading-spinner', 'glow-pulse']} selected={interactions} onChange={setInteractions} />)}
+            {tool === 'generate-illustrations' && (<><Field label="Brand Name" value={brandName} onChange={setBrandName} placeholder="e.g. dzyne" /><SelectField label="Art Style (optional)" value={artPreset} onChange={setArtPreset} options={['', 'line-art', 'flat-vector', 'watercolor', 'isometric', 'abstract-geometric', 'photo-overlay']} /><Field label="Industry (optional)" value={industry} onChange={setIndustry} placeholder="e.g. fintech, wellness" /><Field label="Mood (optional)" value={mood} onChange={setMood} placeholder="e.g. playful, minimal" /><MultiCheckField label="Subjects" options={['hero', 'section-divider', 'feature-icon', 'empty-state', 'onboarding', 'error-page', 'background-pattern']} selected={illustrationSubjects} onChange={setIllustrationSubjects} /><CheckboxField label="Generate images with DALL-E 3 (uses API credits)" checked={generateImages} onChange={setGenerateImages} /></>)}
+            {tool === 'scaffold-assets' && (<><Field label="Brand Name" value={brandName} onChange={setBrandName} placeholder="e.g. dzyne" /><SelectField label="Art Style (optional)" value={artPreset} onChange={setArtPreset} options={['', 'line-art', 'flat-vector', 'watercolor', 'isometric', 'abstract-geometric', 'photo-overlay']} /><Field label="Industry (optional)" value={industry} onChange={setIndustry} placeholder="e.g. fintech, wellness" /><Field label="Mood (optional)" value={mood} onChange={setMood} placeholder="e.g. playful, minimal" /><CheckboxField label="Include micro-interactions" checked={includeAnimations} onChange={setIncludeAnimations} /><CheckboxField label="Include background patterns" checked={includePatterns} onChange={setIncludePatterns} /><CheckboxField label="Include section dividers" checked={includeDividers} onChange={setIncludeDividers} /><CheckboxField label="Include hero backgrounds" checked={includeHeroes} onChange={setIncludeHeroes} /></>)}
           </div>
 
           <button type="submit" disabled={loading} style={{

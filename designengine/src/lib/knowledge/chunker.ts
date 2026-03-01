@@ -97,17 +97,88 @@ function chunkText(text: string): TextChunk[] {
   return chunks;
 }
 
+const MIN_TOKENS_PER_PAGE = 100;
+const OCR_CONCURRENCY = 5;
+
+async function ocrWithVision(base64Image: string): Promise<string> {
+  const { openai } = await import('@/lib/openai/client');
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'image_url',
+            image_url: { url: `data:image/png;base64,${base64Image}`, detail: 'high' },
+          },
+          {
+            type: 'text',
+            text: 'Extract all text from this page. Preserve paragraph breaks and heading structure. Return only the extracted text, nothing else.',
+          },
+        ],
+      },
+    ],
+    max_tokens: 4000,
+    temperature: 0,
+  });
+  return response.choices[0].message.content || '';
+}
+
+async function ocrPdfPages(buffer: Buffer): Promise<string> {
+  const { getDocumentProxy, renderPageAsImage } = await import('unpdf');
+  const pdf = await getDocumentProxy(new Uint8Array(buffer));
+  const totalPages = pdf.numPages;
+  const pageTexts: string[] = new Array(totalPages).fill('');
+
+  for (let batchStart = 0; batchStart < totalPages; batchStart += OCR_CONCURRENCY) {
+    const batchEnd = Math.min(batchStart + OCR_CONCURRENCY, totalPages);
+    const promises = [];
+
+    for (let i = batchStart; i < batchEnd; i++) {
+      const pageNum = i + 1;
+      promises.push(
+        (async () => {
+          try {
+            const imageData = await renderPageAsImage(pdf, pageNum, { scale: 2 });
+            const base64 = Buffer.from(imageData).toString('base64');
+            pageTexts[i] = await ocrWithVision(base64);
+          } catch {
+            pageTexts[i] = '';
+          }
+        })(),
+      );
+    }
+
+    await Promise.all(promises);
+  }
+
+  return pageTexts.filter(Boolean).join('\n\n');
+}
+
 export async function parsePdf(buffer: Buffer): Promise<string> {
   const { extractText, getDocumentProxy } = await import('unpdf');
   const data = new Uint8Array(buffer);
   const pdf = await getDocumentProxy(data);
-  const { text } = await extractText(pdf, { mergePages: true });
+  const { text, totalPages } = await extractText(pdf, { mergePages: true });
 
-  if (!text || (typeof text === 'string' && text.trim().length === 0)) {
-    throw new Error('No text could be extracted from this PDF. Try uploading as .txt instead.');
+  const extracted = typeof text === 'string' ? text : (text as string[]).join('\n');
+  const tokenCount = estimateTokens(extracted);
+  const tokensPerPage = totalPages > 0 ? tokenCount / totalPages : 0;
+
+  if (tokensPerPage >= MIN_TOKENS_PER_PAGE && extracted.trim().length > 0) {
+    return extracted;
   }
 
-  return typeof text === 'string' ? text : (text as string[]).join('\n');
+  // Text extraction was poor — fall back to GPT-4o Vision OCR
+  const ocrText = await ocrPdfPages(buffer);
+
+  if (!ocrText || ocrText.trim().length === 0) {
+    if (extracted.trim().length > 0) return extracted;
+    throw new Error('No text could be extracted from this PDF, even with OCR. The file may be corrupted or contain only images without readable text.');
+  }
+
+  return ocrText;
 }
 
 export function parseMarkdown(text: string): string {
@@ -116,6 +187,46 @@ export function parseMarkdown(text: string): string {
 
 export function parsePlainText(text: string): string {
   return text;
+}
+
+function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#\d+;/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+export async function parseEpub(buffer: Buffer): Promise<string> {
+  const { EPub } = await import('epub');
+  const epub = new EPub(buffer);
+  await epub.parse();
+
+  const chapters: string[] = [];
+
+  for (const item of epub.flow) {
+    try {
+      const html = await epub.getChapterRaw(item.id);
+      const text = stripHtml(html);
+      if (text.length > 20) {
+        const title = item.title ? `## ${item.title}\n\n` : '';
+        chapters.push(title + text);
+      }
+    } catch {
+      // Some items in the flow may not be valid chapters (images, etc.)
+    }
+  }
+
+  if (chapters.length === 0) {
+    throw new Error('No readable chapters found in this EPUB file.');
+  }
+
+  return chapters.join('\n\n');
 }
 
 export async function parseAndChunk(
@@ -131,8 +242,10 @@ export async function parseAndChunk(
     case 'md':
       rawText = parseMarkdown(fileBuffer.toString('utf-8'));
       break;
-    case 'txt':
     case 'epub':
+      rawText = await parseEpub(fileBuffer);
+      break;
+    case 'txt':
       rawText = parsePlainText(fileBuffer.toString('utf-8'));
       break;
     default:

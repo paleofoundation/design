@@ -82,7 +82,7 @@ export default function AdminKnowledgePage() {
           return;
         }
 
-        setUploadStatus('Processing and embedding — this may take a minute for large files...');
+        setUploadStatus('Processing and embedding — large PDFs with poor text layers will use OCR, which may take several minutes...');
 
         res = await fetch('/api/admin/knowledge/upload', {
           method: 'POST',
@@ -297,13 +297,13 @@ export default function AdminKnowledgePage() {
             <input
               ref={fileInputRef}
               type="file"
-              accept=".pdf,.txt,.md"
+              accept=".pdf,.txt,.md,.epub"
               onChange={handleFileSelect}
               style={{ display: 'none' }}
             />
             {uploading ? (
               <div style={{ color: PALETTE.amber.base }}>
-                <Spinner /> Processing and embedding...
+                <Spinner /> Processing and embedding — image-heavy PDFs use OCR and may take several minutes...
               </div>
             ) : (
               <>
@@ -317,7 +317,7 @@ export default function AdminKnowledgePage() {
                   Drop a textbook or style guide here
                 </p>
                 <p style={{ fontSize: TEXT_SIZE.xs, color: DASH.faint }}>
-                  Accepts .pdf, .txt, .md up to 50MB — content feeds ALL user tool calls
+                  Accepts .pdf, .epub, .txt, .md up to 50MB — content feeds ALL user tool calls
                 </p>
               </>
             )}

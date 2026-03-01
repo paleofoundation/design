@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { parseAndChunk } from '@/lib/knowledge/chunker';
 import { generateEmbedding } from '@/lib/openai/embeddings';
 
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 const ALLOWED_MIME: Record<string, 'pdf' | 'txt' | 'md' | 'epub'> = {
   'application/pdf': 'pdf',
@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
 
   if (!fileType) {
     return NextResponse.json(
-      { error: 'Unsupported file type. Accepted: .pdf, .txt, .md' },
+      { error: 'Unsupported file type. Accepted: .pdf, .txt, .md, .epub' },
       { status: 400 }
     );
   }
