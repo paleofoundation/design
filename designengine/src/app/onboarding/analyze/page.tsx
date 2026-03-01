@@ -310,18 +310,30 @@ export default function OnboardingAnalyze() {
             type="button"
             onClick={(e) => { e.stopPropagation(); setAdjustingColors(!adjustingColors); }}
             style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.375rem',
               fontSize: 'var(--text-xs)',
-              color: adjustingColors ? 'var(--color-green-deep)' : 'var(--color-text-muted)',
-              background: 'none',
-              border: 'none',
+              fontWeight: 500,
+              color: adjustingColors ? 'var(--color-green-deep)' : 'var(--color-orange)',
+              background: adjustingColors ? 'var(--color-green-muted)' : 'var(--color-orange-muted)',
+              border: adjustingColors
+                ? '1px solid rgba(48, 110, 94, 0.2)'
+                : '1px solid rgba(255, 103, 25, 0.15)',
+              borderRadius: 'var(--radius-full)',
+              padding: '0.3rem 0.75rem',
               cursor: 'pointer',
               fontFamily: 'inherit',
-              padding: 0,
-              textDecoration: 'underline',
-              textUnderlineOffset: '2px',
+              transition: 'all var(--duration-fast) var(--ease-out)',
             }}
           >
-            {adjustingColors ? 'Done adjusting' : 'Something wrong? Adjust colors'}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              {adjustingColors
+                ? <path d="M20 6 9 17l-5-5" />
+                : <><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></>
+              }
+            </svg>
+            {adjustingColors ? 'Done' : 'Edit colors'}
           </button>
 
           {/* Expandable adjustment panel */}

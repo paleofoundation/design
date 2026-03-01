@@ -49,6 +49,10 @@ export function generateCursorFollower(colors: PaletteColors): AnimationResult {
 
 @media (prefers-reduced-motion: reduce) {
   .dzyn-cursor { display: none; }
+}
+
+.no-dzyn-cursor .dzyn-cursor {
+  display: none !important;
 }`;
 
   const js = `/* Cursor Follower — dzyn generated */

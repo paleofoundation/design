@@ -1,3 +1,6 @@
+'use client';
+
+import { useEffect } from 'react';
 import Link from 'next/link';
 
 export default function OnboardingLayout({
@@ -5,6 +8,11 @@ export default function OnboardingLayout({
 }: {
   children: React.ReactNode;
 }) {
+  useEffect(() => {
+    document.body.classList.add('no-dzyn-cursor');
+    return () => document.body.classList.remove('no-dzyn-cursor');
+  }, []);
+
   return (
     <div style={{
       minHeight: '100vh',

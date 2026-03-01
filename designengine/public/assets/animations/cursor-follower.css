@@ -28,3 +28,7 @@
 @media (prefers-reduced-motion: reduce) {
   .dzyn-cursor { display: none; }
 }
+
+.no-dzyn-cursor .dzyn-cursor {
+  display: none !important;
+}
