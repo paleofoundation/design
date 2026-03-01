@@ -331,17 +331,35 @@ export async function POST(req: NextRequest) {
 
     const normalized = url.startsWith('http') ? url : `https://${url}`;
 
-    const result = await ingestDesignFromUrl(normalized, {
+    // Retry up to 3 attempts — Firecrawl's proxy can intermittently fail
+    let result = await ingestDesignFromUrl(normalized, {
       includeScreenshot: true,
       includeMarkdown: false,
       includeHtml: true,
     });
+
+    const isRetryable = !result.success && result.error &&
+      (result.error.includes('ERR_TUNNEL') || result.error.includes('proxy') ||
+       result.error.includes('ECONNREFUSED') || result.error.includes('timeout'));
+
+    if (isRetryable) {
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        await new Promise((r) => setTimeout(r, 1500 * attempt));
+        result = await ingestDesignFromUrl(normalized, {
+          includeScreenshot: true,
+          includeMarkdown: false,
+          includeHtml: true,
+        });
+        if (result.success && result.branding) break;
+      }
+    }
 
     if (!result.success || !result.branding) {
       return NextResponse.json({
         success: false,
         error: result.error || 'Could not analyze this site. Try a different URL.',
         url: normalized,
+        retryable: isRetryable,
       });
     }
 

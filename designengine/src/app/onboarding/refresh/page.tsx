@@ -264,8 +264,32 @@ export default function OnboardingRefresh() {
               borderRadius: 'var(--radius-md)',
               fontSize: 'var(--text-sm)',
               color: 'var(--color-orange)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 'var(--space-2)',
             }}>
-              {extractError}
+              <span>{extractError}</span>
+              <button
+                type="button"
+                onClick={handleExtract}
+                disabled={extracting}
+                style={{
+                  background: 'var(--color-orange)',
+                  color: '#fff',
+                  fontWeight: 600,
+                  fontSize: 'var(--text-xs)',
+                  padding: '0.375rem 0.75rem',
+                  borderRadius: 'var(--radius-sm)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                }}
+              >
+                Try again
+              </button>
             </div>
           )}
         </div>
