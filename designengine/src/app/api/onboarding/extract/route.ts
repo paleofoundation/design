@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ingestDesignFromUrl } from '@/lib/firecrawl/ingest';
 import { openai } from '@/lib/openai/client';
 import type { FirecrawlBrandingResponse } from '@/lib/firecrawl/client';
+import { parseContentFromHtml, type SiteContent } from '@/lib/firecrawl/parse-content';
 
 interface DetectedColor {
   hex: string;
@@ -344,6 +345,25 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // Parse structural content from HTML (nav items, headline, images)
+    let siteContent: SiteContent | null = null;
+    if (result.html) {
+      try {
+        siteContent = parseContentFromHtml(result.html, normalized);
+      } catch {
+        // Non-critical — continue without site content
+      }
+    }
+
+    // Merge logo from branding if HTML parser didn't find one
+    if (siteContent && !siteContent.logo) {
+      siteContent.logo = result.branding.logo || result.branding.images?.logo || '';
+    }
+    // Merge OG image from branding as hero fallback
+    if (siteContent && !siteContent.heroImage && result.branding.images?.ogImage) {
+      siteContent.heroImage = result.branding.images.ogImage;
+    }
+
     const brandingColors = colorsFromBranding(result.branding);
     const knownHexes = brandingColors.map((c) => c.hex);
 
@@ -412,6 +432,7 @@ export async function POST(req: NextRequest) {
       url: normalized,
       branding: result.branding,
       screenshot: result.screenshot,
+      siteContent,
       aiColors: {
         colors: allColors,
         suggestedRoles,

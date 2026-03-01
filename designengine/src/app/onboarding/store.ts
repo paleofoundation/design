@@ -2,6 +2,15 @@
 
 import { create } from 'zustand';
 
+export interface SiteContent {
+  logo: string;
+  heroImage: string;
+  siteImages: string[];
+  navItems: string[];
+  headline: string;
+  description: string;
+}
+
 export interface ExtractionBranding {
   colorScheme: 'light' | 'dark';
   logo: string;
@@ -134,6 +143,7 @@ export interface OnboardingState {
 
   extraction: ExtractionBranding | null;
   screenshot: string | null;
+  siteContent: SiteContent | null;
   extractionStatus: 'idle' | 'loading' | 'done' | 'error' | 'skipped';
   extractionError: string | null;
   adoptions: Adoptions;
@@ -160,6 +170,7 @@ export interface OnboardingState {
     } | null,
     aiMood?: string | null,
     aiLayout?: LayoutStyle | null,
+    siteContent?: SiteContent | null,
   ) => void;
   assignColorRole: (role: ColorRole, hex: string) => void;
   addDetectedColor: (hex: string) => void;
@@ -226,6 +237,7 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
 
   extraction: null,
   screenshot: null,
+  siteContent: null,
   extractionStatus: 'idle',
   extractionError: null,
   adoptions: { colors: true, typography: true, mood: true, spacing: true },
@@ -240,7 +252,7 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
 
   setDesignLanguage: (lang) => set({ designLanguage: lang, mood: lang }),
 
-  applyExtraction: (branding, screenshot, aiColors, aiFonts, aiMood, aiLayout) => {
+  applyExtraction: (branding, screenshot, aiColors, aiFonts, aiMood, aiLayout, siteContent) => {
     const fallbackMood = mapPersonalityToMood(branding.personality);
     const detectedMood = aiMood || fallbackMood;
 
@@ -248,6 +260,7 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
       const updates: Partial<OnboardingState> = {
         extraction: branding,
         screenshot,
+        siteContent: siteContent ?? null,
         extractionStatus: 'done',
         extractionError: null,
         extractedTokens: branding as unknown as Record<string, unknown>,

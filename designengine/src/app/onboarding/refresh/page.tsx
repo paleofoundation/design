@@ -73,7 +73,7 @@ export default function OnboardingRefresh() {
       const data = await res.json();
 
       if (data.success && data.branding) {
-        applyExtraction(data.branding, data.screenshot, data.aiColors, data.aiFonts, data.aiMood, data.aiLayout || null);
+        applyExtraction(data.branding, data.screenshot, data.aiColors, data.aiFonts, data.aiMood, data.aiLayout || null, data.siteContent || null);
         setField('inspirationUrl', ownSiteUrl.trim());
         setExtracted(true);
       } else {

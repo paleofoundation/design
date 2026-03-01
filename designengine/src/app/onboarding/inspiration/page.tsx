@@ -44,6 +44,7 @@ const SLOTS: SlotConfig[] = [
 interface SlotExtraction {
   branding: ExtractionBranding | null;
   screenshot: string | null;
+  siteContent: import('../store').SiteContent | null;
   loading: boolean;
   error: string;
   done: boolean;
@@ -51,7 +52,7 @@ interface SlotExtraction {
 
 type SlotExtractions = Record<SlotKey, SlotExtraction>;
 
-const emptySlot: SlotExtraction = { branding: null, screenshot: null, loading: false, error: '', done: false };
+const emptySlot: SlotExtraction = { branding: null, screenshot: null, siteContent: null, loading: false, error: '', done: false };
 
 export default function OnboardingInspiration() {
   const router = useRouter();
@@ -97,7 +98,7 @@ export default function OnboardingInspiration() {
       if (data.success && data.branding) {
         setExtractions((prev) => ({
           ...prev,
-          [key]: { branding: data.branding, screenshot: data.screenshot, loading: false, error: '', done: true },
+          [key]: { branding: data.branding, screenshot: data.screenshot, siteContent: data.siteContent || null, loading: false, error: '', done: true },
         }));
       } else {
         setExtractions((prev) => ({
@@ -171,7 +172,8 @@ export default function OnboardingInspiration() {
     const bestSource = extractions.general.branding || extractions.layout.branding || extractions.colors.branding || extractions.typography.branding;
     if (bestSource) {
       const bestScreenshot = extractions.general.screenshot || extractions.layout.screenshot || extractions.colors.screenshot || extractions.typography.screenshot;
-      applyExtraction(bestSource, bestScreenshot);
+      const bestSiteContent = extractions.general.siteContent || extractions.layout.siteContent || extractions.colors.siteContent || extractions.typography.siteContent;
+      applyExtraction(bestSource, bestScreenshot, undefined, undefined, undefined, undefined, bestSiteContent);
     }
 
     router.push('/onboarding/design-language');
