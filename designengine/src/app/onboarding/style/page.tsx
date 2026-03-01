@@ -8,6 +8,7 @@ import {
   generateArtStylePreview,
   ART_STYLE_META,
 } from '@/lib/svg/art-style-previews';
+import { getDesignLanguage } from '@/lib/design-language';
 
 const PRESETS: ArtStylePreset[] = [
   'line-art',
@@ -18,22 +19,14 @@ const PRESETS: ArtStylePreset[] = [
   'photo-overlay',
 ];
 
-const MOOD_RECOMMENDATIONS: Record<string, ArtStylePreset> = {
-  corporate: 'line-art',
-  playful: 'flat-vector',
-  editorial: 'photo-overlay',
-  minimal: 'line-art',
-  bold: 'abstract-geometric',
-  luxury: 'photo-overlay',
-};
-
 export default function OnboardingStyle() {
   const router = useRouter();
-  const { mood, artStyle, colors, setField, extractionStatus } = useOnboardingStore();
-  const hasExtraction = extractionStatus === 'done';
-  const stepNumber = hasExtraction ? 6 : 5;
+  const { designLanguage, artStyle, colors, setField } = useOnboardingStore();
 
-  const recommended = MOOD_RECOMMENDATIONS[mood] || 'flat-vector';
+  const stepNumber = 6;
+
+  const lang = getDesignLanguage(designLanguage);
+  const recommended = lang.artStyleRecommendation;
 
   const previews = useMemo(
     () =>
@@ -145,7 +138,6 @@ export default function OnboardingStyle() {
                 </span>
               )}
 
-              {/* SVG Preview */}
               <div
                 style={{
                   width: '100%',
@@ -156,7 +148,6 @@ export default function OnboardingStyle() {
                 dangerouslySetInnerHTML={{ __html: svg }}
               />
 
-              {/* Info */}
               <div style={{ padding: 'var(--space-2) var(--space-3) var(--space-3)' }}>
                 <div
                   style={{

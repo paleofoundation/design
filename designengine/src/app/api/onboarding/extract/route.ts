@@ -194,6 +194,55 @@ CRITICAL: Judge by the VISUAL characteristics (colors, border-radius, typography
   }
 }
 
+// ---------------------------------------------------------------------------
+// GPT-4o layout structure classification
+// ---------------------------------------------------------------------------
+
+const VALID_LAYOUTS = ['traditional', 'hero-driven', 'asymmetric', 'dense'] as const;
+type LayoutStyle = typeof VALID_LAYOUTS[number];
+
+async function classifyLayout(html: string, url: string): Promise<LayoutStyle | ''> {
+  const truncated = html.slice(0, 12000);
+
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [{
+      role: 'user',
+      content: `You are a web design layout expert. Analyze the HTML/CSS of ${url} and classify its primary LAYOUT STRUCTURE.
+
+HTML/CSS (truncated):
+${truncated}
+
+Return ONLY valid JSON:
+{
+  "layout": "one of: traditional, hero-driven, asymmetric, dense"
+}
+
+LAYOUT DEFINITIONS:
+- traditional: Standard header + content + footer. Navigation bar at top, content in centered container, sidebar optional. Classic corporate/blog structure.
+- hero-driven: Full-width hero section dominates above the fold. Large imagery or video backgrounds, bold CTAs, sections flow vertically with full-bleed backgrounds. Modern marketing/SaaS style.
+- asymmetric: Creative/non-standard layout. Offset grids, overlapping elements, varied column widths, art-directed positioning. Agency/portfolio style.
+- dense: Information-rich grid layout. Multiple columns, compact cards, data tables, dashboards. Minimal whitespace between elements.
+
+CRITICAL: Classify based on the STRUCTURAL layout patterns you see in the HTML, not the content topic.`,
+    }],
+    temperature: 0.1,
+    max_tokens: 200,
+    response_format: { type: 'json_object' },
+  });
+
+  try {
+    const parsed = JSON.parse(response.choices[0].message.content || '{}');
+    const layout = (parsed.layout || '').toLowerCase();
+    if ((VALID_LAYOUTS as readonly string[]).includes(layout)) {
+      return layout as LayoutStyle;
+    }
+    return '';
+  } catch {
+    return '';
+  }
+}
+
 function colorsFromBranding(branding: FirecrawlBrandingResponse): DetectedColor[] {
   const out: DetectedColor[] = [];
   const c = branding.colors;
@@ -321,21 +370,24 @@ export async function POST(req: NextRequest) {
       htmlFonts.push({ family: fcTypo.primary, source: 'firecrawl' });
     }
 
-    // AI color extraction + font role classification + mood classification (run in parallel)
+    // AI color extraction + font role classification + mood classification + layout classification (run in parallel)
     let fontRoles = { heading: '', body: '', code: '' };
     let aiMood = '';
+    let aiLayout: LayoutStyle | '' = '';
 
     if (result.html) {
-      const [extraColors, roles, mood] = await Promise.all([
+      const [extraColors, roles, mood, layout] = await Promise.all([
         extractAdditionalColors(result.html, normalized, knownHexes).catch(() => [] as DetectedColor[]),
         htmlFonts.length > 0
           ? classifyFontRoles(result.html, htmlFonts).catch(() => ({ heading: '', body: '', code: '' }))
           : Promise.resolve({ heading: '', body: '', code: '' }),
         classifyMood(result.html, normalized).catch(() => ''),
+        classifyLayout(result.html, normalized).catch(() => '' as const),
       ]);
       allColors = [...brandingColors, ...extraColors];
       fontRoles = roles;
       aiMood = mood;
+      aiLayout = layout;
     }
 
     // If AI didn't classify roles, fall back to Firecrawl's typography
@@ -369,6 +421,7 @@ export async function POST(req: NextRequest) {
         suggestedRoles: fontRoles,
       },
       aiMood: aiMood || null,
+      aiLayout: aiLayout || null,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Extraction failed';

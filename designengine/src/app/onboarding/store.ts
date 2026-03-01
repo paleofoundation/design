@@ -72,11 +72,52 @@ export type ArtStylePreset =
   | 'abstract-geometric'
   | 'photo-overlay';
 
+export type UserIntent = 'refresh' | 'new' | '';
+
+export type LayoutStyle = 'traditional' | 'hero-driven' | 'asymmetric' | 'dense' | '';
+
+export interface InspirationUrls {
+  colors: string;
+  typography: string;
+  layout: string;
+  general: string;
+}
+
+export interface KeepAttributes {
+  colors: boolean;
+  typography: boolean;
+  layout: boolean;
+}
+
+export interface InspirationExtractions {
+  colors: ExtractionBranding | null;
+  typography: ExtractionBranding | null;
+  layout: ExtractionBranding | null;
+  general: ExtractionBranding | null;
+}
+
 export interface OnboardingState {
+  // Step 1: Intent + project info
+  intent: UserIntent;
   projectName: string;
-  inspirationUrl: string;
   brandDescription: string;
-  mood: string;
+
+  // Refresh path
+  ownSiteUrl: string;
+  keepAttributes: KeepAttributes;
+
+  // New path: multi-URL inspiration
+  inspirationUrls: InspirationUrls;
+  inspirationExtractions: InspirationExtractions;
+
+  // Legacy field kept for backward compat with save API
+  inspirationUrl: string;
+
+  // Design language (replaces mood — same 6 values, richer semantics)
+  designLanguage: string;
+  mood: string; // alias kept for downstream compat
+  layoutStyle: LayoutStyle;
+
   artStyle: ArtStylePreset | '';
   colors: {
     primary: string;
@@ -101,7 +142,11 @@ export interface OnboardingState {
   detectedColors: DetectedColor[];
   colorRoleAssignments: Record<ColorRole, string>;
 
+  // Detected layout from extraction
+  detectedLayout: LayoutStyle;
+
   setField: <K extends keyof OnboardingState>(key: K, value: OnboardingState[K]) => void;
+  setDesignLanguage: (lang: string) => void;
   applyExtraction: (
     branding: ExtractionBranding,
     screenshot: string | null,
@@ -114,6 +159,7 @@ export interface OnboardingState {
       suggestedRoles: { heading: string; body: string; code?: string };
     } | null,
     aiMood?: string | null,
+    aiLayout?: LayoutStyle | null,
   ) => void;
   assignColorRole: (role: ColorRole, hex: string) => void;
   addDetectedColor: (hex: string) => void;
@@ -148,10 +194,22 @@ function deduplicateColors(colors: DetectedColor[]): DetectedColor[] {
 }
 
 export const useOnboardingStore = create<OnboardingState>((set) => ({
+  intent: '',
   projectName: '',
-  inspirationUrl: '',
   brandDescription: '',
+
+  ownSiteUrl: '',
+  keepAttributes: { colors: true, typography: true, layout: true },
+
+  inspirationUrls: { colors: '', typography: '', layout: '', general: '' },
+  inspirationExtractions: { colors: null, typography: null, layout: null, general: null },
+
+  inspirationUrl: '',
+
+  designLanguage: '',
   mood: '',
+  layoutStyle: '',
+
   artStyle: '',
   colors: {
     primary: '#306E5E',
@@ -176,9 +234,13 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
   detectedColors: [],
   colorRoleAssignments: { primary: '', secondary: '', accent: '', background: '', text: '' },
 
+  detectedLayout: '',
+
   setField: (key, value) => set({ [key]: value }),
 
-  applyExtraction: (branding, screenshot, aiColors, aiFonts, aiMood) => {
+  setDesignLanguage: (lang) => set({ designLanguage: lang, mood: lang }),
+
+  applyExtraction: (branding, screenshot, aiColors, aiFonts, aiMood, aiLayout) => {
     const fallbackMood = mapPersonalityToMood(branding.personality);
     const detectedMood = aiMood || fallbackMood;
 
@@ -190,6 +252,10 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
         extractionError: null,
         extractedTokens: branding as unknown as Record<string, unknown>,
       };
+
+      if (aiLayout) {
+        updates.detectedLayout = aiLayout;
+      }
 
       if (aiColors?.colors?.length) {
         updates.detectedColors = deduplicateColors(aiColors.colors);
@@ -232,7 +298,6 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
         };
       }
 
-      // Typography: prefer aiFonts (parsed from actual HTML/CSS) over Firecrawl heuristics
       if (state.adoptions.typography) {
         const aiHeading = aiFonts?.suggestedRoles?.heading;
         const aiBody = aiFonts?.suggestedRoles?.body;
@@ -251,6 +316,7 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
 
       if (state.adoptions.mood && detectedMood) {
         updates.mood = detectedMood;
+        updates.designLanguage = detectedMood;
       }
 
       return updates;

@@ -2,24 +2,56 @@
 
 import { useOnboardingStore } from './store';
 
+const STEP_LABELS_REFRESH = ['Intent', 'Your Site', 'Design Language', 'Colors', 'Typography', 'Style', 'Preview'];
+const STEP_LABELS_NEW = ['Intent', 'Inspiration', 'Design Language', 'Colors', 'Typography', 'Style', 'Preview'];
+const STEP_LABELS_DEFAULT = ['Intent', 'Design Language', 'Colors', 'Typography', 'Style', 'Preview'];
+
 export function StepIndicator({ current }: { current: number }) {
-  const extractionStatus = useOnboardingStore((s) => s.extractionStatus);
-  const total = extractionStatus === 'done' ? 7 : 6;
+  const intent = useOnboardingStore((s) => s.intent);
+
+  const labels = intent === 'refresh'
+    ? STEP_LABELS_REFRESH
+    : intent === 'new'
+      ? STEP_LABELS_NEW
+      : STEP_LABELS_DEFAULT;
+
+  const total = labels.length;
 
   return (
-    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: 'var(--space-6)' }}>
-      {Array.from({ length: total }, (_, i) => (
-        <div
-          key={i}
-          style={{
-            flex: 1,
-            height: '3px',
-            borderRadius: '2px',
-            background: i < current ? 'var(--color-green-deep)' : 'var(--color-border)',
-            transition: 'background var(--duration-slow) var(--ease-out)',
-          }}
-        />
-      ))}
+    <div style={{ marginBottom: 'var(--space-6)' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+        {Array.from({ length: total }, (_, i) => (
+          <div
+            key={i}
+            style={{
+              flex: 1,
+              height: '3px',
+              borderRadius: '2px',
+              background: i < current ? 'var(--color-green-deep)' : 'var(--color-border)',
+              transition: 'background var(--duration-slow) var(--ease-out)',
+            }}
+          />
+        ))}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        {labels.map((label, i) => (
+          <span
+            key={label}
+            style={{
+              fontSize: '0.6rem',
+              color: i < current ? 'var(--color-green-deep)' : 'var(--color-text-muted)',
+              fontWeight: i + 1 === current ? 600 : 400,
+              letterSpacing: '0.02em',
+              opacity: i < current ? 1 : 0.6,
+              minWidth: 0,
+              textAlign: i === 0 ? 'left' : i === labels.length - 1 ? 'right' : 'center',
+              flex: 1,
+            }}
+          >
+            {label}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
