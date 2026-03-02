@@ -93,15 +93,16 @@ export default function Home() {
           position: 'relative',
           zIndex: 2,
         }}>
-          <span style={{
+          <Link href="/" style={{
             fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
             fontSize: 'var(--text-xl)',
             fontWeight: 400,
             color: '#fff',
             letterSpacing: 'var(--tracking-tight)',
+            textDecoration: 'none',
           }}>
             Refine Design
-          </span>
+          </Link>
           <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
             <Link href="#how-it-works" style={{ fontSize: 'var(--text-sm)', color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>How it works</Link>
             <Link href="#tools" style={{ fontSize: 'var(--text-sm)', color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>Tools</Link>
@@ -511,14 +512,15 @@ export default function Home() {
         width: '100%',
       }}>
         <div>
-          <span style={{
+          <Link href="/" style={{
             fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
             fontWeight: 400,
             fontSize: 'var(--text-lg)',
             color: 'var(--color-green-deep)',
+            textDecoration: 'none',
           }}>
             Refine Design
-          </span>
+          </Link>
           <span style={{
             fontSize: 'var(--text-xs)',
             color: 'var(--color-text-muted)',
