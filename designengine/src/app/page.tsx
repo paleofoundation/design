@@ -46,6 +46,7 @@ const TOOL_GROUPS = [
       { name: 'generate-art-style', desc: 'Art style manifest with DALL-E prompts, CSS filters, and SVG attributes for your brand' },
       { name: 'generate-micro-interactions', desc: 'Cursor effects, button states, scroll reveals, loading spinners, glow pulses' },
       { name: 'generate-illustrations', desc: 'AI illustrations via DALL-E 3, guided by your art style and color tokens' },
+      { name: 'extract-visual-style', desc: 'Analyze a reference image to extract its artistic DNA — technique, shading, color treatment, mood' },
       { name: 'scaffold-assets', desc: 'One call generates everything: favicons, patterns, dividers, heroes, animations, art style' },
     ],
   },
@@ -368,7 +369,7 @@ export default function Home() {
             letterSpacing: '-0.02em',
             lineHeight: 1.2,
           }}>
-            20 tools. One design system.
+            21 tools. One design system.
           </h2>
           <p className="dzyn-reveal" style={{
             fontSize: 'var(--text-lg)',

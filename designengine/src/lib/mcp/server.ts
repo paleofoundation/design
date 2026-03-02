@@ -21,6 +21,7 @@ import { registerGenerateMicroInteractionsTool } from './tools/generate-micro-in
 import { registerGenerateIllustrationsTool } from './tools/generate-illustrations';
 import { registerScaffoldAssetsTool } from './tools/scaffold-assets';
 import { registerRedesignPageTool } from './tools/redesign-page';
+import { registerExtractVisualStyleTool } from './tools/extract-visual-style';
 
 // TODO: Rename to "Refine Design" after transition period
 export function initializeDesignEngine(server: McpServer): void {
@@ -46,4 +47,5 @@ export function initializeDesignEngine(server: McpServer): void {
   registerGenerateIllustrationsTool(server);
   registerScaffoldAssetsTool(server);
   registerRedesignPageTool(server);
+  registerExtractVisualStyleTool(server);
 }
