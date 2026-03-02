@@ -93,15 +93,9 @@ export default function Home() {
           position: 'relative',
           zIndex: 2,
         }}>
-          <Link href="/" style={{
-            fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
-            fontSize: 'var(--text-xl)',
-            fontWeight: 400,
-            color: '#fff',
-            letterSpacing: 'var(--tracking-tight)',
-            textDecoration: 'none',
-          }}>
-            Refine Design
+          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/assets/images/logo.svg" alt="Refine Design" style={{ height: '32px', width: 'auto' }} />
           </Link>
           <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
             <Link href="#how-it-works" style={{ fontSize: 'var(--text-sm)', color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>How it works</Link>
@@ -512,14 +506,17 @@ export default function Home() {
         width: '100%',
       }}>
         <div>
-          <Link href="/" style={{
-            fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
-            fontWeight: 400,
-            fontSize: 'var(--text-lg)',
-            color: 'var(--color-green-deep)',
-            textDecoration: 'none',
-          }}>
-            Refine Design
+          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/assets/images/logo.svg"
+              alt="Refine Design"
+              style={{
+                height: '26px',
+                width: 'auto',
+                filter: 'brightness(0) saturate(100%) invert(28%) sepia(90%) saturate(600%) hue-rotate(145deg) brightness(85%)',
+              }}
+            />
           </Link>
           <span style={{
             fontSize: 'var(--text-xs)',

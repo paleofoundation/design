@@ -53,30 +53,9 @@ export default async function DashboardLayout({
           justifyContent: 'space-between',
           height: '3.5rem',
         }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
-            <div style={{
-              width: '2rem',
-              height: '2rem',
-              background: PALETTE.orange.base,
-              borderRadius: RADIUS.md,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontFamily: FONT.heading,
-              fontWeight: 600,
-              fontSize: TEXT_SIZE.xs,
-              color: PALETTE.text.onDark,
-            }}>
-              RD
-            </div>
-            <span style={{
-              fontFamily: FONT.heading,
-              fontWeight: 600,
-              fontSize: TEXT_SIZE.lg,
-              color: PALETTE.text.onGreen,
-            }}>
-              Refine Design
-            </span>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/assets/images/logo.svg" alt="Refine Design" style={{ height: '30px', width: 'auto' }} />
           </Link>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>

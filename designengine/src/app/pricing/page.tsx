@@ -49,15 +49,17 @@ export default function PricingPage() {
         margin: '0 auto',
         width: '100%',
       }}>
-        <Link href="/" style={{
-          fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
-          fontSize: 'var(--text-xl)',
-          fontWeight: 400,
-          color: 'var(--color-green-deep)',
-          letterSpacing: 'var(--tracking-tight)',
-          textDecoration: 'none',
-        }}>
-          Refine Design
+        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/assets/images/logo.svg"
+            alt="Refine Design"
+            style={{
+              height: '28px',
+              width: 'auto',
+              filter: 'brightness(0) saturate(100%) invert(28%) sepia(90%) saturate(600%) hue-rotate(145deg) brightness(85%)',
+            }}
+          />
         </Link>
         <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
           <Link href="/blog" style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-body)', textDecoration: 'none' }}>Blog</Link>

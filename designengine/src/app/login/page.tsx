@@ -45,15 +45,17 @@ function LoginForm() {
       justifyContent: 'center',
       padding: 'var(--space-4)',
     }}>
-      <Link href="/" style={{
-        fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
-        fontSize: 'var(--text-2xl)',
-        fontWeight: 400,
-        color: 'var(--color-green-deep)',
-        textDecoration: 'none',
-        marginBottom: 'var(--space-8)',
-      }}>
-        Refine Design
+      <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', marginBottom: 'var(--space-8)' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/assets/images/logo.svg"
+          alt="Refine Design"
+          style={{
+            height: '36px',
+            width: 'auto',
+            filter: 'brightness(0) saturate(100%) invert(28%) sepia(90%) saturate(600%) hue-rotate(145deg) brightness(85%)',
+          }}
+        />
       </Link>
 
       <div style={{
