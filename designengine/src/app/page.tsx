@@ -213,15 +213,14 @@ export default function Home() {
           <style>{`@media(min-width:900px){[data-hero-art]{display:block!important}}`}</style>
           <div data-hero-art="" style={{ flex: '0 0 auto', position: 'relative', display: 'none' }}>
             <Image
-              src="/assets/images/hero-illustration.png"
+              src="/assets/images/hero-illustration.svg"
               alt="Typography specimens, color swatches, and design tools — the craft of intentional design"
-              width={420}
-              height={560}
+              width={480}
+              height={480}
               style={{
                 maxHeight: '70vh',
                 width: 'auto',
                 height: 'auto',
-                filter: 'drop-shadow(0 24px 48px rgba(0,0,0,0.25))',
               }}
               priority
             />
