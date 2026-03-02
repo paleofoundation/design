@@ -209,23 +209,21 @@ export default function Home() {
           </div>
 
           {/* Right: editorial illustration — borderless, no card */}
-          <div style={{ flex: '0 0 auto', position: 'relative', display: 'none' }}>
-            <style>{`@media(min-width:900px){[data-hero-art]{display:block!important}}`}</style>
-            <div data-hero-art="" style={{ display: 'none' }}>
-              <Image
-                src="/assets/images/hero-illustration.png"
-                alt="Typography specimens, color swatches, and design tools — the craft of intentional design"
-                width={420}
-                height={560}
-                style={{
-                  maxHeight: '70vh',
-                  width: 'auto',
-                  height: 'auto',
-                  filter: 'drop-shadow(0 24px 48px rgba(0,0,0,0.25))',
-                }}
-                priority
-              />
-            </div>
+          <style>{`@media(min-width:900px){[data-hero-art]{display:block!important}}`}</style>
+          <div data-hero-art="" style={{ flex: '0 0 auto', position: 'relative', display: 'none' }}>
+            <Image
+              src="/assets/images/hero-illustration.png"
+              alt="Typography specimens, color swatches, and design tools — the craft of intentional design"
+              width={420}
+              height={560}
+              style={{
+                maxHeight: '70vh',
+                width: 'auto',
+                height: 'auto',
+                filter: 'drop-shadow(0 24px 48px rgba(0,0,0,0.25))',
+              }}
+              priority
+            />
           </div>
         </div>
       </section>
