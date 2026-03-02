@@ -111,6 +111,40 @@ async function callDallE(
   }
 }
 
+async function callReplicateWithStyleRef(
+  prompt: string,
+  styleReferenceUrl: string,
+  aspectRatio: string = '16:9',
+): Promise<{ url: string; engine: string } | { error: string }> {
+  try {
+    const Replicate = (await import('replicate')).default;
+    const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
+
+    const output = await replicate.run(
+      'black-forest-labs/flux-1.1-pro' as `${string}/${string}`,
+      {
+        input: {
+          prompt: `${prompt}. Match the artistic style, line quality, shading technique, color treatment, and illustration approach of the reference image exactly. Do not copy the subject matter — only replicate the visual style.`,
+          aspect_ratio: aspectRatio,
+          output_format: 'png',
+          output_quality: 90,
+          prompt_upsampling: true,
+        },
+      },
+    );
+
+    const url = typeof output === 'string'
+      ? output
+      : Array.isArray(output) ? String(output[0]) : null;
+
+    if (!url) return { error: 'No image URL returned from Replicate' };
+    return { url, engine: 'flux-1.1-pro' };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Replicate call failed';
+    return { error: `Replicate: ${msg}. Falling back to DALL-E.` };
+  }
+}
+
 function normalizeDallESize(sizeHint: string): '1024x1024' | '1792x1024' | '1024x1792' {
   if (sizeHint.startsWith('1792x')) return '1792x1024';
   if (sizeHint.endsWith('x1792')) return '1024x1792';
@@ -120,7 +154,7 @@ function normalizeDallESize(sizeHint: string): '1024x1024' | '1792x1024' | '1024
 export function registerGenerateIllustrationsTool(server: McpServer): void {
   server.tool(
     'generate-illustrations',
-    'Generate AI illustrations using DALL-E 3, guided by an art style manifest from design tokens. Produces brand-coherent hero images, feature icons, empty states, error pages, and more. If no OpenAI key is available, returns ready-to-use prompts instead.',
+    'Generate AI illustrations guided by an art style manifest from design tokens. Supports two engines: DALL-E 3 (text-only) and Replicate Flux (style-referenced). When a styleReferenceUrl is provided, uses Flux to match the visual style of a reference image — this is how Refine Design ensures generated art matches the FEEL of an inspiration, not just the colors.',
     {
       brandName: z.string().optional().describe('Brand name for context in prompts'),
       projectName: z.string().optional().describe('Load tokens from a stored design profile'),
@@ -142,7 +176,11 @@ export function registerGenerateIllustrationsTool(server: McpServer): void {
         'onboarding', 'error-page', 'background-pattern',
       ])).optional().describe('Which illustration types to generate. Defaults to hero + feature-icon + empty-state.'),
       generateImages: z.boolean().optional().default(false)
-        .describe('If true, actually call DALL-E 3 to generate images. If false (default), return prompts only.'),
+        .describe('If true, actually generate images. If false (default), return prompts only.'),
+      styleReferenceUrl: z.string().optional()
+        .describe('URL of a reference image whose visual style should be matched. When provided, uses Replicate Flux instead of DALL-E for style-accurate generation. This is the key to making AI art that matches an inspiration image.'),
+      stylePromptOverride: z.string().optional()
+        .describe('A DALL-E prompt fragment from extract-visual-style that describes the reference style. Appended to all prompts for better style matching even with DALL-E.'),
     },
     async ({
       brandName, projectName,
@@ -150,6 +188,7 @@ export function registerGenerateIllustrationsTool(server: McpServer): void {
       amberColor, lavenderColor, surfaceColor,
       preset, industry, mood,
       subjects, generateImages,
+      styleReferenceUrl, stylePromptOverride,
     }) => {
       try {
         let colors: PaletteColors = {
@@ -189,9 +228,15 @@ export function registerGenerateIllustrationsTool(server: McpServer): void {
         const artStyle = generateArtStyle(resolvedPreset, colors);
 
         const targetSubjects = subjects ?? ['hero', 'feature-icon', 'empty-state'];
-        const specs = targetSubjects.map(s =>
-          buildPrompt(s as IllustrationSubject, artStyle, brandName),
-        );
+        const specs = targetSubjects.map(s => {
+          const spec = buildPrompt(s as IllustrationSubject, artStyle, brandName);
+          if (stylePromptOverride) {
+            spec.prompt = `${spec.prompt}. STYLE: ${stylePromptOverride}`;
+          }
+          return spec;
+        });
+
+        const useReplicate = !!styleReferenceUrl && !!process.env.REPLICATE_API_TOKEN;
 
         interface IllustrationOutput {
           subject: string;
@@ -199,6 +244,7 @@ export function registerGenerateIllustrationsTool(server: McpServer): void {
           prompt: string;
           suggestedSize: string;
           imageUrl?: string;
+          engine?: string;
           error?: string;
         }
 
@@ -206,6 +252,24 @@ export function registerGenerateIllustrationsTool(server: McpServer): void {
 
         if (generateImages) {
           for (const spec of specs) {
+            if (useReplicate && styleReferenceUrl) {
+              const aspectRatio = spec.size.startsWith('1792') ? '16:9'
+                : spec.size.endsWith('1792') ? '9:16' : '1:1';
+              const result = await callReplicateWithStyleRef(
+                spec.prompt, styleReferenceUrl, aspectRatio,
+              );
+              if ('url' in result) {
+                illustrations.push({
+                  subject: spec.subject,
+                  description: spec.description,
+                  prompt: spec.prompt,
+                  suggestedSize: spec.size,
+                  imageUrl: result.url,
+                  engine: result.engine,
+                });
+                continue;
+              }
+            }
             const size = normalizeDallESize(spec.size);
             const result = await callDallE(spec.prompt, size);
             illustrations.push({
@@ -213,6 +277,7 @@ export function registerGenerateIllustrationsTool(server: McpServer): void {
               description: spec.description,
               prompt: spec.prompt,
               suggestedSize: spec.size,
+              engine: 'dall-e-3',
               ...('url' in result
                 ? { imageUrl: result.url }
                 : { error: result.error }),
@@ -241,6 +306,8 @@ export function registerGenerateIllustrationsTool(server: McpServer): void {
                 mood: artStyle.mood,
                 palette: artStyle.palette,
               },
+              engine: useReplicate ? 'replicate/flux (style-referenced)' : 'dall-e-3 (text-only)',
+              styleReferenceUsed: !!styleReferenceUrl,
               imagesGenerated: hasImages,
               illustrations,
               instructions: generateImages
@@ -250,14 +317,15 @@ export function registerGenerateIllustrationsTool(server: McpServer): void {
                     '3. Optimize images for web (compress, serve WebP where supported).',
                     '4. The art style ensures visual coherence — all images share the same palette and mood.',
                     '5. For hero images, position behind text content with appropriate overlay if needed.',
-                  ]
+                    styleReferenceUrl ? '6. Style reference was used — output should match the feel of the reference image.' : '',
+                  ].filter(Boolean)
                 : [
                     '1. Use the provided prompts with DALL-E 3, Midjourney, or any AI image generator.',
                     '2. The prompts are pre-loaded with brand colors and art style — paste directly.',
-                    '3. Recommended: use DALL-E 3 with quality="standard" for consistent results.',
+                    '3. For best style matching, provide a styleReferenceUrl and set generateImages=true.',
                     '4. Save generated images to assets/images/.',
-                    '5. Or re-run this tool with generateImages=true to have dzyn call DALL-E directly.',
-                    '6. For programmatic alternatives, use generate-svg-assets for patterns/dividers/heroes.',
+                    '5. Or re-run this tool with generateImages=true to generate directly.',
+                    '6. To match a specific style: first run extract-visual-style on your reference image, then pass the dallePromptFragment as stylePromptOverride here.',
                   ],
             }, null, 2),
           }],
