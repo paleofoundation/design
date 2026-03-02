@@ -1,6 +1,3 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -53,15 +50,6 @@ const TOOL_GROUPS = [
 ];
 
 export default function Home() {
-  const [waitlistCount, setWaitlistCount] = useState(0);
-
-  useEffect(() => {
-    fetch('/api/waitlist')
-      .then((r) => r.json())
-      .then((d) => { if (typeof d.count === 'number') setWaitlistCount(d.count); })
-      .catch(() => {});
-  }, []);
-
   return (
     <div>
       {/* ========== HERO ========== */}
@@ -136,6 +124,17 @@ export default function Home() {
         }}>
           {/* Left: copy */}
           <div style={{ maxWidth: '36rem', flex: '1 1 auto' }}>
+            <span className="dzyn-reveal" style={{
+              display: 'block',
+              fontSize: 'var(--text-xs)',
+              fontWeight: 600,
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.72)',
+              marginBottom: '0.75rem',
+            }}>
+              The design system engine for AI coding agents.
+            </span>
             <h1 className="dzyn-reveal" style={{
               fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
               fontSize: 'clamp(3rem, 6vw, 4.5rem)',
@@ -193,15 +192,30 @@ export default function Home() {
                 See how it works
               </Link>
             </div>
-            {waitlistCount > 0 && (
-              <p className="dzyn-reveal" style={{
-                fontSize: 'var(--text-xs)',
-                color: 'rgba(255,255,255,0.35)',
-                marginTop: '2rem',
-              }}>
-                {waitlistCount.toLocaleString()} {waitlistCount === 1 ? 'designer' : 'designers'} already refining
-              </p>
-            )}
+            <div className="dzyn-reveal" style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.625rem',
+              marginTop: '2rem',
+              flexWrap: 'wrap',
+            }}>
+              <span style={{ fontSize: 'var(--text-xs)', color: 'rgba(255,255,255,0.4)', fontWeight: 500 }}>
+                Works with
+              </span>
+              {['Cursor', 'Claude', 'Windsurf', 'VS Code'].map((name) => (
+                <span key={name} style={{
+                  fontSize: 'var(--text-xs)',
+                  color: 'rgba(255,255,255,0.6)',
+                  fontWeight: 500,
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  borderRadius: 'var(--radius-full)',
+                  padding: '0.2rem 0.625rem',
+                  letterSpacing: '0.01em',
+                }}>
+                  {name}
+                </span>
+              ))}
+            </div>
           </div>
 
           {/* Right: editorial illustration — borderless, no card */}
@@ -246,6 +260,16 @@ export default function Home() {
           }}>
             The problem with AI-generated design
           </h2>
+          <p className="dzyn-reveal" style={{
+            fontSize: 'var(--text-lg)',
+            color: 'var(--color-text-body)',
+            textAlign: 'center',
+            maxWidth: '36rem',
+            margin: '0 auto 3.5rem',
+            lineHeight: 1.7,
+          }}>
+            Ask Cursor to build a dashboard. Ask Claude to generate a landing page. Ask Windsurf to scaffold an app. They all come out looking the same&nbsp;&mdash; Inter font, indigo-600 buttons, rounded-xl corners, dark mode everything. Your product deserves its own identity.
+          </p>
           <div className="dzyn-stagger" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 22rem), 1fr))',
@@ -276,7 +300,158 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Curve divider: problem → how-it-works */}
+      {/* ========== SIDE-BY-SIDE DEMO ========== */}
+      <section style={{
+        background: 'var(--color-surface-warm)',
+        padding: '6rem 2.5rem',
+      }}>
+        <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
+          <h2 className="dzyn-reveal" style={{
+            fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+            fontSize: 'clamp(2rem, 4vw, 3rem)',
+            fontWeight: 400,
+            color: 'var(--color-text-primary)',
+            textAlign: 'center',
+            marginBottom: '3.5rem',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.2,
+          }}>
+            Same code. Different design system.
+          </h2>
+
+          <div className="dzyn-stagger" style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 22rem), 1fr))',
+            gap: '2.5rem',
+          }}>
+            {/* LEFT: Default AI output */}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{
+                background: '#1e1e1e',
+                borderRadius: 'var(--radius-md) var(--radius-md) 0 0',
+                padding: '0.5rem 1rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}>
+                <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#ff5f56' }} />
+                <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#ffbd2e' }} />
+                <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#27c93f' }} />
+                <span style={{
+                  marginLeft: 'auto',
+                  fontSize: 'var(--text-xs)',
+                  color: '#888',
+                  fontFamily: 'var(--font-jetbrains, JetBrains Mono, monospace)',
+                }}>Default AI output</span>
+              </div>
+              <div style={{
+                background: '#111827',
+                borderRadius: '0 0 var(--radius-md) var(--radius-md)',
+                padding: '2rem',
+                flex: 1,
+                border: '1px solid #374151',
+                borderTop: 'none',
+              }}>
+                <div style={{
+                  background: '#1f2937',
+                  borderRadius: '12px',
+                  padding: '1.75rem',
+                  border: '1px solid #374151',
+                }}>
+                  <h3 style={{
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                    fontSize: '1.25rem',
+                    fontWeight: 600,
+                    color: '#f9fafb',
+                    marginBottom: '0.75rem',
+                  }}>Dashboard Overview</h3>
+                  <p style={{
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                    fontSize: '0.875rem',
+                    color: '#9ca3af',
+                    lineHeight: 1.6,
+                    marginBottom: '1.25rem',
+                  }}>Your analytics at a glance. Track performance metrics and manage your workspace.</p>
+                  <button style={{
+                    background: '#4f46e5',
+                    color: '#fff',
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    padding: '0.625rem 1.25rem',
+                    borderRadius: '12px',
+                    border: 'none',
+                    cursor: 'default',
+                  }}>Get Started</button>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT: With Refine Design */}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{
+                background: 'var(--color-green-deep)',
+                borderRadius: 'var(--radius-md) var(--radius-md) 0 0',
+                padding: '0.5rem 1rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}>
+                <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#ff5f56' }} />
+                <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#ffbd2e' }} />
+                <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#27c93f' }} />
+                <span style={{
+                  marginLeft: 'auto',
+                  fontSize: 'var(--text-xs)',
+                  color: 'rgba(255,255,255,0.7)',
+                  fontFamily: 'var(--font-jetbrains, JetBrains Mono, monospace)',
+                }}>With Refine Design</span>
+              </div>
+              <div style={{
+                background: '#fff',
+                borderRadius: '0 0 var(--radius-md) var(--radius-md)',
+                padding: '2rem',
+                flex: 1,
+                border: '1px solid var(--color-border)',
+                borderTop: 'none',
+              }}>
+                <div style={{
+                  background: 'var(--color-surface-warm)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '1.75rem',
+                  border: '1px solid var(--color-border)',
+                }}>
+                  <h3 style={{
+                    fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+                    fontSize: '1.25rem',
+                    fontWeight: 400,
+                    color: 'var(--color-text-primary)',
+                    marginBottom: '0.75rem',
+                  }}>Dashboard Overview</h3>
+                  <p style={{
+                    fontSize: '0.875rem',
+                    color: 'var(--color-text-body)',
+                    lineHeight: 1.7,
+                    marginBottom: '1.25rem',
+                  }}>Your analytics at a glance. Track performance metrics and manage your workspace.</p>
+                  <button style={{
+                    background: 'var(--color-orange)',
+                    color: '#fff',
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    padding: '0.625rem 1.25rem',
+                    borderRadius: 'var(--radius-md)',
+                    border: 'none',
+                    cursor: 'default',
+                  }}>Get Started</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Curve divider: demo → how-it-works */}
       <div style={{ lineHeight: 0, marginTop: '-1px' }}>
         <Image src="/assets/dividers/curve.svg" alt="" width={1440} height={120} style={{ width: '100%', height: 'auto', display: 'block' }} />
       </div>
