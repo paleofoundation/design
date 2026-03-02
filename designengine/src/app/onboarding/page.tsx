@@ -100,134 +100,7 @@ export default function OnboardingStep1() {
       </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-        {/* Project name */}
-        <InputField
-          label="Project name"
-          placeholder="e.g. My SaaS, Acme Corp, Portfolio"
-          value={projectName}
-          onChange={(v) => setField('projectName', v)}
-          required
-        />
-
-        {/* Industry */}
-        <SelectField
-          label="Industry"
-          placeholder="Select your industry"
-          options={INDUSTRIES}
-          value={industry}
-          onChange={(v) => setField('industry', v)}
-        />
-
-        {/* Audience */}
-        <SelectField
-          label="Who is this for?"
-          placeholder="Select your primary audience"
-          options={AUDIENCES}
-          value={audience}
-          onChange={(v) => setField('audience', v)}
-        />
-
-        {/* Content type */}
-        <SelectField
-          label="What kind of pages will you build?"
-          placeholder="Select content type"
-          options={CONTENT_TYPES}
-          value={contentType}
-          onChange={(v) => setField('contentType', v)}
-        />
-
-        {/* Emotional keywords */}
-        <div>
-          <label style={{
-            display: 'block',
-            fontSize: 'var(--text-sm)',
-            fontWeight: 500,
-            color: 'var(--color-text-primary)',
-            marginBottom: 'var(--space-1)',
-          }}>
-            Pick up to 5 words your brand should evoke
-          </label>
-          <div style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '0.5rem',
-          }}>
-            {EMOTIONAL_OPTIONS.map((kw) => {
-              const active = emotionalKeywords.includes(kw);
-              return (
-                <button
-                  key={kw}
-                  type="button"
-                  onClick={() => toggleKeyword(kw)}
-                  style={{
-                    background: active ? 'var(--color-green-deep)' : 'var(--color-white)',
-                    color: active ? '#fff' : 'var(--color-text-body)',
-                    border: active ? '1.5px solid var(--color-green-deep)' : '1.5px solid var(--color-border)',
-                    borderRadius: 'var(--radius-full)',
-                    padding: '0.375rem 0.875rem',
-                    fontSize: 'var(--text-xs)',
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                    transition: 'all var(--duration-fast) var(--ease-out)',
-                  }}
-                >
-                  {kw}
-                </button>
-              );
-            })}
-          </div>
-          {emotionalKeywords.length > 0 && (
-            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginTop: '0.375rem' }}>
-              {emotionalKeywords.length}/5 selected
-            </p>
-          )}
-        </div>
-
-        {/* Brand description (now supplemental, not primary) */}
-        <div>
-          <label style={{
-            display: 'block',
-            fontSize: 'var(--text-sm)',
-            fontWeight: 500,
-            color: 'var(--color-text-primary)',
-            marginBottom: 'var(--space-0-5)',
-          }}>
-            Anything else about your brand? <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', fontWeight: 400 }}>(optional)</span>
-          </label>
-          <textarea
-            value={brandDescription}
-            onChange={(e) => setField('brandDescription', e.target.value)}
-            placeholder="e.g. We're a small olive oil company that values tradition but wants a modern web presence..."
-            rows={2}
-            style={{
-              width: '100%',
-              background: 'var(--color-white)',
-              border: '1.5px solid var(--color-border)',
-              borderRadius: 'var(--radius-md)',
-              padding: 'var(--space-1) var(--space-2)',
-              fontSize: 'var(--text-base)',
-              color: 'var(--color-text-primary)',
-              resize: 'none',
-              outline: 'none',
-              transition: 'border-color var(--duration-fast) var(--ease-out)',
-              fontFamily: 'inherit',
-            }}
-            onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-green-deep)'; }}
-            onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--color-border)'; }}
-          />
-        </div>
-
-        {/* Competitors (optional) */}
-        <InputField
-          label="Any competitors or sites you want to stand apart from?"
-          placeholder="e.g. competitor.com, bigbrand.io"
-          value={store.competitors}
-          onChange={(v) => setField('competitors', v)}
-          sublabel="(optional)"
-        />
-
-        {/* Intent selection */}
+        {/* Intent selection — first, because it determines the entire downstream flow */}
         <div>
           <label style={{
             display: 'block',
@@ -276,6 +149,142 @@ export default function OnboardingStep1() {
             />
           </div>
         </div>
+
+        {/* Project name — always required regardless of path */}
+        {intent !== '' && (
+          <InputField
+            label="Project name"
+            placeholder="e.g. My SaaS, Acme Corp, Portfolio"
+            value={projectName}
+            onChange={(v) => setField('projectName', v)}
+            required
+          />
+        )}
+
+        {/* Discovery fields — only for "Build something new" since Refresh extracts these from the site */}
+        {intent === 'new' && (
+          <>
+            <SelectField
+              label="Industry"
+              placeholder="Select your industry"
+              options={INDUSTRIES}
+              value={industry}
+              onChange={(v) => setField('industry', v)}
+            />
+
+            <SelectField
+              label="Who is your target audience?"
+              placeholder="Select your primary audience"
+              options={AUDIENCES}
+              value={audience}
+              onChange={(v) => setField('audience', v)}
+            />
+
+            <SelectField
+              label="What kind of pages will you build?"
+              placeholder="Select content type"
+              options={CONTENT_TYPES}
+              value={contentType}
+              onChange={(v) => setField('contentType', v)}
+            />
+
+            <div>
+              <label style={{
+                display: 'block',
+                fontSize: 'var(--text-sm)',
+                fontWeight: 500,
+                color: 'var(--color-text-primary)',
+                marginBottom: 'var(--space-1)',
+              }}>
+                Pick up to 5 words your brand should evoke
+              </label>
+              <div style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '0.5rem',
+              }}>
+                {EMOTIONAL_OPTIONS.map((kw) => {
+                  const active = emotionalKeywords.includes(kw);
+                  return (
+                    <button
+                      key={kw}
+                      type="button"
+                      onClick={() => toggleKeyword(kw)}
+                      style={{
+                        background: active ? 'var(--color-green-deep)' : 'var(--color-white)',
+                        color: active ? '#fff' : 'var(--color-text-body)',
+                        border: active ? '1.5px solid var(--color-green-deep)' : '1.5px solid var(--color-border)',
+                        borderRadius: 'var(--radius-full)',
+                        padding: '0.375rem 0.875rem',
+                        fontSize: 'var(--text-xs)',
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                        transition: 'all var(--duration-fast) var(--ease-out)',
+                      }}
+                    >
+                      {kw}
+                    </button>
+                  );
+                })}
+              </div>
+              {emotionalKeywords.length > 0 && (
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginTop: '0.375rem' }}>
+                  {emotionalKeywords.length}/5 selected
+                </p>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Brand description — useful for both paths */}
+        {intent !== '' && (
+          <div>
+            <label style={{
+              display: 'block',
+              fontSize: 'var(--text-sm)',
+              fontWeight: 500,
+              color: 'var(--color-text-primary)',
+              marginBottom: 'var(--space-0-5)',
+            }}>
+              Anything else about your brand? <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', fontWeight: 400 }}>(optional)</span>
+            </label>
+            <textarea
+              value={brandDescription}
+              onChange={(e) => setField('brandDescription', e.target.value)}
+              placeholder={intent === 'refresh'
+                ? "e.g. We've outgrown our current look. We want something that feels more premium and modern..."
+                : "e.g. We're a small olive oil company that values tradition but wants a modern web presence..."}
+              rows={2}
+              style={{
+                width: '100%',
+                background: 'var(--color-white)',
+                border: '1.5px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)',
+                padding: 'var(--space-1) var(--space-2)',
+                fontSize: 'var(--text-base)',
+                color: 'var(--color-text-primary)',
+                resize: 'none',
+                outline: 'none',
+                transition: 'border-color var(--duration-fast) var(--ease-out)',
+                fontFamily: 'inherit',
+              }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-green-deep)'; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--color-border)'; }}
+            />
+          </div>
+        )}
+
+        {/* Competitors (optional) — useful for both paths */}
+        {intent !== '' && (
+          <InputField
+            label="Any competitors or sites you want to stand apart from?"
+            placeholder="e.g. competitor.com, bigbrand.io"
+            value={store.competitors}
+            onChange={(v) => setField('competitors', v)}
+            sublabel="(optional)"
+          />
+        )}
       </div>
 
       <div style={{
