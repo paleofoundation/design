@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function HomePage() {
   const [waitlistCount, setWaitlistCount] = useState(0);
@@ -22,7 +23,21 @@ export default function HomePage() {
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
+        overflow: 'hidden',
       }}>
+        <Image
+          src="/assets/backgrounds/wave-layers.svg"
+          alt=""
+          fill
+          style={{
+            objectFit: 'cover',
+            opacity: 0.12,
+            mixBlendMode: 'soft-light',
+            pointerEvents: 'none',
+          }}
+          priority
+        />
+
         <nav style={{
           maxWidth: '72rem',
           margin: '0 auto',
@@ -37,7 +52,7 @@ export default function HomePage() {
           <span style={{
             fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
             fontSize: 'var(--text-xl)',
-            fontWeight: 700,
+            fontWeight: 400,
             color: '#fff',
             letterSpacing: 'var(--tracking-tight)',
           }}>
@@ -77,11 +92,13 @@ export default function HomePage() {
           margin: '0 auto',
           width: '100%',
           textAlign: 'center',
+          position: 'relative',
+          zIndex: 1,
         }}>
-          <h1 style={{
+          <h1 className="dzyn-reveal" style={{
             fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
             fontSize: 'clamp(2.5rem, 6vw, 4rem)',
-            fontWeight: 700,
+            fontWeight: 400,
             color: '#fff',
             lineHeight: 1.1,
             letterSpacing: 'var(--tracking-tight)',
@@ -89,10 +106,10 @@ export default function HomePage() {
           }}>
             Refine your design.
           </h1>
-          <p style={{
+          <p className="dzyn-reveal" style={{
             fontSize: 'var(--text-lg)',
             color: 'rgba(255,255,255,0.7)',
-            lineHeight: 1.6,
+            lineHeight: 1.7,
             maxWidth: '36rem',
             marginBottom: '3rem',
           }}>
@@ -122,6 +139,11 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Wave divider: hero → before/after */}
+      <div style={{ lineHeight: 0, marginTop: '-1px' }}>
+        <Image src="/assets/dividers/wave.svg" alt="" width={1440} height={120} style={{ width: '100%', height: 'auto', display: 'block' }} />
+      </div>
+
       {/* ===== BEFORE / AFTER ===== */}
       <section id="before-after" style={{
         background: 'var(--color-surface)',
@@ -131,12 +153,13 @@ export default function HomePage() {
           <FadeIn>
             <h2 style={{
               fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
-              fontSize: 'var(--text-3xl)',
-              fontWeight: 700,
+              fontSize: 'clamp(2rem, 4vw, 3rem)',
+              fontWeight: 400,
               color: 'var(--color-text-primary)',
               textAlign: 'center',
               marginBottom: '1rem',
-              lineHeight: 'var(--leading-tight)',
+              letterSpacing: '-0.02em',
+              lineHeight: 1.2,
             }}>
               Same site. One has taste.
             </h2>
@@ -165,14 +188,29 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Curve divider: before/after → differentiators */}
+      <div style={{ lineHeight: 0, marginTop: '-1px' }}>
+        <Image src="/assets/dividers/curve.svg" alt="" width={1440} height={120} style={{ width: '100%', height: 'auto', display: 'block' }} />
+      </div>
+
       {/* ===== DIFFERENTIATORS ===== */}
       <section style={{
         background: 'var(--color-surface-warm)',
         padding: '8rem 2.5rem',
+        position: 'relative',
       }}>
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: 'url(/assets/patterns/dots.svg)',
+          backgroundSize: '200px 200px',
+          opacity: 0.3,
+          pointerEvents: 'none',
+        }} />
         <div style={{
           maxWidth: '72rem',
           margin: '0 auto',
+          position: 'relative',
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
           gap: '3rem',
@@ -201,21 +239,41 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Zigzag divider: differentiators → footer CTA */}
+      <div style={{ lineHeight: 0, marginTop: '-1px' }}>
+        <Image src="/assets/dividers/zigzag.svg" alt="" width={1440} height={120} style={{ width: '100%', height: 'auto', display: 'block' }} />
+      </div>
+
       {/* ===== FOOTER CTA ===== */}
       <section style={{
         background: 'var(--color-green-deep)',
         padding: '8rem 2.5rem',
+        position: 'relative',
+        overflow: 'hidden',
       }}>
+        <Image
+          src="/assets/backgrounds/geometric.svg"
+          alt=""
+          fill
+          style={{
+            objectFit: 'cover',
+            opacity: 0.08,
+            mixBlendMode: 'soft-light',
+            pointerEvents: 'none',
+          }}
+        />
         <div style={{
           maxWidth: '36rem',
           margin: '0 auto',
           textAlign: 'center',
+          position: 'relative',
+          zIndex: 1,
         }}>
           <FadeIn>
-            <h2 style={{
+            <h2 className="dzyn-reveal" style={{
               fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
-              fontSize: 'var(--text-3xl)',
-              fontWeight: 700,
+              fontSize: 'clamp(2rem, 4vw, 3rem)',
+              fontWeight: 400,
               color: '#fff',
               marginBottom: '1rem',
               lineHeight: 'var(--leading-tight)',
@@ -251,7 +309,7 @@ export default function HomePage() {
           <span style={{
             fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
             fontSize: 'var(--text-lg)',
-            fontWeight: 700,
+            fontWeight: 400,
             color: 'var(--color-green-deep)',
           }}>
             Refine Design
@@ -399,7 +457,7 @@ function WaitlistForm({ source, onSuccess }: { source: string; onSuccess: () => 
       <button
         type="submit"
         disabled={submitting || !showEmail}
-        className="dzyn-btn dzyn-btn--shine"
+        className="dzyn-btn dzyn-btn--glow dzyn-btn--shine"
         style={{
           background: 'var(--color-orange)',
           color: '#fff',
@@ -494,7 +552,7 @@ function Differentiator({ icon, title, description }: { icon: React.ReactNode; t
       <h3 style={{
         fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
         fontSize: 'var(--text-xl)',
-        fontWeight: 600,
+        fontWeight: 500,
         color: 'var(--color-text-primary)',
         marginBottom: '0.5rem',
         lineHeight: 'var(--leading-tight)',
