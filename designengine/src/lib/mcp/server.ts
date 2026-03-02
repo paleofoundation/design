@@ -22,6 +22,7 @@ import { registerGenerateIllustrationsTool } from './tools/generate-illustration
 import { registerScaffoldAssetsTool } from './tools/scaffold-assets';
 import { registerRedesignPageTool } from './tools/redesign-page';
 
+// TODO: Rename to "Refine Design" after transition period
 export function initializeDesignEngine(server: McpServer): void {
   registerIngestDesignTool(server);
   registerSearchPatternsTool(server);

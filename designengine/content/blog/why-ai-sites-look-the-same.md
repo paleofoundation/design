@@ -3,7 +3,7 @@ title: "Why Every AI-Built Site Looks the Same (and How to Fix It)"
 slug: "why-ai-sites-look-the-same"
 date: "2026-02-20"
 excerpt: "AI coding tools produce 'visual elevator music' — sites that converge on identical layouts, fonts, and spacing. Here's why it happens and what design-first developers can do about it."
-author: "dzyne"
+author: "Refine Design"
 tags: ["design theory", "AI", "web design"]
 ---
 
@@ -44,10 +44,10 @@ The sites that feel hand-crafted share a few traits:
 
 The answer isn't to stop using AI — it's to give AI better instructions.
 
-That's why we built dzyne. Instead of letting your AI pick defaults, you complete a 5-minute design interview that captures your actual intent: your colors, typography scale, spacing density, corner radii, shadow style, and animation preferences.
+That's why we built Refine Design. Instead of letting your AI pick defaults, you complete a 5-minute design interview that captures your actual intent: your colors, typography scale, spacing density, corner radii, shadow style, and animation preferences.
 
 The output is a structured design profile that your AI coding tools read via MCP before writing a single line of code. Every `className`, every CSS variable, every component pattern comes from *your* design system, not the model's training data.
 
 The result: sites that are still built in minutes, but look like they took months.
 
-[Start your design interview →](https://www.dzyne.app/onboarding)
+[Start your design interview →](/onboarding)

@@ -27,10 +27,11 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  // TODO: Change to https://refinedesign.ai after DNS configured
   metadataBase: new URL("https://www.dzyne.app"),
-  title: "dzyne — Design systems for AI-powered builds",
+  title: "Refine Design — Refine your design.",
   description:
-    "Stop your AI from building ugly apps. dzyne captures your design intent and enforces it across every AI coding session — fonts, colors, spacing, components, all on-brand.",
+    "The first AI that understands why good design looks good. Refine your design with AI-powered design intelligence.",
   icons: {
     icon: [
       { url: "/assets/favicon/favicon.svg", type: "image/svg+xml" },
@@ -49,18 +50,18 @@ export const metadata: Metadata = {
   },
   manifest: "/assets/favicon/site.webmanifest",
   openGraph: {
-    title: "dzyne — Design systems for AI-powered builds",
+    title: "Refine Design — Refine your design.",
     description:
-      "Stop your AI from building ugly apps. dzyne captures your design intent and enforces it across every AI coding session.",
-    siteName: "dzyne",
+      "The first AI that understands why good design looks good. Refine your design with AI-powered design intelligence.",
+    siteName: "Refine Design",
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "dzyne — Design systems for AI-powered builds",
+    title: "Refine Design — Refine your design.",
     description:
-      "Stop your AI from building ugly apps. dzyne captures your design intent and enforces it across every AI coding session.",
+      "The first AI that understands why good design looks good. Refine your design with AI-powered design intelligence.",
   },
   keywords: [
     "design system generator",
@@ -70,6 +71,8 @@ export const metadata: Metadata = {
     "Cursor design system",
     "AI web design",
     "design system for developers",
+    "Refine Design",
+    "AI with design taste",
   ],
   robots: {
     index: true,
@@ -80,12 +83,13 @@ export const metadata: Metadata = {
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
-  name: 'dzyne',
+  name: 'Refine Design',
   applicationCategory: 'DesignApplication',
   operatingSystem: 'Web',
+  // TODO: Change to https://refinedesign.ai after DNS configured
   url: 'https://www.dzyne.app',
   description:
-    'Design systems for AI-powered builds. Captures your design intent and enforces it across every AI coding session.',
+    'AI with design taste. Refine your design with AI-powered design intelligence — typography, spacing, color theory.',
   offers: {
     '@type': 'Offer',
     price: '0',
@@ -94,7 +98,8 @@ const jsonLd = {
   },
   creator: {
     '@type': 'Organization',
-    name: 'dzyne',
+    name: 'Refine Design',
+    // TODO: Change to https://refinedesign.ai after DNS configured
     url: 'https://www.dzyne.app',
   },
 };

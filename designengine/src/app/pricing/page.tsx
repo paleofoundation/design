@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Pricing — dzyne',
-  description: 'dzyne is free during beta. Generate design systems, export tokens, and connect to your AI coding tools at no cost.',
+  title: 'Pricing — Refine Design',
+  description: 'Refine Design is free during beta. Generate design systems, export tokens, and connect to your AI coding tools at no cost.',
 };
 
 const FEATURES = {
@@ -57,7 +57,7 @@ export default function PricingPage() {
           letterSpacing: 'var(--tracking-tight)',
           textDecoration: 'none',
         }}>
-          dzyne
+          Refine Design
         </Link>
         <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
           <Link href="/blog" style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-body)', textDecoration: 'none' }}>Blog</Link>
@@ -311,7 +311,7 @@ export default function PricingPage() {
             margin: '0 auto',
             lineHeight: 'var(--leading-relaxed)',
           }}>
-            We&rsquo;re still learning what the design layer for AI development should look like. Your usage and feedback during the beta shapes what dzyne becomes. We&rsquo;ll introduce paid plans only when the tool delivers enough value to justify them.
+            We&rsquo;re still learning what the design layer for AI development should look like. Your usage and feedback during the beta shapes what Refine Design becomes. We&rsquo;ll introduce paid plans only when the tool delivers enough value to justify them.
           </p>
         </div>
       </main>
@@ -323,7 +323,7 @@ export default function PricingPage() {
         color: 'var(--color-text-muted)',
         borderTop: '1px solid var(--color-border)',
       }}>
-        dzyne — Design systems for AI-powered builds
+        Refine Design — AI with design taste.
       </footer>
     </div>
   );

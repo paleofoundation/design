@@ -1,5 +1,5 @@
 /**
- * DZYNE DESIGN TOKENS — SINGLE SOURCE OF TRUTH
+ * REFINE DESIGN TOKENS — SINGLE SOURCE OF TRUTH
  *
  * Every UI component MUST import colors from here.
  * Never hardcode a hex value inline. Import from this file.

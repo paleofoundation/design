@@ -10,6 +10,7 @@ export async function GET() {
 
     if (!user) {
       return NextResponse.redirect(
+        // TODO: Rename to "Refine Design" after transition period
         new URL('/login', process.env.NEXT_PUBLIC_APP_URL || 'https://www.dzyne.app'),
       );
     }
@@ -43,6 +44,7 @@ export async function GET() {
       });
     }
 
+    // TODO: Rename to "Refine Design" after transition period
     const returnUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.dzyne.app'}/dashboard/billing`;
 
     const session = await stripe.billingPortal.sessions.create({
@@ -54,6 +56,7 @@ export async function GET() {
   } catch (err) {
     console.error('Billing portal error:', err);
     return NextResponse.redirect(
+      // TODO: Rename to "Refine Design" after transition period
       new URL('/dashboard/billing', process.env.NEXT_PUBLIC_APP_URL || 'https://www.dzyne.app'),
     );
   }

@@ -85,7 +85,7 @@ export default function KnowledgeLibraryPage() {
             marginBottom: '0.5rem',
           }}
         >
-          dzyne Knowledge Library
+          Refine Design Knowledge Library
         </h1>
         <p
           style={{
@@ -95,7 +95,7 @@ export default function KnowledgeLibraryPage() {
             lineHeight: 1.6,
           }}
         >
-          These design resources power every dzyne tool. The dzyne team curates
+          These design resources power every Refine Design tool. The Refine Design team curates
           this library to ensure best-in-class design output across typography,
           color theory, spacing, and layout.
         </p>
@@ -160,7 +160,7 @@ export default function KnowledgeLibraryPage() {
                 padding: '3rem 0',
               }}
             >
-              The dzyne team has not yet published knowledge sources. Check back
+              The Refine Design team has not yet published knowledge sources. Check back
               soon.
             </p>
           ) : (
@@ -228,7 +228,7 @@ export default function KnowledgeLibraryPage() {
               marginBottom: '1.5rem',
             }}
           >
-            Explore What dzyne Knows
+            Explore What Refine Design Knows
           </h2>
           <form
             onSubmit={handleSearch}
@@ -329,7 +329,7 @@ export default function KnowledgeLibraryPage() {
               >
                 {sources.length === 0
                   ? 'No knowledge sources available yet.'
-                  : 'Ask dzyne a question to see what it knows.'}
+                  : 'Ask Refine Design a question to see what it knows.'}
               </p>
             )}
           </div>

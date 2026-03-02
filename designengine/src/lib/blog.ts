@@ -27,7 +27,7 @@ export function getAllPosts(): BlogPost[] {
       title: data.title || 'Untitled',
       date: data.date || '',
       excerpt: data.excerpt || '',
-      author: data.author || 'dzyne',
+      author: data.author || 'Refine Design',
       tags: data.tags || [],
       content,
     };

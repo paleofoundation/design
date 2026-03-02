@@ -53,7 +53,7 @@ function LoginForm() {
         textDecoration: 'none',
         marginBottom: 'var(--space-8)',
       }}>
-        dzyne
+        Refine Design
       </Link>
 
       <div style={{
@@ -79,7 +79,7 @@ function LoginForm() {
           color: 'var(--color-text-muted)',
           marginBottom: 'var(--space-4)',
         }}>
-          Welcome back to dzyne.
+          Welcome back to Refine Design.
         </p>
 
         {error && (

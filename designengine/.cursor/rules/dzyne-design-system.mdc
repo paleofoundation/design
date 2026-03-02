@@ -1,12 +1,12 @@
 ---
-description: Design system enforcement for AI coding sessions using dzyne
+description: Design system enforcement for AI coding sessions using Refine Design
 globs: ["**/*.tsx", "**/*.ts", "**/*.css", "**/*.jsx"]
 alwaysApply: true
 ---
 
-# dzyne Design System Rules
+# Refine Design System Rules
 
-This project uses dzyne (dzyne.app) for persistent design memory. Before writing any UI code, you MUST load the design profile.
+This project uses Refine Design (refinedesign.ai) for persistent design memory. Before writing any UI code, you MUST load the design profile.
 
 ## At Session Start
 

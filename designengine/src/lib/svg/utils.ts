@@ -148,7 +148,7 @@ export interface PaletteColors {
   surface?: string;
 }
 
-/** Fill optional palette slots with sensible defaults matching dzyne's warm aesthetic. */
+/** Fill optional palette slots with sensible defaults matching the Refine Design warm aesthetic. */
 export function resolvePalette(colors: PaletteColors) {
   return {
     primary: colors.primary,

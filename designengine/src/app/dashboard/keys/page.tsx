@@ -63,7 +63,7 @@ export default async function KeysPage() {
             API Keys
           </h2>
           <p style={{ marginTop: '0.25rem', fontSize: TEXT_SIZE.sm, color: DASH.muted }}>
-            Manage your API keys for accessing DesignEngine tools.
+            Manage your API keys for accessing Refine Design tools.
           </p>
         </div>
         <KeyActions userId={userId} />

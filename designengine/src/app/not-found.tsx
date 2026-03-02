@@ -41,7 +41,7 @@ export default function NotFound() {
           letterSpacing: 'var(--tracking-tight)',
           textDecoration: 'none',
         }}>
-          dzyne
+          Refine Design
         </Link>
         <Link
           href="/"
@@ -176,7 +176,7 @@ export default function NotFound() {
           color: 'rgba(255,255,255,0.45)',
           letterSpacing: 'var(--tracking-wide)',
         }}>
-          dzyne — design systems for AI-powered builds
+          Refine Design — AI with design taste.
         </p>
       </footer>
     </div>

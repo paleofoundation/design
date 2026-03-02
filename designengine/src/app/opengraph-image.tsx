@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
-export const alt = 'dzyne — Design systems for AI-powered builds';
+export const alt = 'Refine Design — AI with design taste.';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -42,10 +42,10 @@ export default async function OGImage() {
               fontWeight: 700,
             }}
           >
-            dz
+            RD
           </div>
           <span style={{ fontSize: '56px', fontWeight: 700, color: '#306E5E' }}>
-            dzyne
+            Refine Design
           </span>
         </div>
         <div
@@ -58,7 +58,7 @@ export default async function OGImage() {
             lineHeight: 1.4,
           }}
         >
-          Design systems for AI-powered builds
+          AI with design taste.
         </div>
         <div
           style={{

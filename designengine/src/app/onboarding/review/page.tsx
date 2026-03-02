@@ -171,6 +171,7 @@ export default function OnboardingReview() {
     }
   }
 
+  // TODO: Update MCP config URLs and keys to "Refine Design" after DNS migration
   const mcpConfig = `{
   "mcpServers": {
     "dzyne": {
@@ -934,7 +935,7 @@ export default function OnboardingReview() {
             fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)',
             marginBottom: 'var(--space-3)', maxWidth: '28rem', margin: '0 auto var(--space-3)',
           }}>
-            Your exports above are free to copy right now. Saving to dzyne gives your AI coding tools persistent access via MCP.
+            Your exports above are free to copy right now. Saving to Refine Design gives your AI coding tools persistent access via MCP.
           </p>
           <div style={{ display: 'flex', gap: 'var(--space-2)', justifyContent: 'center' }}>
             <button
@@ -1349,7 +1350,7 @@ function ExportPanel(props: {
 
 function ShareButtons({ projectName }: { projectName: string }) {
   const [copied, setCopied] = useState(false);
-  const tweetText = `Just built a design system for "${projectName}" with @dzyneapp — colors, type scale, tokens, and MCP integration in 5 minutes. My AI coding tools finally build on-brand.\n\nhttps://www.dzyne.app`;
+  const tweetText = `Just built a design system for "${projectName}" with Refine Design — colors, type scale, tokens, and MCP integration in 5 minutes. My AI coding tools finally build on-brand.\n\nhttps://www.dzyne.app`;
 
   async function copyTweet() {
     await navigator.clipboard.writeText(tweetText);

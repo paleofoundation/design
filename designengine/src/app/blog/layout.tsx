@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Blog — dzyne',
+  title: 'Blog — Refine Design',
   description: 'Thoughts on design systems, AI-powered development, and why your site doesn\'t have to look like every other AI build.',
 };
 
@@ -31,7 +31,7 @@ export default function BlogLayout({ children }: { children: React.ReactNode }) 
           letterSpacing: 'var(--tracking-tight)',
           textDecoration: 'none',
         }}>
-          dzyne
+          Refine Design
         </Link>
         <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
           <Link href="/blog" style={{
@@ -62,7 +62,7 @@ export default function BlogLayout({ children }: { children: React.ReactNode }) 
         color: 'var(--color-text-muted)',
         borderTop: '1px solid var(--color-border)',
       }}>
-        dzyne — Design systems for AI-powered builds
+        Refine Design — AI with design taste.
       </footer>
     </div>
   );

@@ -209,7 +209,7 @@ export default function AdminKnowledgePage() {
           Access Denied
         </h1>
         <p style={{ fontSize: TEXT_SIZE.base, color: DASH.muted, maxWidth: '24rem' }}>
-          This area is restricted to dzyne administrators. If you believe this is
+          This area is restricted to Refine Design administrators. If you believe this is
           an error, contact the team.
         </p>
       </div>
@@ -255,7 +255,7 @@ export default function AdminKnowledgePage() {
         </h1>
         <p style={{ fontSize: TEXT_SIZE.sm, color: DASH.muted, maxWidth: '40rem' }}>
           Upload design textbooks, style guides, and reference materials here.
-          Everything uploaded becomes part of dzyne&apos;s global knowledge —
+          Everything uploaded becomes part of Refine Design&apos;s global knowledge —
           every user&apos;s MCP tool calls will draw from this library
           automatically.
         </p>

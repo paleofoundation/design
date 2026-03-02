@@ -106,7 +106,7 @@ function SignupForm() {
         textDecoration: 'none',
         marginBottom: 'var(--space-8)',
       }}>
-        dzyne
+        Refine Design
       </Link>
 
       <div style={{

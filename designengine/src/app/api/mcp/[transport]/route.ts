@@ -1,4 +1,5 @@
 import { createMcpHandler } from 'mcp-handler';
+// TODO: Rename to "Refine Design" after transition period
 import { initializeDesignEngine } from '@/lib/mcp/server';
 
 export const maxDuration = 120;
@@ -10,6 +11,7 @@ const handler = createMcpHandler(
       tools: {},
     },
     serverInfo: {
+      // TODO: Rename to "Refine Design" after transition period
       name: 'designengine',
       version: '0.1.0',
     },

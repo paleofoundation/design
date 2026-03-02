@@ -2,8 +2,8 @@
 title: "Design Tokens, Explained for Developers Who Skip the Design Phase"
 slug: "design-tokens-explained"
 date: "2026-02-24"
-excerpt: "You've seen 'design tokens' in every design systems article. Here's what they actually are, why they matter, and how dzyne generates them from a 5-minute conversation."
-author: "dzyne"
+excerpt: "You've seen 'design tokens' in every design systems article. Here's what they actually are, why they matter, and how Refine Design generates them from a 5-minute conversation."
+author: "Refine Design"
 tags: ["design tokens", "tutorial", "design systems"]
 ---
 
@@ -45,7 +45,7 @@ The AI doesn't guess — it references.
 
 ## The three export formats
 
-dzyne generates your tokens in three formats:
+Refine Design generates your tokens in three formats:
 
 ### CSS Custom Properties
 Drop into any project. Works everywhere — React, Vue, Svelte, vanilla HTML.
@@ -58,7 +58,7 @@ The industry-standard token format. Feed it into Style Dictionary, Figma Tokens,
 
 ## From interview to tokens in 5 minutes
 
-The dzyne onboarding flow asks you structured questions: industry, audience, emotional keywords, color preferences, typography scale ratio, spacing density, and shadow style. From these inputs, it generates:
+The Refine Design onboarding flow asks you structured questions: industry, audience, emotional keywords, color preferences, typography scale ratio, spacing density, and shadow style. From these inputs, it generates:
 
 - Full shade scales (50–950) for every brand color
 - WCAG-validated contrast ratios
@@ -67,4 +67,4 @@ The dzyne onboarding flow asks you structured questions: industry, audience, emo
 
 No design degree required. Just opinions about how your thing should feel.
 
-[Generate your tokens →](https://www.dzyne.app/onboarding)
+[Generate your tokens →](/onboarding)

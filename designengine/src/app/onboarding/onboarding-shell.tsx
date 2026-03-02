@@ -37,7 +37,7 @@ export default function OnboardingShell({
           letterSpacing: 'var(--tracking-tight)',
           textDecoration: 'none',
         }}>
-          dzyne
+          Refine Design
         </Link>
         <Link href="/" style={{
           fontSize: 'var(--text-sm)',

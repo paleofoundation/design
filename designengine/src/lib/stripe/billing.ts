@@ -50,6 +50,7 @@ export async function reportUsage(params: {
   timestamp?: number;
 }): Promise<void> {
   await stripe.billing.meterEvents.create({
+    // TODO: Rename to "Refine Design" after transition period
     event_name: 'designengine_api_call',
     payload: {
       value: String(params.quantity || 1),

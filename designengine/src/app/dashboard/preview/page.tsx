@@ -20,7 +20,7 @@ export default function PreviewPage() {
   const [amber, setAmber] = useState('#F2B245');
   const [lavender, setLavender] = useState('#CAC5F9');
   const [surface, setSurface] = useState('#FDFBF7');
-  const [brandName, setBrandName] = useState('Dzyne');
+  const [brandName, setBrandName] = useState('Refine Design');
   const [faviconShape, setFaviconShape] = useState<FaviconShape>('rounded-rect');
   const [activeHero, setActiveHero] = useState(0);
   const animStyleRef = useRef<HTMLStyleElement | null>(null);

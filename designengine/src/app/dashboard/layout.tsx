@@ -8,7 +8,7 @@ import { isAdminEmail } from '@/lib/auth/admin';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Dashboard — dzyne',
+  title: 'Dashboard — Refine Design',
   description: 'Manage your design profiles, API keys, usage, and run the tool playground.',
 };
 
@@ -67,7 +67,7 @@ export default async function DashboardLayout({
               fontSize: TEXT_SIZE.xs,
               color: PALETTE.text.onDark,
             }}>
-              dz
+              RD
             </div>
             <span style={{
               fontFamily: FONT.heading,
@@ -75,7 +75,7 @@ export default async function DashboardLayout({
               fontSize: TEXT_SIZE.lg,
               color: PALETTE.text.onGreen,
             }}>
-              dzyne
+              Refine Design
             </span>
           </Link>
 
