@@ -123,9 +123,11 @@ export default function HomePage() {
             color: 'rgba(255,255,255,0.4)',
             marginTop: '2rem',
           }}>
-            {waitlistCount > 0
+            {waitlistCount > 1
               ? `Join ${waitlistCount.toLocaleString()} others refining their design`
-              : 'Be the first to refine your design'}
+              : waitlistCount === 1
+                ? 'Join 1 other refining their design'
+                : 'Be the first to refine your design'}
           </p>
 
           <Link href="/dashboard" style={{
@@ -285,9 +287,13 @@ export default function HomePage() {
               color: 'rgba(255,255,255,0.65)',
               marginBottom: '2.5rem',
             }}>
-              Join {waitlistCount > 0 ? `${waitlistCount.toLocaleString()} designers and developers` : 'designers and developers'} who are refining their design.
+              {waitlistCount > 1
+                ? `Join ${waitlistCount.toLocaleString()} designers and developers who are refining their design.`
+                : waitlistCount === 1
+                  ? 'Join the first designer refining their design.'
+                  : 'Join designers and developers who are refining their design.'}
             </p>
-            <WaitlistForm source="footer" onSuccess={() => setWaitlistCount((c) => c + 1)} />
+            <FooterEmailForm onSuccess={() => setWaitlistCount((c) => c + 1)} />
           </FadeIn>
         </div>
       </section>
@@ -457,22 +463,21 @@ function WaitlistForm({ source, onSuccess }: { source: string; onSuccess: () => 
       <button
         type="submit"
         disabled={submitting || !showEmail}
-        className="dzyn-btn dzyn-btn--glow dzyn-btn--shine"
+        className={showEmail && !submitting ? 'dzyn-btn dzyn-btn--glow dzyn-btn--shine' : ''}
         style={{
-          background: 'var(--color-orange)',
+          background: submitting || !showEmail ? 'rgba(255,255,255,0.15)' : 'var(--color-orange)',
           color: '#fff',
           fontWeight: 600,
           fontSize: 'var(--text-base)',
           padding: '0.875rem 2rem',
           borderRadius: 'var(--radius-md)',
-          border: 'none',
-          cursor: submitting || !showEmail ? 'not-allowed' : 'pointer',
-          opacity: submitting || !showEmail ? 0.5 : 1,
+          border: submitting || !showEmail ? '1px solid rgba(255,255,255,0.1)' : 'none',
+          cursor: submitting || !showEmail ? 'default' : 'pointer',
           fontFamily: 'inherit',
-          transition: 'opacity 0.15s ease',
+          transition: 'background 0.2s ease, border-color 0.2s ease',
         }}
       >
-        {submitting ? 'Joining...' : 'See the difference →'}
+        {submitting ? 'Joining...' : showEmail ? 'See the difference →' : 'Enter your URL above'}
       </button>
     </form>
   );
@@ -596,6 +601,101 @@ function FadeIn({ children }: { children: React.ReactNode }) {
     >
       {children}
     </div>
+  );
+}
+
+function FooterEmailForm({ onSuccess }: { onSuccess: () => void }) {
+  const [email, setEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.includes('@')) { setError('Please enter a valid email.'); return; }
+    setSubmitting(true);
+    setError('');
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'footer' }),
+      });
+      const data = await res.json();
+      if (data.success || data.message) {
+        setSubmitted(true);
+        onSuccess();
+      } else {
+        setError(data.error || 'Something went wrong.');
+      }
+    } catch {
+      setError('Could not reach the server.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (submitted) {
+    return (
+      <p style={{ fontSize: 'var(--text-base)', color: '#fff', fontWeight: 500 }}>
+        You&rsquo;re on the list &mdash; we&rsquo;ll be in touch.
+      </p>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} style={{
+      display: 'flex',
+      gap: '0.5rem',
+      width: '100%',
+      maxWidth: '28rem',
+      margin: '0 auto',
+    }}>
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => { setEmail(e.target.value); setError(''); }}
+        placeholder="your@email.com"
+        style={{
+          flex: 1,
+          background: 'rgba(255,255,255,0.08)',
+          border: '1.5px solid rgba(255,255,255,0.2)',
+          borderRadius: 'var(--radius-md)',
+          padding: '0.75rem 1rem',
+          fontSize: 'var(--text-sm)',
+          color: '#fff',
+          outline: 'none',
+          fontFamily: 'inherit',
+          transition: 'border-color 0.15s ease',
+        }}
+        onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-orange)'; }}
+        onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
+      />
+      <button
+        type="submit"
+        disabled={submitting}
+        className="dzyn-btn dzyn-btn--shine"
+        style={{
+          background: 'var(--color-orange)',
+          color: '#fff',
+          fontWeight: 600,
+          fontSize: 'var(--text-sm)',
+          padding: '0.75rem 1.5rem',
+          borderRadius: 'var(--radius-md)',
+          border: 'none',
+          cursor: submitting ? 'not-allowed' : 'pointer',
+          fontFamily: 'inherit',
+          whiteSpace: 'nowrap',
+          transition: 'opacity 0.15s ease',
+          opacity: submitting ? 0.7 : 1,
+        }}
+      >
+        {submitting ? 'Joining...' : 'Join waitlist'}
+      </button>
+      {error && (
+        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-amber)', position: 'absolute', marginTop: '3.5rem', width: '100%', textAlign: 'center' }}>{error}</p>
+      )}
+    </form>
   );
 }
 
