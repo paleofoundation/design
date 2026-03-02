@@ -9,7 +9,7 @@ export default function BlogIndex() {
       <h1 style={{
         fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
         fontSize: 'var(--text-3xl)',
-        fontWeight: 700,
+        fontWeight: 400,
         color: 'var(--color-text-primary)',
         marginBottom: 'var(--space-1)',
         lineHeight: 'var(--leading-tight)',

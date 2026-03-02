@@ -67,7 +67,7 @@ Return ONLY valid JSON:
 {
   "pairings": [
     {
-      "heading": { "fontFamily": "Heading Font", "weight": 700, "letterSpacing": "-0.02em" },
+      "heading": { "fontFamily": "Heading Font", "weight": 400, "letterSpacing": "-0.02em" },
       "body": { "fontFamily": "Body Font", "weight": 400, "letterSpacing": "0em" },
       "reasoning": "Why this pairing works."
     }
@@ -112,10 +112,10 @@ Rules: All fonts on Google Fonts. First = best match. Each uses different body f
     ),
     '}',
     '',
-    'h1, .h1 { font-family: var(--font-heading); font-size: var(--text-5xl); font-weight: 700; line-height: var(--text-5xl-line-height); letter-spacing: var(--text-5xl-letter-spacing); }',
-    'h2, .h2 { font-family: var(--font-heading); font-size: var(--text-4xl); font-weight: 700; line-height: var(--text-4xl-line-height); letter-spacing: var(--text-4xl-letter-spacing); }',
-    'h3, .h3 { font-family: var(--font-heading); font-size: var(--text-3xl); font-weight: 600; line-height: var(--text-3xl-line-height); letter-spacing: var(--text-3xl-letter-spacing); }',
-    'h4, .h4 { font-family: var(--font-heading); font-size: var(--text-2xl); font-weight: 600; line-height: var(--text-2xl-line-height); letter-spacing: var(--text-2xl-letter-spacing); }',
+    'h1, .h1 { font-family: var(--font-heading); font-size: var(--text-5xl); font-weight: 400; line-height: var(--text-5xl-line-height); letter-spacing: var(--text-5xl-letter-spacing); }',
+    'h2, .h2 { font-family: var(--font-heading); font-size: var(--text-4xl); font-weight: 400; line-height: var(--text-4xl-line-height); letter-spacing: var(--text-4xl-letter-spacing); }',
+    'h3, .h3 { font-family: var(--font-heading); font-size: var(--text-3xl); font-weight: 400; line-height: var(--text-3xl-line-height); letter-spacing: var(--text-3xl-letter-spacing); }',
+    'h4, .h4 { font-family: var(--font-heading); font-size: var(--text-2xl); font-weight: 500; line-height: var(--text-2xl-line-height); letter-spacing: var(--text-2xl-letter-spacing); }',
     'body, p { font-family: var(--font-body); font-size: var(--text-base); font-weight: 400; line-height: var(--text-base-line-height); letter-spacing: var(--text-base-letter-spacing); }',
     '.text-sm { font-family: var(--font-body); font-size: var(--text-sm); line-height: var(--text-sm-line-height); }',
     '.text-xs { font-family: var(--font-body); font-size: var(--text-xs); line-height: var(--text-xs-line-height); }',
@@ -135,7 +135,7 @@ ${Object.entries(scale).map(([k, v]) => `  '${k}': ['${v}', { lineHeight: '${LIN
 export function TypographySample() {
   return (
     <div style={{ fontFamily: "var(--font-body)" }}>
-      <h1 style={{ fontFamily: "var(--font-heading)", fontSize: "var(--text-5xl)", fontWeight: 700, lineHeight: "var(--text-5xl-line-height)", letterSpacing: "var(--text-5xl-letter-spacing)" }}>
+      <h1 style={{ fontFamily: "var(--font-heading)", fontSize: "var(--text-5xl)", fontWeight: 400, lineHeight: "var(--text-5xl-line-height)", letterSpacing: "var(--text-5xl-letter-spacing)" }}>
         ${primary.heading.fontFamily}
       </h1>
       <h2 style={{ fontFamily: "var(--font-heading)", fontSize: "var(--text-3xl)", fontWeight: 600, lineHeight: "var(--text-3xl-line-height)", letterSpacing: "var(--text-3xl-letter-spacing)", color: "#6b7280" }}>

@@ -141,8 +141,21 @@ Use at least 2 of these for any given hierarchy level. Never rely on only one.
 8. Button text on colored backgrounds: use var(--color-text-on-dark) or var(--color-text-on-green), not #fff or white.
 9. Before finishing ANY generated code, mentally scan for hex values — if any remain, the code is not complete.
 
+--- HEADING FONT WEIGHT — CRITICAL CONVENTION ---
+Display headings (h1, h2, h3) should use font-weight 400 for serif fonts (especially high-contrast serifs like Fraunces, Playfair Display, Cormorant, etc.). These typefaces are designed to look elegant at lighter weights — using 700 makes them heavy, generic, and indistinguishable from system serif. Reserve 700 for data values and stat numbers only.
+
+Heading weight scale:
+- h1, h2, h3 (display): 400
+- h4, h5, h6 (subheading): 500
+- UI labels, badges: 600
+- Data values, numbers: 700
+
+Using fontWeight 700 on a serif display heading is a critical error. It is the single most impactful typography mistake an AI can make.
+
 --- ANTI-PATTERNS TO AVOID ---
 - Hardcoded hex values anywhere in component code (the #1 source of design drift)
+- fontWeight 700 on serif display headings (destroys editorial feel, makes site look generic)
+- Two different heading weights across pages on the same site (typographic inconsistency)
 - bg-gray-950 + indigo-600 (the "AI developer tool" look)
 - Using Inter or Geist for everything (it screams "generated")
 - rounded-xl on all elements (12-16px is too aggressive for most designs)

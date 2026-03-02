@@ -202,7 +202,7 @@ export default function OnboardingInspiration() {
       <h1 style={{
         fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
         fontSize: 'var(--text-3xl)',
-        fontWeight: 700,
+        fontWeight: 400,
         color: 'var(--color-text-primary)',
         lineHeight: 'var(--leading-tight)',
         marginBottom: 'var(--space-1)',

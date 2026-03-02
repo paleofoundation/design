@@ -207,7 +207,7 @@ export default function OnboardingDesignLanguage() {
       <h1 style={{
         fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
         fontSize: 'var(--text-3xl)',
-        fontWeight: 700,
+        fontWeight: 400,
         color: 'var(--color-text-primary)',
         lineHeight: 'var(--leading-tight)',
         marginBottom: 'var(--space-1)',
@@ -416,7 +416,7 @@ function MiniMockup({ lang, userColors, userTypography }: {
         <div style={{
           fontFamily: `'${userTypography.heading}', serif`,
           fontSize: lang.spacingDensity === 'tight' ? '14px' : '16px',
-          fontWeight: 700,
+          fontWeight: 400,
           color: textColor,
           lineHeight: 1.2,
           marginBottom: '4px',

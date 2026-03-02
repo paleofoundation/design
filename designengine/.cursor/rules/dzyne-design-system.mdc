@@ -27,12 +27,19 @@ Use these for ALL styling decisions. Never hardcode colors, fonts, or spacing.
 - All text must meet WCAG AA contrast (4.5:1 for body, 3:1 for large text)
 
 ### Typography
-- Headings use the `heading` font family from the profile (typically a serif)
+- Headings use the `heading` font family from the profile (typically a serif like Fraunces)
 - Body text uses the `body` font family (typically a humanist sans-serif)
 - Code uses monospace from the profile
 - Use the modular type scale — don't invent arbitrary sizes
-- Heading weights: 700-800. Body: 400. UI labels: 500.
+- **CRITICAL — Heading Font Weight Convention:**
+  - Display headings (h1, h2, h3): **400** — elegant, editorial. NEVER 700.
+  - Subheadings (h4, h5, h6): **500** — subtle emphasis
+  - UI labels / badges: **600** — functional weight
+  - Data values / stat numbers: **700** — only for numeric emphasis
+  - Body text: **400**
+  - Using fontWeight 700 on a serif display heading is a CRITICAL ERROR. It destroys the editorial feel and makes the site look like a generic AI template. This is the single most impactful typography decision.
 - Tight line-height for headings (1.1-1.2). Relaxed for body (1.6-1.7).
+- Letter-spacing: tight (-0.02em) for large headings, normal for body.
 
 ### Spacing
 - All spacing derives from 8px multiples: 4, 8, 16, 24, 32, 48, 64, 96, 128
@@ -78,6 +85,12 @@ When building UI, use these tools in order of relevance:
 - WRONG: `rgba(220, 53, 69, 0.1)` (raw RGB channels of a token color)
 - RIGHT: `color-mix(in srgb, var(--color-error) 10%, transparent)`
 
+**#2 — Bold serif headings.** Using fontWeight 700 on Fraunces (or any high-contrast serif) is a critical error.
+- WRONG: `fontWeight: 700` on h1/h2/h3 with Fraunces → looks heavy, generic, like a system serif
+- RIGHT: `fontWeight: 400` on h1/h2/h3 with Fraunces → elegant, editorial, intentional
+- This is not subjective. High-contrast serifs like Fraunces are designed to be read at lighter weights. Using 700 defeats their entire design.
+- Import `HEADING_WEIGHT` from `@/lib/design-tokens` and use `HEADING_WEIGHT.display` (400) for all display headings.
+
 Other anti-patterns:
 - Using bg-gray-950 with indigo-600 accents (the "AI developer tool" aesthetic)
 - Using Inter/Geist for everything
@@ -88,6 +101,7 @@ Other anti-patterns:
 - Gray shadows instead of warm-tinted ones
 - Missing focus states and hover transitions
 - Using "close enough" colors (#4A8E7A instead of #306E5E) — use the exact token
+- Two different heading weights across pages (e.g., 400 on landing, 700 on blog) — typographic consistency must be site-wide
 
 ## Self-Check Before Submitting UI Code
 
@@ -97,6 +111,8 @@ Before finishing any UI file, run this mental checklist:
 3. Verify all font-family values reference CSS variables (`var(--font-fraunces)`, `var(--font-source-sans)`, `var(--font-jetbrains)`)
 4. Verify all spacing uses the 8px grid values from the design tokens
 5. Confirm no generic Tailwind color classes (bg-gray-*, text-slate-*, etc.) are present
+6. **Search for `fontWeight: 700` or `font-weight: 700` on any Fraunces heading — this is a CRITICAL ERROR. Display headings must be 400.**
+7. Verify heading weights are consistent across ALL pages — never allow two different heading weight conventions on the same site
 
 ## When In Doubt
 

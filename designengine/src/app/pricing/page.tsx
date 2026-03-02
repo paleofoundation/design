@@ -52,7 +52,7 @@ export default function PricingPage() {
         <Link href="/" style={{
           fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
           fontSize: 'var(--text-xl)',
-          fontWeight: 700,
+          fontWeight: 400,
           color: 'var(--color-green-deep)',
           letterSpacing: 'var(--tracking-tight)',
           textDecoration: 'none',
@@ -83,7 +83,7 @@ export default function PricingPage() {
           <h1 style={{
             fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
             fontSize: 'var(--text-4xl)',
-            fontWeight: 700,
+            fontWeight: 400,
             color: 'var(--color-text-primary)',
             lineHeight: 'var(--leading-tight)',
             marginBottom: 'var(--space-2)',
@@ -123,7 +123,7 @@ export default function PricingPage() {
             <p style={{
               fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
               fontSize: 'var(--text-3xl)',
-              fontWeight: 700,
+              fontWeight: 400,
               color: 'var(--color-text-primary)',
               marginBottom: 'var(--space-1)',
             }}>
@@ -177,7 +177,7 @@ export default function PricingPage() {
               background: 'var(--color-orange)',
               color: '#fff',
               fontSize: '0.625rem',
-              fontWeight: 700,
+              fontWeight: 400,
               padding: '0.15rem 0.6rem',
               borderRadius: 'var(--radius-full)',
               textTransform: 'uppercase',
@@ -195,7 +195,7 @@ export default function PricingPage() {
             <p style={{
               fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
               fontSize: 'var(--text-3xl)',
-              fontWeight: 700,
+              fontWeight: 400,
               color: 'var(--color-text-primary)',
               marginBottom: 'var(--space-1)',
             }}>
@@ -251,7 +251,7 @@ export default function PricingPage() {
             <p style={{
               fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
               fontSize: 'var(--text-3xl)',
-              fontWeight: 700,
+              fontWeight: 400,
               color: 'var(--color-text-primary)',
               marginBottom: 'var(--space-1)',
             }}>

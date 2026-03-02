@@ -200,7 +200,7 @@ export default function OnboardingReview() {
         </div>
         <h1 style={{
           fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
-          fontSize: 'var(--text-3xl)', fontWeight: 700,
+          fontSize: 'var(--text-3xl)', fontWeight: 400,
           color: 'var(--color-text-primary)', marginBottom: 'var(--space-2)',
         }}>
           Your design system is ready
@@ -287,7 +287,7 @@ export default function OnboardingReview() {
         <div>
           <h1 style={{
             fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
-            fontSize: 'var(--text-3xl)', fontWeight: 700,
+            fontSize: 'var(--text-3xl)', fontWeight: 400,
             color: 'var(--color-text-primary)', lineHeight: 'var(--leading-tight)',
             marginBottom: 'var(--space-1)',
           }}>

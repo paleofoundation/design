@@ -86,6 +86,27 @@ export const FONT = {
   mono: 'var(--font-jetbrains, JetBrains Mono, monospace)',
 } as const;
 
+/**
+ * HEADING WEIGHT CONVENTION — CRITICAL
+ *
+ * Fraunces is a high-contrast serif designed to shine at lighter weights.
+ * Using 700 makes it heavy and generic — indistinguishable from system serif.
+ * 400 is the editorial, Substack-inspired look that defines this brand.
+ *
+ * Display headings (h1-h3):  400 — elegant, editorial
+ * Subheadings (h4-h6):      500 — subtle emphasis
+ * UI labels / badges:        600 — functional weight
+ * Data values / stats:       700 — numeric emphasis only
+ *
+ * NEVER use fontWeight: 700 on a Fraunces display heading.
+ */
+export const HEADING_WEIGHT = {
+  display: 400,
+  sub: 500,
+  label: 600,
+  data: 700,
+} as const;
+
 export const RADIUS = {
   sm: '4px',
   md: '6px',

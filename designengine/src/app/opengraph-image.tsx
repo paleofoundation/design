@@ -39,12 +39,12 @@ export default async function OGImage() {
               justifyContent: 'center',
               color: '#f5efe8',
               fontSize: '32px',
-              fontWeight: 700,
+              fontWeight: 600,
             }}
           >
             RD
           </div>
-          <span style={{ fontSize: '56px', fontWeight: 700, color: '#306E5E' }}>
+          <span style={{ fontSize: '56px', fontWeight: 400, color: '#306E5E' }}>
             Refine Design
           </span>
         </div>

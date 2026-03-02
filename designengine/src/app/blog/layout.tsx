@@ -26,7 +26,7 @@ export default function BlogLayout({ children }: { children: React.ReactNode }) 
         <Link href="/" style={{
           fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
           fontSize: 'var(--text-xl)',
-          fontWeight: 700,
+          fontWeight: 400,
           color: 'var(--color-green-deep)',
           letterSpacing: 'var(--tracking-tight)',
           textDecoration: 'none',

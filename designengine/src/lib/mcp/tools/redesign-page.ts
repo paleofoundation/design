@@ -88,7 +88,7 @@ CSS STYLESHEET REQUIREMENTS:
 - Override font-family, font-size, font-weight, line-height, letter-spacing, padding, margin
 - Use an 8px spacing grid (multiples of 0.5rem)
 - Set proper typographic scale (1.25 or 1.333 ratio)
-- Ensure heading weights decrease as size decreases (h1 bold, h2 semibold, h3 medium)
+- Ensure heading weights are elegant, not heavy: h1-h3 at 400 for serifs (editorial feel), h4-h6 at 500. NEVER use 700 on a serif display heading.
 - Body text: 16-18px, line-height 1.5-1.7, max-width ~65ch for readability
 - Add subtle transitions for hover states
 - Include @import for Google Fonts at the top

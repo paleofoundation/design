@@ -48,7 +48,7 @@ function LoginForm() {
       <Link href="/" style={{
         fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
         fontSize: 'var(--text-2xl)',
-        fontWeight: 700,
+        fontWeight: 400,
         color: 'var(--color-green-deep)',
         textDecoration: 'none',
         marginBottom: 'var(--space-8)',
@@ -68,7 +68,7 @@ function LoginForm() {
         <h1 style={{
           fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
           fontSize: 'var(--text-xl)',
-          fontWeight: 700,
+          fontWeight: 400,
           color: 'var(--color-text-primary)',
           marginBottom: 'var(--space-0-5)',
         }}>

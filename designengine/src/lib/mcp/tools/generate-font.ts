@@ -84,7 +84,7 @@ fontFamily: {
   ${htmlLink}
   <style>
     body { font-family: ${fallback}; padding: 2rem; }
-    h1 { font-weight: 700; font-size: 3rem; margin-bottom: 0.5rem; }
+    h1 { font-weight: 400; font-size: 3rem; margin-bottom: 0.5rem; }
     h2 { font-weight: 500; font-size: 1.5rem; color: #666; margin-bottom: 2rem; }
     p { font-weight: 400; font-size: 1rem; line-height: 1.7; max-width: 65ch; }
     .weights { display: flex; gap: 2rem; margin-top: 2rem; }

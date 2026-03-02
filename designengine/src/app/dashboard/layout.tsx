@@ -63,7 +63,7 @@ export default async function DashboardLayout({
               alignItems: 'center',
               justifyContent: 'center',
               fontFamily: FONT.heading,
-              fontWeight: 700,
+              fontWeight: 600,
               fontSize: TEXT_SIZE.xs,
               color: PALETTE.text.onDark,
             }}>
