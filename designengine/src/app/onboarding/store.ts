@@ -252,7 +252,7 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
 
   artStyle: '',
   colors: {
-    primary: '#306E5E',
+    primary: '#006F5B',
     secondary: '#FF6719',
     accent: '#F2B245',
     background: '#FDFBF7',

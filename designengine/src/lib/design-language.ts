@@ -47,7 +47,7 @@ export const DESIGN_LANGUAGES: Record<string, DesignLanguagePreset> = {
     curatedPalettes: [
       { name: 'Navy Trust', colors: { primary: '#1B365D', secondary: '#2C5F7C', accent: '#C5A55A', background: '#F7F5F2', text: '#1A1A1A' } },
       { name: 'Steel Blue', colors: { primary: '#2D4059', secondary: '#5C7A99', accent: '#FF6B35', background: '#FAFAFA', text: '#1A1A1A' } },
-      { name: 'Forest Authority', colors: { primary: '#1D3C34', secondary: '#306E5E', accent: '#D4A574', background: '#F5F5F0', text: '#1A1A1A' } },
+      { name: 'Forest Authority', colors: { primary: '#1D3C34', secondary: '#006F5B', accent: '#D4A574', background: '#F5F5F0', text: '#1A1A1A' } },
       { name: 'Iron Gray', colors: { primary: '#2E3440', secondary: '#4C566A', accent: '#88C0D0', background: '#F8F9FA', text: '#2E3440' } },
       { name: 'Slate Professional', colors: { primary: '#334155', secondary: '#64748B', accent: '#0EA5E9', background: '#F8FAFC', text: '#0F172A' } },
       { name: 'Deep Teal', colors: { primary: '#115E59', secondary: '#2DD4BF', accent: '#F59E0B', background: '#F0FDFA', text: '#134E4A' } },
@@ -101,7 +101,7 @@ export const DESIGN_LANGUAGES: Record<string, DesignLanguagePreset> = {
     curatedPalettes: [
       { name: 'Classic Ink', colors: { primary: '#1A1A1A', secondary: '#6B6B6B', accent: '#C5A55A', background: '#FDFBF7', text: '#1A1A1A' } },
       { name: 'Warm Mono', colors: { primary: '#2C2C2C', secondary: '#8B8580', accent: '#B85C38', background: '#F5F0E8', text: '#1A1A1A' } },
-      { name: 'Green Leaf', colors: { primary: '#306E5E', secondary: '#4A8E7A', accent: '#FF6719', background: '#FDFBF7', text: '#1A1A1A' } },
+      { name: 'Green Leaf', colors: { primary: '#006F5B', secondary: '#1A9076', accent: '#FF6719', background: '#FDFBF7', text: '#1A1A1A' } },
       { name: 'Burgundy Press', colors: { primary: '#722F37', secondary: '#A85751', accent: '#D4A574', background: '#FBF8F4', text: '#2C1810' } },
       { name: 'Midnight Olive', colors: { primary: '#3D405B', secondary: '#81B29A', accent: '#E07A5F', background: '#F4F1DE', text: '#3D405B' } },
       { name: 'Charcoal Sage', colors: { primary: '#2F3E46', secondary: '#84A98C', accent: '#CAD2C5', background: '#F8FAF8', text: '#2F3E46' } },
@@ -182,7 +182,7 @@ export const DESIGN_LANGUAGES: Record<string, DesignLanguagePreset> = {
     curatedPalettes: [
       { name: 'Gold Standard', colors: { primary: '#2C2C2C', secondary: '#666666', accent: '#C5A55A', background: '#F5F0E8', text: '#1A1A1A' } },
       { name: 'Noir', colors: { primary: '#0A0A0A', secondary: '#3A3A3A', accent: '#B8860B', background: '#1A1A1A', text: '#F5F0E8' } },
-      { name: 'Emerald Lux', colors: { primary: '#0F2620', secondary: '#306E5E', accent: '#D4AF37', background: '#FDFBF7', text: '#0F2620' } },
+      { name: 'Emerald Lux', colors: { primary: '#0F2620', secondary: '#006F5B', accent: '#D4AF37', background: '#FDFBF7', text: '#0F2620' } },
       { name: 'Champagne', colors: { primary: '#1A1A2E', secondary: '#16213E', accent: '#E2B659', background: '#FAF7F0', text: '#1A1A2E' } },
       { name: 'Onyx Rose', colors: { primary: '#1A1A1A', secondary: '#4A4A4A', accent: '#D4A5A5', background: '#FAF5F5', text: '#1A1A1A' } },
       { name: 'Midnight Velvet', colors: { primary: '#0D1B2A', secondary: '#1B2838', accent: '#C9B037', background: '#0D1B2A', text: '#E0D8C8' } },

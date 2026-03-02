@@ -11,7 +11,7 @@
   border-radius: inherit;
   background: linear-gradient(
     135deg,
-    var(--color-green-deep, #306E5E),
+    var(--color-green-deep, #006F5B),
     var(--color-orange, #FF6719)
   );
   opacity: 0;
@@ -50,7 +50,7 @@
   padding: 2px;
   background: linear-gradient(
     135deg,
-    var(--color-green-deep, #306E5E),
+    var(--color-green-deep, #006F5B),
     var(--color-orange, #FF6719),
     var(--color-amber, #F2B245)
   );

@@ -131,7 +131,7 @@ export default function OnboardingStyle() {
                     letterSpacing: '0.06em',
                     textTransform: 'uppercase',
                     zIndex: 1,
-                    border: '1px solid rgba(48, 110, 94, 0.15)',
+                    border: '1px solid rgba(0, 111, 91, 0.15)',
                   }}
                 >
                   Recommended

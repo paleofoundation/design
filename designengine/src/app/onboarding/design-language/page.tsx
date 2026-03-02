@@ -264,7 +264,7 @@ export default function OnboardingDesignLanguage() {
                   fontSize: '0.6rem', fontWeight: 600, color: 'var(--color-green-deep)',
                   background: 'var(--color-green-muted)', padding: '0.15rem 0.5rem',
                   borderRadius: 'var(--radius-full)', letterSpacing: '0.06em', textTransform: 'uppercase',
-                  border: '1px solid rgba(48, 110, 94, 0.15)',
+                  border: '1px solid rgba(0, 111, 91, 0.15)',
                 }}>
                   Detected
                 </span>

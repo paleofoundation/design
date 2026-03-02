@@ -130,7 +130,7 @@ export default function OnboardingInspiration() {
       const fc = colorSource.colors;
       useOnboardingStore.setState({
         colors: {
-          primary: fc.primary || '#306E5E',
+          primary: fc.primary || '#006F5B',
           secondary: fc.secondary || '#FF6719',
           accent: fc.accent || '#F2B245',
           background: fc.background || '#FDFBF7',

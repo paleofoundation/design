@@ -17,7 +17,7 @@
 }
 
 .dzyn-spinner::before {
-  border-top-color: var(--color-green-deep, #306E5E);
+  border-top-color: var(--color-green-deep, #006F5B);
   animation: dzyn-spin 0.8s linear infinite;
 }
 

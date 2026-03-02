@@ -56,8 +56,8 @@ export function registerGenerateMicroInteractionsTool(server: McpServer): void {
     }) => {
       try {
         let colors: PaletteColors = {
-          primary: primaryColor || '#306E5E',
-          secondary: secondaryColor || '#4A8E7A',
+          primary: primaryColor || '#006F5B',
+          secondary: secondaryColor || '#1A9076',
           accent: accentColor || '#FF6719',
           background: backgroundColor || '#FFFFFF',
           amber: amberColor,

@@ -13,8 +13,8 @@ const SHAPES: FaviconShape[] = ['rounded-rect', 'circle', 'hexagon', 'squircle']
 const FAVICON_SIZES = [128, 64, 32, 16];
 
 export default function PreviewPage() {
-  const [primary, setPrimary] = useState('#306E5E');
-  const [secondary, setSecondary] = useState('#4A8E7A');
+  const [primary, setPrimary] = useState('#006F5B');
+  const [secondary, setSecondary] = useState('#1A9076');
   const [accent, setAccent] = useState('#FF6719');
   const [background, setBackground] = useState('#FFFFFF');
   const [amber, setAmber] = useState('#F2B245');

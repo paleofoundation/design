@@ -100,7 +100,7 @@ Other anti-patterns:
 - No breathing room — elements crammed together
 - Gray shadows instead of warm-tinted ones
 - Missing focus states and hover transitions
-- Using "close enough" colors (#4A8E7A instead of #306E5E) — use the exact token
+- Using "close enough" colors (#1A9076 instead of #006F5B) — use the exact token
 - Two different heading weights across pages (e.g., 400 on landing, 700 on blog) — typographic consistency must be site-wide
 
 ## Self-Check Before Submitting UI Code

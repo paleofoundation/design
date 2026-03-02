@@ -7,12 +7,12 @@
 
 :root {
   /* --- Palette: Primary (Substack-style: the chosen green IS the background) --- */
-  --color-green-deep: #306E5E;
-  --color-green-dark: #275A4C;
-  --color-green-darker: #1E4A3E;
-  --color-green-darkest: #163A30;
-  --color-green-light: #4A8E7A;
-  --color-green-muted: rgba(48, 110, 94, 0.12);
+  --color-green-deep: #006F5B;
+  --color-green-dark: #005B4A;
+  --color-green-darker: #004A3D;
+  --color-green-darkest: #00392E;
+  --color-green-light: #1A9076;
+  --color-green-muted: rgba(0, 111, 91, 0.12);
 
   /* --- Palette: Accents --- */
   --color-orange: #FF6719;
@@ -40,9 +40,9 @@
   --color-text-on-green: #FFFFFF;
 
   /* --- Palette: Borders --- */
-  --color-border: rgba(48, 110, 94, 0.15);
-  --color-border-strong: rgba(48, 110, 94, 0.3);
-  --color-border-subtle: rgba(48, 110, 94, 0.08);
+  --color-border: rgba(0, 111, 91, 0.15);
+  --color-border-strong: rgba(0, 111, 91, 0.3);
+  --color-border-subtle: rgba(0, 111, 91, 0.08);
 
   /* --- Palette: States --- */
   --color-error: #DC3545;
@@ -102,11 +102,11 @@
   --radius-full: 9999px;
 
   /* --- Shadows (warm-tinted) --- */
-  --shadow-xs: 0 1px 2px rgba(48, 110, 94, 0.05);
-  --shadow-sm: 0 2px 8px rgba(48, 110, 94, 0.06);
-  --shadow-md: 0 4px 16px rgba(48, 110, 94, 0.08);
-  --shadow-lg: 0 8px 32px rgba(48, 110, 94, 0.1);
-  --shadow-xl: 0 16px 48px rgba(48, 110, 94, 0.12);
+  --shadow-xs: 0 1px 2px rgba(0, 111, 91, 0.05);
+  --shadow-sm: 0 2px 8px rgba(0, 111, 91, 0.06);
+  --shadow-md: 0 4px 16px rgba(0, 111, 91, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 111, 91, 0.1);
+  --shadow-xl: 0 16px 48px rgba(0, 111, 91, 0.12);
 
   /* --- Motion --- */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);

@@ -135,7 +135,7 @@ Use at least 2 of these for any given hierarchy level. Never rely on only one.
 2. Every project defines a palette of 5-7 core brand colors. ALL UI must derive from these — no exceptions.
 3. Semantic state colors (error, success, warning) MUST also come from CSS variables (var(--color-error), var(--color-success), var(--color-warning)), not hardcoded hex.
 4. If a color is not in the design profile's token set, it does not belong in the code. Period.
-5. "Close enough" colors violate the system: #4A8E7A is NOT the same as #306E5E. Use the EXACT token value via its CSS variable.
+5. "Close enough" colors violate the system: #1A9076 is NOT the same as #006F5B. Use the EXACT token value via its CSS variable.
 6. Generic Tailwind utility colors (gray-*, slate-*, zinc-*, indigo-*, blue-*) are off-limits unless they exactly match a profile token.
 7. For transparency variants, use color-mix(in srgb, var(--color-*) N%, transparent) instead of hardcoded rgba() with raw RGB values.
 8. Button text on colored backgrounds: use var(--color-text-on-dark) or var(--color-text-on-green), not #fff or white.

@@ -18,7 +18,7 @@
 .dzyn-cursor--hover {
   width: 44px;
   height: 44px;
-  border-color: var(--color-green-deep, #306E5E);
+  border-color: var(--color-green-deep, #006F5B);
 }
 
 @media (pointer: coarse) {

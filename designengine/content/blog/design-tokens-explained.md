@@ -32,10 +32,10 @@ Design tokens eliminate this entirely. When your AI reads a structured token fil
 
 ```css
 :root {
-  --color-primary: #306E5E;
+  --color-primary: #006F5B;
   --color-accent: #FF6719;
   --radius-md: 8px;
-  --shadow-md: 0 4px 16px rgba(48, 110, 94, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 111, 91, 0.08);
   --font-heading: 'Fraunces', serif;
   --font-body: 'Source Sans 3', sans-serif;
 }

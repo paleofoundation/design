@@ -33,7 +33,7 @@ export default async function OGImage() {
               width: '64px',
               height: '64px',
               borderRadius: '16px',
-              background: '#306E5E',
+              background: '#006F5B',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -44,14 +44,14 @@ export default async function OGImage() {
           >
             RD
           </div>
-          <span style={{ fontSize: '56px', fontWeight: 400, color: '#306E5E' }}>
+          <span style={{ fontSize: '56px', fontWeight: 400, color: '#006F5B' }}>
             Refine Design
           </span>
         </div>
         <div
           style={{
             fontSize: '32px',
-            color: '#306E5E',
+            color: '#006F5B',
             opacity: 0.8,
             maxWidth: '700px',
             textAlign: 'center',
@@ -67,7 +67,7 @@ export default async function OGImage() {
             marginTop: '48px',
           }}
         >
-          {['#306E5E', '#FF6719', '#F2B245', '#CAC5F9'].map((c) => (
+          {['#006F5B', '#FF6719', '#F2B245', '#CAC5F9'].map((c) => (
             <div
               key={c}
               style={{

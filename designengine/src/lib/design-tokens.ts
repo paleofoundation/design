@@ -10,7 +10,7 @@
  * THE PALETTE (6 canonical colors):
  *   #F5EFE8  — warm off-white (light surfaces)
  *   #FFFFFF  — pure white (backgrounds, text on dark)
- *   #306E5E  — deep forest green (brand accent, nav)
+ *   #006F5B  — deep forest green (brand accent, nav)
  *   #FF6719  — bold orange (CTAs, primary actions)
  *   #F2B245  — warm amber (warnings, highlights)
  *   #CAC5F9  — soft lavender (decorative, tags)
@@ -18,12 +18,12 @@
 
 export const PALETTE = {
   green: {
-    deep: '#306E5E',
-    dark: '#275A4C',
-    darker: '#1E4A3E',
-    darkest: '#163A30',
-    light: '#4A8E7A',
-    muted: 'rgba(48, 110, 94, 0.08)',
+    deep: '#006F5B',
+    dark: '#005B4A',
+    darker: '#004A3D',
+    darkest: '#00392E',
+    light: '#1A9076',
+    muted: 'rgba(0, 111, 91, 0.08)',
   },
   orange: {
     base: '#FF6719',
@@ -66,16 +66,16 @@ export const PALETTE = {
 export const DASH = {
   bg: '#FFFFFF',
   card: '#FFFFFF',
-  cardBorder: 'rgba(48, 110, 94, 0.12)',
+  cardBorder: 'rgba(0, 111, 91, 0.12)',
   cardHover: '#FDFBF7',
   inputBg: '#FDFBF7',
-  inputBorder: 'rgba(48, 110, 94, 0.15)',
+  inputBorder: 'rgba(0, 111, 91, 0.15)',
   heading: '#1A1A1A',
   body: '#4A4A4A',
   muted: '#7A7A7A',
   faint: '#B0ADA8',
-  divider: 'rgba(48, 110, 94, 0.08)',
-  dividerStrong: 'rgba(48, 110, 94, 0.15)',
+  divider: 'rgba(0, 111, 91, 0.08)',
+  dividerStrong: 'rgba(0, 111, 91, 0.15)',
   tableHeaderBg: '#FDFBF7',
   codeBg: '#F5EFE8',
 } as const;
