@@ -1,9 +1,61 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import {
+  generateAllArtStylePreviews,
+  ART_STYLE_META,
+} from '@/lib/svg/art-style-previews';
 
-export default function HomePage() {
+const TOOL_GROUPS = [
+  {
+    category: 'Foundation',
+    description: 'Capture and store your design intent',
+    tools: [
+      { name: 'ingest-design', desc: 'Crawl any URL and extract exact design tokens — colors, fonts, spacing, components' },
+      { name: 'get-design-profile', desc: 'Load your saved design system at the start of every AI coding session' },
+      { name: 'generate-responsive-rules', desc: 'Generate breakpoint behavior for every element type' },
+    ],
+  },
+  {
+    category: 'Generation',
+    description: 'Build on-brand, every time',
+    tools: [
+      { name: 'generate-component-library', desc: 'Full set of styled components — Button, Card, Modal, Table, and 12 more' },
+      { name: 'generate-page', desc: 'Complete pages — landing, dashboard, pricing, auth — using your tokens' },
+      { name: 'generate-layout', desc: 'Structural shells with nav, sidebar, responsive collapse' },
+      { name: 'generate-theme-variants', desc: 'Proper dark mode, high contrast, muted, and vibrant themes' },
+      { name: 'generate-font', desc: 'Font recommendations that complement your existing design system' },
+      { name: 'pair-typography', desc: 'Heading + body pairings with modular type scales' },
+      { name: 'convert-design', desc: 'Screenshot to code — React + Tailwind and HTML + CSS' },
+      { name: 'search-patterns', desc: 'Semantic search across design patterns with generated components' },
+    ],
+  },
+  {
+    category: 'Quality',
+    description: 'Catch drift before it ships',
+    tools: [
+      { name: 'check-design-consistency', desc: 'Compare code against your profile — find every deviation, get corrected code' },
+      { name: 'design-diff', desc: 'Structured diff between two designs — source vs. implementation' },
+      { name: 'suggest-improvements', desc: 'Accessibility, hierarchy, contrast, whitespace — scored with fixes' },
+    ],
+  },
+  {
+    category: 'Experience',
+    description: 'Make it feel custom-built',
+    tools: [
+      { name: 'generate-favicon', desc: 'Complete favicon package — SVG, PNGs, Apple Touch, webmanifest — from your brand colors' },
+      { name: 'generate-svg-assets', desc: 'Patterns, dividers, hero backgrounds — programmatic SVGs matched to your palette' },
+      { name: 'generate-art-style', desc: 'Art style manifest with DALL-E prompts, CSS filters, and SVG attributes for your brand' },
+      { name: 'generate-micro-interactions', desc: 'Cursor effects, button states, scroll reveals, loading spinners, glow pulses' },
+      { name: 'generate-illustrations', desc: 'AI illustrations via DALL-E 3, guided by your art style and color tokens' },
+      { name: 'scaffold-assets', desc: 'One call generates everything: favicons, patterns, dividers, heroes, animations, art style' },
+    ],
+  },
+];
+
+export default function Home() {
   const [waitlistCount, setWaitlistCount] = useState(0);
 
   useEffect(() => {
@@ -14,15 +66,29 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* ===== HERO ===== */}
+    <div>
+      {/* ========== HERO (full-bleed green + wave-layers background) ========== */}
       <section style={{
         background: 'var(--color-green-deep)',
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
+        overflow: 'hidden',
       }}>
+        <Image
+          src="/assets/backgrounds/wave-layers.svg"
+          alt=""
+          fill
+          style={{
+            objectFit: 'cover',
+            opacity: 0.12,
+            mixBlendMode: 'soft-light',
+            pointerEvents: 'none',
+          }}
+          priority
+        />
+
         <nav style={{
           maxWidth: '72rem',
           margin: '0 auto',
@@ -37,14 +103,16 @@ export default function HomePage() {
           <span style={{
             fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
             fontSize: 'var(--text-xl)',
-            fontWeight: 700,
+            fontWeight: 400,
             color: '#fff',
             letterSpacing: 'var(--tracking-tight)',
           }}>
             Refine Design
           </span>
           <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
-            <Link href="#before-after" style={{ fontSize: 'var(--text-sm)', color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>See it</Link>
+            <Link href="#how-it-works" style={{ fontSize: 'var(--text-sm)', color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>How it works</Link>
+            <Link href="#tools" style={{ fontSize: 'var(--text-sm)', color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>Tools</Link>
+            <Link href="#setup" style={{ fontSize: 'var(--text-sm)', color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>Setup</Link>
             <Link href="/pricing" style={{ fontSize: 'var(--text-sm)', color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>Pricing</Link>
             <Link href="/blog" style={{ fontSize: 'var(--text-sm)', color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>Blog</Link>
             <Link href="/login" style={{ fontSize: 'var(--text-sm)', color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>Sign in</Link>
@@ -67,174 +135,702 @@ export default function HomePage() {
         </nav>
 
         <div style={{
+          maxWidth: '72rem',
+          margin: '0 auto',
+          padding: '8rem 2.5rem 10rem',
+          width: '100%',
           flex: 1,
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
-          padding: '4rem 2.5rem 8rem',
-          maxWidth: '48rem',
-          margin: '0 auto',
-          width: '100%',
-          textAlign: 'center',
+          gap: '4rem',
+          position: 'relative',
+          zIndex: 1,
         }}>
-          <h1 style={{
-            fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
-            fontSize: 'clamp(2.5rem, 6vw, 4rem)',
-            fontWeight: 700,
-            color: '#fff',
-            lineHeight: 1.1,
-            letterSpacing: 'var(--tracking-tight)',
-            marginBottom: '1.5rem',
-          }}>
-            Refine your design.
-          </h1>
-          <p style={{
-            fontSize: 'var(--text-lg)',
-            color: 'rgba(255,255,255,0.7)',
-            lineHeight: 1.6,
-            maxWidth: '36rem',
-            marginBottom: '3rem',
-          }}>
-            Every AI builder generates the same lifeless output. Refine Design gives your AI actual design taste &mdash; typography, spacing, color theory &mdash; so what it builds looks like a human designed it.
-          </p>
-
-          <WaitlistForm source="hero" onSuccess={() => setWaitlistCount((c) => c + 1)} />
-
-          <p style={{
-            fontSize: 'var(--text-sm)',
-            color: 'rgba(255,255,255,0.4)',
-            marginTop: '2rem',
-          }}>
-            {waitlistCount > 0
-              ? `Join ${waitlistCount.toLocaleString()} others refining their design`
-              : 'Be the first to refine your design'}
-          </p>
-
-          <Link href="/dashboard" style={{
-            fontSize: 'var(--text-xs)',
-            color: 'rgba(255,255,255,0.4)',
-            textDecoration: 'none',
-            marginTop: '1rem',
-          }}>
-            Already have access? Go to dashboard &rarr;
-          </Link>
-        </div>
-      </section>
-
-      {/* ===== BEFORE / AFTER ===== */}
-      <section id="before-after" style={{
-        background: 'var(--color-surface)',
-        padding: '8rem 2.5rem',
-      }}>
-        <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
-          <FadeIn>
-            <h2 style={{
+          <div style={{ maxWidth: '38rem', flex: '1 1 auto' }}>
+            <h1 className="dzyn-reveal" style={{
               fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
-              fontSize: 'var(--text-3xl)',
-              fontWeight: 700,
-              color: 'var(--color-text-primary)',
-              textAlign: 'center',
-              marginBottom: '1rem',
-              lineHeight: 'var(--leading-tight)',
+              fontSize: 'clamp(3rem, 6vw, 4.5rem)',
+              fontWeight: 400,
+              lineHeight: 1.12,
+              letterSpacing: '-0.02em',
+              color: '#fff',
+              marginBottom: '2rem',
             }}>
-              Same site. One has taste.
-            </h2>
-            <p style={{
-              fontSize: 'var(--text-base)',
-              color: 'var(--color-text-muted)',
-              textAlign: 'center',
-              maxWidth: '32rem',
-              margin: '0 auto 4rem',
+              Your AI builds code. We make sure it doesn&rsquo;t look like AI built it.
+            </h1>
+            <p className="dzyn-reveal" style={{
+              fontSize: 'var(--text-lg)',
+              lineHeight: 1.7,
+              color: 'rgba(255,255,255,0.7)',
+              maxWidth: '34rem',
+              marginBottom: '3rem',
             }}>
-              Real before-and-after comparisons from Refine Design.
+              Refine Design captures your design intent and enforces it across every AI coding session. Colors, typography, spacing, components &mdash; all on-brand, every time.
             </p>
-          </FadeIn>
+            <div className="dzyn-reveal" style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              <Link
+                href="/onboarding"
+                className="dzyn-btn dzyn-btn--glow dzyn-btn--pulse dzyn-glow dzyn-glow--animate"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  background: 'var(--color-orange)',
+                  color: '#fff',
+                  fontWeight: 500,
+                  fontSize: 'var(--text-base)',
+                  padding: '0.875rem 2rem',
+                  borderRadius: 'var(--radius-md)',
+                  textDecoration: 'none',
+                }}
+              >
+                Design your system
+              </Link>
+              <Link
+                href="#how-it-works"
+                className="dzyn-btn"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  color: '#fff',
+                  fontWeight: 400,
+                  fontSize: 'var(--text-base)',
+                  padding: '0.875rem 2rem',
+                  borderRadius: 'var(--radius-md)',
+                  textDecoration: 'none',
+                }}
+              >
+                See how it works
+              </Link>
+            </div>
 
+            <div className="dzyn-reveal" style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+              <p style={{ fontSize: 'var(--text-sm)', color: 'rgba(255,255,255,0.5)', marginBottom: '0.75rem' }}>
+                Not ready yet? Join the waitlist for early access.
+              </p>
+              <WaitlistForm source="hero" onSuccess={() => setWaitlistCount((c) => c + 1)} />
+              {waitlistCount > 0 && (
+                <p style={{ fontSize: 'var(--text-xs)', color: 'rgba(255,255,255,0.35)', marginTop: '0.75rem' }}>
+                  {waitlistCount.toLocaleString()} {waitlistCount === 1 ? 'person' : 'people'} already on the list
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Hero visual — floating asset card (wide screens only) */}
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '2rem',
+            flex: '0 0 auto',
+            width: '22rem',
+            display: 'none',
           }}>
-            {[1, 2, 3].map((n) => (
-              <FadeIn key={n}>
-                <ComparisonCard n={n} />
-              </FadeIn>
-            ))}
+            <style>{`@media(min-width:1024px){[data-hero-visual]{display:block!important}}`}</style>
+            <div data-hero-visual="" style={{
+              display: 'none',
+              background: 'rgba(255,255,255,0.06)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '12px',
+              padding: '1.5rem',
+              transform: 'rotate(2deg)',
+            }}>
+              <p style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '1rem' }}>
+                Generated asset package
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                <Image src="/assets/favicon/favicon.svg" alt="Generated favicon" width={36} height={36} style={{ borderRadius: 6 }} />
+                <div>
+                  <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>favicon.svg</p>
+                  <p style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.4)' }}>+ 6 PNG sizes + webmanifest</p>
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', marginBottom: '1rem' }}>
+                {['dots', 'waves', 'topographic'].map(p => (
+                  <div key={p} style={{
+                    aspectRatio: '1',
+                    borderRadius: 6,
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    overflow: 'hidden',
+                    backgroundImage: `url(/assets/patterns/${p}.svg)`,
+                    backgroundSize: '80px 80px',
+                    backgroundRepeat: 'repeat',
+                    backgroundColor: 'rgba(255,255,255,0.03)',
+                  }} />
+                ))}
+              </div>
+              <div style={{
+                borderRadius: 6,
+                overflow: 'hidden',
+                border: '1px solid rgba(255,255,255,0.08)',
+                marginBottom: '1rem',
+              }}>
+                <div style={{ height: 20, background: 'rgba(255,255,255,0.03)' }} />
+                <Image src="/assets/dividers/wave.svg" alt="" width={400} height={60} style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.7 }} />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)' }}>25+ files</span>
+                <span style={{ fontSize: '0.6rem', fontFamily: 'var(--font-jetbrains, monospace)', color: 'var(--color-amber)', background: 'rgba(242,178,69,0.15)', padding: '0.15rem 0.5rem', borderRadius: 4 }}>scaffold-assets</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ===== DIFFERENTIATORS ===== */}
+      {/* Wave divider: hero → problem */}
+      <div style={{ lineHeight: 0, marginTop: '-1px' }}>
+        <Image src="/assets/dividers/wave.svg" alt="" width={1440} height={120} style={{ width: '100%', height: 'auto', display: 'block' }} />
+      </div>
+
+      {/* ========== PROBLEM ========== */}
+      <section style={{
+        background: 'var(--color-surface)',
+        padding: '8rem 2.5rem',
+      }}>
+        <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
+          <h2 className="dzyn-reveal" style={{
+            fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+            fontSize: 'clamp(2rem, 4vw, 3rem)',
+            fontWeight: 400,
+            color: 'var(--color-text-primary)',
+            textAlign: 'center',
+            marginBottom: '4rem',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.2,
+          }}>
+            The problem with AI-generated design
+          </h2>
+          <div className="dzyn-stagger" style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 22rem), 1fr))',
+            gap: '2rem',
+          }}>
+            <ComparisonCard
+              label="Without Refine Design"
+              bad
+              items={[
+                { prop: 'Primary color', val: 'bg-indigo-600' },
+                { prop: 'Font', val: 'Inter / Geist' },
+                { prop: 'Radius', val: 'rounded-xl (12px)' },
+                { prop: 'Background', val: '#0a0a0a dark' },
+                { prop: 'Personality', val: '"AI developer tool"' },
+              ]}
+            />
+            <ComparisonCard
+              label="With Refine Design"
+              items={[
+                { prop: 'Primary color', val: 'Your exact brand hex' },
+                { prop: 'Font', val: 'Your chosen pairing' },
+                { prop: 'Radius', val: 'Your design decision' },
+                { prop: 'Background', val: 'Your surface palette' },
+                { prop: 'Personality', val: 'Yours' },
+              ]}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Curve divider: problem → asset showcase */}
+      <div style={{ lineHeight: 0, marginTop: '-1px' }}>
+        <Image src="/assets/dividers/curve.svg" alt="" width={1440} height={120} style={{ width: '100%', height: 'auto', display: 'block' }} />
+      </div>
+
+      {/* ========== ASSET SHOWCASE ========== */}
       <section style={{
         background: 'var(--color-surface-warm)',
         padding: '8rem 2.5rem',
+        position: 'relative',
       }}>
         <div style={{
-          maxWidth: '72rem',
-          margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: '3rem',
-        }}>
-          <FadeIn>
-            <Differentiator
-              icon={<EyeIcon />}
-              title="Ingests your existing design"
-              description="Understands your CSS, fonts, and brand."
-            />
-          </FadeIn>
-          <FadeIn>
-            <Differentiator
-              icon={<GraduationCapIcon />}
-              title="Trained on design principles"
-              description="Grid systems, typography, color theory."
-            />
-          </FadeIn>
-          <FadeIn>
-            <Differentiator
-              icon={<SparklesIcon />}
-              title="Generates with taste, not templates"
-              description="Every output is unique to your brand."
-            />
-          </FadeIn>
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: 'url(/assets/patterns/waves.svg)',
+          backgroundSize: '240px 240px',
+          opacity: 0.15,
+          pointerEvents: 'none',
+        }} />
+        <div style={{ maxWidth: '72rem', margin: '0 auto', position: 'relative' }}>
+          <h2 className="dzyn-reveal" style={{
+            fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+            fontSize: 'clamp(2rem, 4vw, 3rem)',
+            fontWeight: 400,
+            color: 'var(--color-text-primary)',
+            textAlign: 'center',
+            marginBottom: '1rem',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.2,
+          }}>
+            One command. A complete asset package.
+          </h2>
+          <p className="dzyn-reveal" style={{
+            fontSize: 'var(--text-lg)',
+            color: 'var(--color-text-body)',
+            textAlign: 'center',
+            maxWidth: '36rem',
+            margin: '0 auto 4rem',
+            lineHeight: 1.7,
+          }}>
+            Favicons, patterns, dividers, hero backgrounds, animations, and an art style manifest &mdash; all generated from your design tokens.
+          </p>
+
+          <div className="dzyn-stagger" style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 20rem), 1fr))',
+            gap: '2rem',
+          }}>
+            <AssetShowcaseCard
+              label="Favicon Package"
+              tag="generate-favicon"
+              description="SVG + 6 PNG sizes + Apple Touch + webmanifest. Derived from your brand initial and primary color."
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', justifyContent: 'center', padding: '1.5rem 0' }}>
+                <Image src="/assets/favicon/favicon.svg" alt="Favicon" width={64} height={64} style={{ borderRadius: 8 }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                  {[48, 32, 16].map(size => (
+                    <div key={size} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <Image src="/assets/favicon/favicon.svg" alt="" width={size} height={size} style={{ borderRadius: size > 20 ? 4 : 2 }} />
+                      <span style={{ fontSize: '0.6rem', fontFamily: 'var(--font-jetbrains, monospace)', color: 'var(--color-text-muted)' }}>{size}px</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </AssetShowcaseCard>
+
+            <AssetShowcaseCard
+              label="Background Patterns"
+              tag="generate-svg-assets"
+              description="6 tileable SVG patterns — dots, waves, grid, topographic, cross-hatch, concentric. Tiny file sizes."
+            >
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', padding: '0.5rem 0' }}>
+                {['dots', 'waves', 'grid', 'topographic', 'cross-hatch', 'concentric'].map(p => (
+                  <div key={p} style={{
+                    aspectRatio: '1',
+                    borderRadius: 6,
+                    border: '1px solid var(--color-border)',
+                    backgroundImage: `url(/assets/patterns/${p}.svg)`,
+                    backgroundSize: '60px 60px',
+                    backgroundRepeat: 'repeat',
+                    backgroundColor: 'var(--color-white)',
+                  }} />
+                ))}
+              </div>
+            </AssetShowcaseCard>
+
+            <AssetShowcaseCard
+              label="Hero Backgrounds"
+              tag="generate-svg-assets"
+              description="4 full-width programmatic hero SVGs. Gradient mesh, geometric, blob, wave layers. Zero stock imagery."
+            >
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem', padding: '0.5rem 0' }}>
+                {['gradient-mesh', 'geometric', 'blob', 'wave-layers'].map(h => (
+                  <div key={h} style={{
+                    aspectRatio: '16/9',
+                    borderRadius: 6,
+                    border: '1px solid var(--color-border)',
+                    overflow: 'hidden',
+                    position: 'relative',
+                  }}>
+                    <Image
+                      src={`/assets/backgrounds/${h}.svg`}
+                      alt={h}
+                      fill
+                      style={{ objectFit: 'cover' }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </AssetShowcaseCard>
+
+            <AssetShowcaseCard
+              label="Micro-Interactions"
+              tag="generate-micro-interactions"
+              description="Cursor follower, button hover effects, scroll reveals, loading spinners, glow pulses. All CSS/JS."
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '0.5rem 0', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                  {['Glow', 'Shine', 'Pulse', 'Scale'].map(fx => (
+                    <span key={fx} style={{
+                      fontSize: 'var(--text-xs)',
+                      fontWeight: 600,
+                      background: 'var(--color-green-deep)',
+                      color: '#fff',
+                      padding: '0.375rem 0.875rem',
+                      borderRadius: 'var(--radius-md)',
+                    }}>
+                      {fx}
+                    </span>
+                  ))}
+                </div>
+                <p style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', textAlign: 'center', lineHeight: 1.5 }}>
+                  5 animation modules &middot; respects prefers-reduced-motion &middot; CSS variables with fallbacks
+                </p>
+              </div>
+            </AssetShowcaseCard>
+
+            <AssetShowcaseCard
+              label="Section Dividers"
+              tag="generate-svg-assets"
+              description="5 SVG dividers — wave, curve, angle, zigzag, layered. Drop between sections for a polished feel."
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', padding: '0.5rem 0' }}>
+                {['wave', 'curve', 'angle', 'zigzag', 'layered'].map(d => (
+                  <div key={d} style={{ borderRadius: 4, overflow: 'hidden', border: '1px solid var(--color-border)', lineHeight: 0 }}>
+                    <Image src={`/assets/dividers/${d}.svg`} alt={d} width={400} height={40} style={{ width: '100%', height: 'auto', display: 'block' }} />
+                  </div>
+                ))}
+              </div>
+            </AssetShowcaseCard>
+
+            <AssetShowcaseCard
+              label="Art Style Manifest"
+              tag="generate-art-style"
+              description="Structured JSON: palette, stroke, fill, mood, DALL-E prompt suffix, CSS filters, SVG attributes. Feeds into illustration generation."
+            >
+              <div style={{
+                background: 'var(--color-green-darkest)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '0.75rem',
+                fontSize: '0.6rem',
+                fontFamily: 'var(--font-jetbrains, monospace)',
+                color: 'rgba(255,255,255,0.7)',
+                lineHeight: 1.6,
+                overflow: 'hidden',
+                margin: '0.5rem 0',
+              }}>
+                <pre style={{ margin: 0 }}>{`{
+  "preset": "flat-vector",
+  "mood": "bold, playful, modern",
+  "palette": ["#306E5E","#4A8E7A","#FF6719"],
+  "promptSuffix": "flat vector...",
+  "svgAttributes": { ... }
+}`}</pre>
+              </div>
+            </AssetShowcaseCard>
+          </div>
         </div>
       </section>
 
-      {/* ===== FOOTER CTA ===== */}
+      {/* Wave divider: asset showcase → how-it-works */}
+      <div style={{ lineHeight: 0, marginTop: '-1px' }}>
+        <Image src="/assets/dividers/wave.svg" alt="" width={1440} height={120} style={{ width: '100%', height: 'auto', display: 'block' }} />
+      </div>
+
+      {/* ========== HOW IT WORKS ========== */}
+      <section id="how-it-works" style={{
+        background: 'var(--color-surface-warm)',
+        padding: '8rem 2.5rem',
+        position: 'relative',
+      }}>
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: 'url(/assets/patterns/dots.svg)',
+          backgroundSize: '200px 200px',
+          opacity: 0.3,
+          pointerEvents: 'none',
+        }} />
+        <div style={{ maxWidth: '72rem', margin: '0 auto', position: 'relative' }}>
+          <h2 className="dzyn-reveal" style={{
+            fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+            fontSize: 'clamp(2rem, 4vw, 3rem)',
+            fontWeight: 400,
+            color: 'var(--color-text-primary)',
+            textAlign: 'center',
+            marginBottom: '1rem',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.2,
+          }}>
+            Three steps to design that lasts
+          </h2>
+          <p className="dzyn-reveal" style={{
+            fontSize: 'var(--text-lg)',
+            color: 'var(--color-text-body)',
+            textAlign: 'center',
+            maxWidth: '32rem',
+            margin: '0 auto 5rem',
+            lineHeight: 1.7,
+          }}>
+            Set it up once. Every AI session after that stays on-brand.
+          </p>
+          <div className="dzyn-stagger" style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 18rem), 1fr))',
+            gap: '2rem',
+          }}>
+            <StepCard
+              number="01"
+              title="Tell us about your brand"
+              description="Walk through a short design interview. Pick your colors, typography, mood, and spacing — or paste a URL and we extract it all."
+            />
+            <StepCard
+              number="02"
+              title="We generate your system"
+              description="Tokens, CSS variables, Tailwind config, component patterns, theme variants — a complete design system saved to your profile."
+            />
+            <StepCard
+              number="03"
+              title="Every AI tool stays on-brand"
+              description="Connect the MCP to Cursor, Claude, or Windsurf. Every page, component, and layout your AI generates uses your design system."
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Angle divider: how-it-works → art styles */}
+      <div style={{ lineHeight: 0, marginTop: '-1px' }}>
+        <Image src="/assets/dividers/angle.svg" alt="" width={1440} height={120} style={{ width: '100%', height: 'auto', display: 'block' }} />
+      </div>
+
+      {/* ========== ART STYLE GALLERY ========== */}
+      <ArtStyleGallery />
+
+      {/* Layered divider: art styles → tools */}
+      <div style={{ lineHeight: 0, marginTop: '-1px' }}>
+        <Image src="/assets/dividers/layered.svg" alt="" width={1440} height={120} style={{ width: '100%', height: 'auto', display: 'block' }} />
+      </div>
+
+      {/* ========== TOOLS ========== */}
+      <section id="tools" style={{
+        background: 'var(--color-surface)',
+        padding: '8rem 2.5rem',
+      }}>
+        <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
+          <h2 className="dzyn-reveal" style={{
+            fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+            fontSize: 'clamp(2rem, 4vw, 3rem)',
+            fontWeight: 400,
+            color: 'var(--color-text-primary)',
+            textAlign: 'center',
+            marginBottom: '1rem',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.2,
+          }}>
+            20 tools. One design system.
+          </h2>
+          <p className="dzyn-reveal" style={{
+            fontSize: 'var(--text-lg)',
+            color: 'var(--color-text-body)',
+            textAlign: 'center',
+            maxWidth: '36rem',
+            margin: '0 auto 5rem',
+            lineHeight: 1.7,
+          }}>
+            Every tool reads your design profile. Every output matches your brand.
+          </p>
+          {TOOL_GROUPS.map((group) => (
+            <div key={group.category} className="dzyn-reveal" style={{ marginBottom: '4rem' }}>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{
+                  fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+                  fontSize: 'var(--text-xl)',
+                  fontWeight: 400,
+                  color: 'var(--color-green-deep)',
+                  marginBottom: '0.25rem',
+                }}>
+                  {group.category}
+                </h3>
+                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', lineHeight: 1.6 }}>
+                  {group.description}
+                </p>
+              </div>
+              <div className="dzyn-stagger" style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 20rem), 1fr))',
+                gap: '1rem',
+              }}>
+                {group.tools.map((tool) => (
+                  <div
+                    key={tool.name}
+                    className="dzyn-reveal"
+                    style={{
+                      background: 'var(--color-white)',
+                      border: '1px solid var(--color-border)',
+                      borderRadius: 'var(--radius-md)',
+                      padding: '1.5rem',
+                      transition: 'box-shadow var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out)',
+                    }}
+                  >
+                    <code style={{
+                      fontSize: 'var(--text-xs)',
+                      fontFamily: 'var(--font-jetbrains, JetBrains Mono, monospace)',
+                      color: 'var(--color-orange)',
+                      background: 'var(--color-orange-muted)',
+                      padding: '0.15rem 0.5rem',
+                      borderRadius: 'var(--radius-sm)',
+                    }}>
+                      {tool.name}
+                    </code>
+                    <p style={{
+                      fontSize: 'var(--text-sm)',
+                      color: 'var(--color-text-body)',
+                      marginTop: '0.75rem',
+                      lineHeight: 1.6,
+                    }}>
+                      {tool.desc}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Zigzag divider: tools → setup */}
+      <div style={{ lineHeight: 0, marginTop: '-1px' }}>
+        <Image src="/assets/dividers/zigzag.svg" alt="" width={1440} height={120} style={{ width: '100%', height: 'auto', display: 'block' }} />
+      </div>
+
+      {/* ========== SETUP ========== */}
+      <section id="setup" style={{
+        background: 'var(--color-surface-warm)',
+        padding: '8rem 2.5rem',
+        position: 'relative',
+      }}>
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: 'url(/assets/patterns/grid.svg)',
+          backgroundSize: '300px 300px',
+          opacity: 0.15,
+          pointerEvents: 'none',
+        }} />
+        <div style={{ maxWidth: '72rem', margin: '0 auto', position: 'relative' }}>
+          <h2 className="dzyn-reveal" style={{
+            fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+            fontSize: 'clamp(2rem, 4vw, 3rem)',
+            fontWeight: 400,
+            color: 'var(--color-text-primary)',
+            textAlign: 'center',
+            marginBottom: '1rem',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.2,
+          }}>
+            Connect in 30 seconds
+          </h2>
+          <p className="dzyn-reveal" style={{
+            fontSize: 'var(--text-lg)',
+            color: 'var(--color-text-body)',
+            textAlign: 'center',
+            maxWidth: '32rem',
+            margin: '0 auto 5rem',
+            lineHeight: 1.7,
+          }}>
+            Add one config file. Your AI agent loads your design system automatically.
+          </p>
+          <div className="dzyn-stagger" style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 20rem), 1fr))',
+            gap: '2rem',
+          }}>
+            {/* TODO: Rename to "Refine Design" after transition period */}
+            <SetupCard
+              title="Cursor"
+              filename=".cursor/mcp.json"
+              code={`{
+  "mcpServers": {
+    "dzyne": {
+      "url": "https://dzyne.app/api/mcp/mcp"
+    }
+  }
+}`}
+            />
+            <SetupCard
+              title="Claude Desktop"
+              filename="claude_desktop_config.json"
+              code={`{
+  "mcpServers": {
+    "dzyne": {
+      "command": "npx",
+      "args": ["@dzyne/mcp-server"]
+    }
+  }
+}`}
+            />
+            <SetupCard
+              title="Windsurf"
+              filename="mcp_config.json"
+              code={`{
+  "mcpServers": {
+    "dzyne": {
+      "serverUrl": "https://dzyne.app/api/mcp/mcp"
+    }
+  }
+}`}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ========== CTA ========== */}
       <section style={{
         background: 'var(--color-green-deep)',
         padding: '8rem 2.5rem',
+        textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden',
       }}>
-        <div style={{
-          maxWidth: '36rem',
-          margin: '0 auto',
-          textAlign: 'center',
-        }}>
-          <FadeIn>
-            <h2 style={{
-              fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
-              fontSize: 'var(--text-3xl)',
-              fontWeight: 700,
-              color: '#fff',
-              marginBottom: '1rem',
-              lineHeight: 'var(--leading-tight)',
-            }}>
-              Done with ugly AI?
-            </h2>
-            <p style={{
-              fontSize: 'var(--text-base)',
-              color: 'rgba(255,255,255,0.65)',
-              marginBottom: '2.5rem',
-            }}>
-              Join {waitlistCount > 0 ? `${waitlistCount.toLocaleString()} designers and developers` : 'designers and developers'} who are refining their design.
-            </p>
-            <WaitlistForm source="footer" onSuccess={() => setWaitlistCount((c) => c + 1)} />
-          </FadeIn>
+        <Image
+          src="/assets/backgrounds/geometric.svg"
+          alt=""
+          fill
+          style={{
+            objectFit: 'cover',
+            opacity: 0.08,
+            mixBlendMode: 'soft-light',
+            pointerEvents: 'none',
+          }}
+        />
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: '36rem', margin: '0 auto' }}>
+          <h2 className="dzyn-reveal" style={{
+            fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+            fontSize: 'clamp(2rem, 4vw, 3rem)',
+            fontWeight: 400,
+            color: '#fff',
+            marginBottom: '1.5rem',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.2,
+          }}>
+            Build something that looks like you made it.
+          </h2>
+          <p className="dzyn-reveal" style={{
+            fontSize: 'var(--text-lg)',
+            color: 'rgba(255,255,255,0.65)',
+            maxWidth: '30rem',
+            margin: '0 auto 3rem',
+            lineHeight: 1.7,
+          }}>
+            Not like every other AI-generated app on the internet.
+          </p>
+          <div className="dzyn-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2rem' }}>
+            <Link
+              href="/onboarding"
+              className="dzyn-btn dzyn-btn--glow dzyn-btn--shine dzyn-glow dzyn-glow--animate"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                background: 'var(--color-orange)',
+                color: '#fff',
+                fontWeight: 500,
+                fontSize: 'var(--text-base)',
+                padding: '0.875rem 2.5rem',
+                borderRadius: 'var(--radius-md)',
+                textDecoration: 'none',
+              }}
+            >
+              Design your system
+            </Link>
+            <div style={{ width: '100%', maxWidth: '28rem' }}>
+              <p style={{ fontSize: 'var(--text-sm)', color: 'rgba(255,255,255,0.45)', marginBottom: '0.75rem' }}>
+                Or join {waitlistCount > 0 ? `${waitlistCount.toLocaleString()} others` : 'the waitlist'} for early access
+              </p>
+              <WaitlistForm source="footer" onSuccess={() => setWaitlistCount((c) => c + 1)} />
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ===== FOOTER ===== */}
+      {/* ========== FOOTER ========== */}
       <footer style={{
         background: 'var(--color-surface)',
         maxWidth: '72rem',
@@ -243,15 +839,17 @@ export default function HomePage() {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        width: '100%',
+        fontSize: 'var(--text-sm)',
+        color: 'var(--color-text-muted)',
         flexWrap: 'wrap',
         gap: '1rem',
+        width: '100%',
       }}>
         <div>
           <span style={{
             fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+            fontWeight: 400,
             fontSize: 'var(--text-lg)',
-            fontWeight: 700,
             color: 'var(--color-green-deep)',
           }}>
             Refine Design
@@ -279,22 +877,13 @@ export default function HomePage() {
   );
 }
 
-/* ================================================================
-   COMPONENTS
-   ================================================================ */
+/* ========== SUB-COMPONENTS ========== */
 
 function WaitlistForm({ source, onSuccess }: { source: string; onSuccess: () => void }) {
-  const [url, setUrl] = useState('');
   const [email, setEmail] = useState('');
-  const [showEmail, setShowEmail] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
-
-  function handleUrlChange(val: string) {
-    setUrl(val);
-    if (val.length > 4 && !showEmail) setShowEmail(true);
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -305,7 +894,7 @@ function WaitlistForm({ source, onSuccess }: { source: string; onSuccess: () => 
       const res = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, url: url || undefined, source }),
+        body: JSON.stringify({ email, source }),
       });
       const data = await res.json();
       if (data.success || data.message) {
@@ -324,13 +913,11 @@ function WaitlistForm({ source, onSuccess }: { source: string; onSuccess: () => 
   if (submitted) {
     return (
       <p style={{
-        fontSize: 'var(--text-base)',
+        fontSize: 'var(--text-sm)',
         color: '#fff',
         fontWeight: 500,
-        opacity: 1,
-        transition: 'opacity 0.4s ease',
       }}>
-        You&rsquo;re on the list &mdash; we&rsquo;ll send your redesign.
+        You&rsquo;re on the list &mdash; we&rsquo;ll be in touch.
       </p>
     );
   }
@@ -338,23 +925,22 @@ function WaitlistForm({ source, onSuccess }: { source: string; onSuccess: () => 
   return (
     <form onSubmit={handleSubmit} style={{
       display: 'flex',
-      flexDirection: 'column',
-      gap: '0.75rem',
+      gap: '0.5rem',
       width: '100%',
       maxWidth: '28rem',
     }}>
       <input
-        type="url"
-        value={url}
-        onChange={(e) => handleUrlChange(e.target.value)}
-        placeholder="https://yoursite.com"
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="your@email.com"
         style={{
-          width: '100%',
+          flex: 1,
           background: 'rgba(255,255,255,0.08)',
           border: '1.5px solid rgba(255,255,255,0.2)',
           borderRadius: 'var(--radius-md)',
-          padding: '0.75rem 1rem',
-          fontSize: 'var(--text-base)',
+          padding: '0.625rem 1rem',
+          fontSize: 'var(--text-sm)',
           color: '#fff',
           outline: 'none',
           fontFamily: 'inherit',
@@ -363,148 +949,263 @@ function WaitlistForm({ source, onSuccess }: { source: string; onSuccess: () => 
         onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-orange)'; }}
         onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
       />
-
-      <div style={{
-        maxHeight: showEmail ? '4rem' : '0',
-        opacity: showEmail ? 1 : 0,
-        overflow: 'hidden',
-        transition: 'max-height 0.3s ease, opacity 0.3s ease',
-      }}>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="your@email.com"
-          style={{
-            width: '100%',
-            background: 'rgba(255,255,255,0.08)',
-            border: '1.5px solid rgba(255,255,255,0.2)',
-            borderRadius: 'var(--radius-md)',
-            padding: '0.75rem 1rem',
-            fontSize: 'var(--text-base)',
-            color: '#fff',
-            outline: 'none',
-            fontFamily: 'inherit',
-            transition: 'border-color 0.15s ease',
-          }}
-          onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-orange)'; }}
-          onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
-        />
-      </div>
-
-      {error && (
-        <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-amber)', textAlign: 'center' }}>{error}</p>
-      )}
-
       <button
         type="submit"
-        disabled={submitting || !showEmail}
+        disabled={submitting}
         className="dzyn-btn dzyn-btn--shine"
         style={{
           background: 'var(--color-orange)',
           color: '#fff',
           fontWeight: 600,
-          fontSize: 'var(--text-base)',
-          padding: '0.875rem 2rem',
+          fontSize: 'var(--text-sm)',
+          padding: '0.625rem 1.25rem',
           borderRadius: 'var(--radius-md)',
           border: 'none',
-          cursor: submitting || !showEmail ? 'not-allowed' : 'pointer',
-          opacity: submitting || !showEmail ? 0.5 : 1,
+          cursor: submitting ? 'not-allowed' : 'pointer',
+          opacity: submitting ? 0.6 : 1,
           fontFamily: 'inherit',
+          whiteSpace: 'nowrap',
           transition: 'opacity 0.15s ease',
         }}
       >
-        {submitting ? 'Joining...' : 'See the difference →'}
+        {submitting ? 'Joining...' : 'Join waitlist'}
       </button>
+      {error && (
+        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-amber)', position: 'absolute', marginTop: '3rem' }}>{error}</p>
+      )}
     </form>
   );
 }
 
-function ComparisonCard({ n }: { n: number }) {
+function ArtStyleGallery() {
+  const previews = generateAllArtStylePreviews({
+    primary: '#306E5E',
+    secondary: '#4A8E7A',
+    accent: '#FF6719',
+    background: '#FDFBF7',
+  });
+
   return (
-    <div style={{
+    <section style={{
+      background: 'var(--color-surface)',
+      padding: '8rem 2.5rem',
+    }}>
+      <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
+        <h2 className="dzyn-reveal" style={{
+          fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+          fontSize: 'clamp(2rem, 4vw, 3rem)',
+          fontWeight: 400,
+          color: 'var(--color-text-primary)',
+          textAlign: 'center',
+          marginBottom: '1rem',
+          letterSpacing: '-0.02em',
+          lineHeight: 1.2,
+        }}>
+          Six image styles. Your colors.
+        </h2>
+        <p className="dzyn-reveal" style={{
+          fontSize: 'var(--text-lg)',
+          color: 'var(--color-text-body)',
+          textAlign: 'center',
+          maxWidth: '36rem',
+          margin: '0 auto 5rem',
+          lineHeight: 1.7,
+        }}>
+          Choose an art direction during onboarding. Every AI-generated illustration, icon, and hero image follows it &mdash; using your exact palette.
+        </p>
+        <div className="dzyn-stagger" style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 16rem), 1fr))',
+          gap: '1.5rem',
+        }}>
+          {previews.map(({ preset, svg }) => {
+            const meta = ART_STYLE_META[preset];
+            return (
+              <div
+                key={preset}
+                className="dzyn-reveal"
+                style={{
+                  background: 'var(--color-white)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-md)',
+                  overflow: 'hidden',
+                  transition: 'box-shadow var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out)',
+                }}
+              >
+                <div
+                  style={{
+                    width: '100%',
+                    aspectRatio: '280 / 180',
+                    overflow: 'hidden',
+                    borderBottom: '1px solid var(--color-border)',
+                  }}
+                  dangerouslySetInnerHTML={{ __html: svg }}
+                />
+                <div style={{ padding: '1rem 1.25rem' }}>
+                  <p style={{
+                    fontSize: 'var(--text-sm)',
+                    fontWeight: 600,
+                    color: 'var(--color-text-primary)',
+                    marginBottom: '0.25rem',
+                  }}>
+                    {meta.label}
+                  </p>
+                  <p style={{
+                    fontSize: 'var(--text-xs)',
+                    color: 'var(--color-text-muted)',
+                    lineHeight: 1.5,
+                  }}>
+                    {meta.mood}
+                  </p>
+                  <p style={{
+                    fontSize: '0.65rem',
+                    color: 'var(--color-text-muted)',
+                    opacity: 0.7,
+                    marginTop: '0.25rem',
+                    lineHeight: 1.4,
+                  }}>
+                    {meta.bestFor}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function AssetShowcaseCard({ label, tag, description, children }: {
+  label: string;
+  tag: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="dzyn-reveal" style={{
       background: 'var(--color-white)',
       border: '1px solid var(--color-border)',
       borderRadius: 'var(--radius-md)',
-      overflow: 'hidden',
+      padding: '1.5rem',
       display: 'flex',
-      flexDirection: 'row',
+      flexDirection: 'column',
     }}>
-      <div style={{ flex: 1, padding: '1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-        <span style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Before</span>
-        <div style={{
-          width: '100%',
-          aspectRatio: '3/2',
-          background: 'var(--color-surface)',
-          borderRadius: 'var(--radius-sm)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+        <p style={{
+          fontSize: 'var(--text-sm)',
+          fontWeight: 600,
+          color: 'var(--color-text-primary)',
         }}>
-          <img
-            src={`/images/before-${n}.png`}
-            alt={`Before redesign ${n}`}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-          />
-          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', position: 'absolute' }}>Placeholder</span>
-        </div>
+          {label}
+        </p>
+        <code style={{
+          fontSize: '0.6rem',
+          fontFamily: 'var(--font-jetbrains, monospace)',
+          color: 'var(--color-orange)',
+          background: 'var(--color-orange-muted)',
+          padding: '0.1rem 0.4rem',
+          borderRadius: 'var(--radius-sm)',
+        }}>
+          {tag}
+        </code>
       </div>
-      <div style={{ width: '1px', background: 'var(--color-border)', alignSelf: 'stretch' }} />
-      <div style={{ flex: 1, padding: '1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-        <span style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--color-green-deep)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>After &mdash; Refined</span>
-        <div style={{
-          width: '100%',
-          aspectRatio: '3/2',
-          background: 'var(--color-surface)',
-          borderRadius: 'var(--radius-sm)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-        }}>
-          <img
-            src={`/images/after-${n}.png`}
-            alt={`After redesign ${n}`}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-          />
-          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', position: 'absolute' }}>Placeholder</span>
-        </div>
+      <p style={{
+        fontSize: 'var(--text-xs)',
+        color: 'var(--color-text-muted)',
+        lineHeight: 1.6,
+        marginBottom: '0.75rem',
+      }}>
+        {description}
+      </p>
+      <div style={{ flex: 1 }}>
+        {children}
       </div>
     </div>
   );
 }
 
-function Differentiator({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+function ComparisonCard({ label, bad, items }: {
+  label: string;
+  bad?: boolean;
+  items: { prop: string; val: string }[];
+}) {
   return (
-    <div style={{ textAlign: 'center' }}>
-      <div style={{
-        width: '3rem',
-        height: '3rem',
-        margin: '0 auto 1.25rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: 'var(--color-green-deep)',
+    <div className={`dzyn-reveal${bad ? '' : ' dzyn-glow-border'}`} style={{
+      background: bad ? 'var(--color-green-darkest)' : 'var(--color-green-deep)',
+      borderRadius: 'var(--radius-md)',
+      padding: '2rem',
+      border: bad ? '1px solid rgba(255,255,255,0.06)' : '1.5px solid var(--color-orange)',
+    }}>
+      <p style={{
+        fontSize: 'var(--text-xs)',
+        fontWeight: 500,
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase' as const,
+        color: bad ? 'rgba(255,255,255,0.4)' : 'var(--color-orange)',
+        marginBottom: '1.5rem',
       }}>
-        {icon}
+        {label}
+      </p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+        {items.map((item) => (
+          <div key={item.prop} style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+            fontSize: 'var(--text-sm)',
+          }}>
+            <span style={{ color: 'rgba(255,255,255,0.5)' }}>{item.prop}</span>
+            <span style={{
+              fontFamily: 'var(--font-jetbrains, JetBrains Mono, monospace)',
+              fontSize: 'var(--text-xs)',
+              color: bad ? 'rgba(255,255,255,0.35)' : 'var(--color-amber-light)',
+            }}>
+              {item.val}
+            </span>
+          </div>
+        ))}
       </div>
+    </div>
+  );
+}
+
+function StepCard({ number, title, description }: {
+  number: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="dzyn-reveal dzyn-btn" style={{
+      background: 'var(--color-white)',
+      border: '1px solid var(--color-border)',
+      borderRadius: 'var(--radius-md)',
+      padding: '2.5rem 2rem',
+    }}>
+      <span style={{
+        fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
+        fontSize: '3.5rem',
+        fontWeight: 300,
+        color: 'var(--color-border)',
+        lineHeight: 1,
+      }}>
+        {number}
+      </span>
       <h3 style={{
         fontFamily: 'var(--font-fraunces, Fraunces, Georgia, serif)',
         fontSize: 'var(--text-xl)',
-        fontWeight: 600,
+        fontWeight: 500,
         color: 'var(--color-text-primary)',
-        marginBottom: '0.5rem',
-        lineHeight: 'var(--leading-tight)',
+        marginTop: '1.5rem',
+        marginBottom: '0.75rem',
+        lineHeight: 1.3,
       }}>
         {title}
       </h3>
       <p style={{
         fontSize: 'var(--text-sm)',
-        color: 'var(--color-text-muted)',
-        lineHeight: 'var(--leading-relaxed)',
+        color: 'var(--color-text-body)',
+        lineHeight: 1.7,
       }}>
         {description}
       </p>
@@ -512,65 +1213,46 @@ function Differentiator({ icon, title, description }: { icon: React.ReactNode; t
   );
 }
 
-function FadeIn({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.unobserve(el); } },
-      { threshold: 0.15 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
+function SetupCard({ title, filename, code }: {
+  title: string;
+  filename: string;
+  code: string;
+}) {
   return (
-    <div
-      ref={ref}
-      style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(1.5rem)',
-        transition: 'opacity 0.6s ease, transform 0.6s ease',
-      }}
-    >
-      {children}
+    <div className="dzyn-reveal dzyn-btn" style={{
+      background: 'var(--color-green-darkest)',
+      borderRadius: 'var(--radius-md)',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        padding: '1rem 1.5rem',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}>
+        <span style={{ fontSize: 'var(--text-sm)', fontWeight: 500, color: 'rgba(255,255,255,0.9)' }}>
+          {title}
+        </span>
+        <code style={{
+          fontSize: 'var(--text-xs)',
+          fontFamily: 'var(--font-jetbrains, JetBrains Mono, monospace)',
+          color: 'var(--color-amber)',
+        }}>
+          {filename}
+        </code>
+      </div>
+      <pre style={{
+        padding: '1.5rem',
+        fontSize: 'var(--text-xs)',
+        lineHeight: 1.8,
+        fontFamily: 'var(--font-jetbrains, JetBrains Mono, monospace)',
+        color: 'rgba(255,255,255,0.75)',
+        overflowX: 'auto',
+        margin: 0,
+      }}>
+        {code}
+      </pre>
     </div>
-  );
-}
-
-/* ================================================================
-   INLINE SVG ICONS
-   ================================================================ */
-
-function EyeIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-}
-
-function GraduationCapIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-      <path d="M6 12v5c3 3 9 3 12 0v-5" />
-    </svg>
-  );
-}
-
-function SparklesIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-      <path d="M5 3v4" />
-      <path d="M19 17v4" />
-      <path d="M3 5h4" />
-      <path d="M17 19h4" />
-    </svg>
   );
 }
